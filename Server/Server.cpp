@@ -21,8 +21,9 @@ void HandleError(const char* cause)
 struct Session
 {
     SOCKET socket = INVALID_SOCKET;
-    char recvBuffer[BUFSIZE] = {};
+    char Buffer[BUFSIZE] = {};
     int recvBytes = 0;
+    int sendBytes = 0;
 };
 
 enum IO_TYPE
@@ -47,26 +48,76 @@ void WorkerThreadMain(HANDLE iocpHandle)
         Session* session = nullptr;
         OverlappedEx* overlappedEx = nullptr;
 
+        // GetQueuedCompletionStatus
         BOOL ret = ::GetQueuedCompletionStatus(iocpHandle, &bytesTransferred,
             (ULONG_PTR*)&session, (LPOVERLAPPED*)&overlappedEx, INFINITE);
 
+        // Get Client Info
+        SOCKADDR_IN clientAddr;
+        int addrlen = sizeof(clientAddr);
+        ::getpeername(session->socket, (SOCKADDR*)&clientAddr, &addrlen);
+        char addr[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &clientAddr.sin_addr, addr, sizeof(addr));
+
+        // result check
         if (ret == FALSE || bytesTransferred == 0)
         {
             // TODO : ¿¬°á ²÷±è
+            closesocket(session->socket);
             continue;
         }
 
-        //ASSERT_CRASH(overlappedEx->type == IO_TYPE::READ);
+        if (overlappedEx->type == IO_TYPE::READ)
+        {
+            cout << "Recv Data IOCP = " << bytesTransferred << " bytes" << endl;
+            cout << "Data = " << session->Buffer << endl;
 
-        cout << "Recv Data IOCP = " << bytesTransferred << endl;
+            WSABUF wsaBuf;
+            wsaBuf.buf = session->Buffer;
+            wsaBuf.len = BUFSIZE;
 
-        WSABUF wsaBuf;
-        wsaBuf.buf = session->recvBuffer;
-        wsaBuf.len = BUFSIZE;
+            overlappedEx->type = IO_TYPE::WRITE;
 
-        DWORD recvLen = 0;
-        DWORD flags = 0;
-        ::WSARecv(session->socket, &wsaBuf, 1, &recvLen, &flags, &overlappedEx->overlapped, NULL);
+            DWORD sendLen = 0;
+            if(::WSASend(session->socket, &wsaBuf, 1, &sendLen, 0, &overlappedEx->overlapped, NULL) == SOCKET_ERROR)
+            {
+                if (WSAGetLastError() != ERROR_IO_PENDING)
+                {
+                    HandleError("WSASend");
+                    break;
+                }
+                continue;
+            }
+
+        }
+        else if (overlappedEx->type == IO_TYPE::WRITE)
+        {
+            cout << "Send Data IOCP = " << bytesTransferred << " bytes" << endl;
+            cout << "Data = " << session->Buffer << endl;
+
+            memset(&overlappedEx->overlapped, 0, sizeof(overlappedEx->overlapped));
+            memset(session->Buffer, 0, sizeof(session->Buffer));
+
+            WSABUF wsaBuf;
+            wsaBuf.buf = session->Buffer;
+            wsaBuf.len = BUFSIZE;
+
+            overlappedEx->type = IO_TYPE::READ;
+
+            DWORD recvLen = 0;
+            DWORD flags = 0;
+            if(::WSARecv(session->socket, &wsaBuf, 1, &recvLen, &flags, &overlappedEx->overlapped, NULL) == SOCKET_ERROR)
+            {
+                if (WSAGetLastError() != ERROR_IO_PENDING)
+                {
+                    HandleError("WSARecv");
+                    break;
+                }
+                continue;
+            }
+        }
+
+        
     }
 }
 
@@ -156,7 +207,7 @@ int main()
 
         // WSABuf
         WSABUF wsaBuf;
-        wsaBuf.buf = session->recvBuffer;
+        wsaBuf.buf = session->Buffer;
         wsaBuf.len = BUFSIZE;
 
         // overlappedEX

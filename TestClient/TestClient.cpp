@@ -19,6 +19,8 @@ void HandleError(const char* cause)
 
 int main()
 {
+    this_thread::sleep_for(1s);
+
     // Init Winsock
     WSADATA wsaData;
     if (::WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
@@ -33,7 +35,7 @@ int main()
     }
 
     SOCKADDR_IN serverAddr;
-    ::memset(&serverAddr, 0, sizeof(serverAddr));
+    ::memset(&serverAddr, 0, sizeof(serverAddr)); 
     serverAddr.sin_family = AF_INET;
     ::inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
     serverAddr.sin_port = ::htons(SERVERPORT);
@@ -62,7 +64,9 @@ int main()
         }
 
         cout << "send data to server : " << len << " bytes" << endl;
-        /*
+        cout << "data = " << sendBuffer << endl;
+
+
         len = ::recv(clientSocket, recvBuffer, sizeof(recvBuffer), 0);
         if (len == SOCKET_ERROR)
         {
@@ -72,7 +76,7 @@ int main()
 
         cout << "recv data from server : " << len << " bytes" << endl;
         cout << "data = " << recvBuffer << endl;
-        */
+        
         this_thread::sleep_for(1s);
 
     }
