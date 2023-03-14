@@ -1,20 +1,86 @@
-// TestClient.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
+#include <thread>
+
+#include <WinSock2.h>
+#include <MSWSock.h>
+#include <WS2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+
+using namespace std;
+
+#define SERVERPORT 7777
+#define BUFSIZE 100
+
+void HandleError(const char* cause)
+{
+    _int32 errCode = ::WSAGetLastError();
+    cout << cause << " ErrorCode : " << errCode << endl;
+}
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    // Init Winsock
+    WSADATA wsaData;
+    if (::WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+        return 0;
+
+    // socket
+    SOCKET clientSocket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (clientSocket == INVALID_SOCKET)
+    {
+        HandleError("socket");
+        return 0;
+    }
+
+    SOCKADDR_IN serverAddr;
+    ::memset(&serverAddr, 0, sizeof(serverAddr));
+    serverAddr.sin_family = AF_INET;
+    ::inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
+    serverAddr.sin_port = ::htons(SERVERPORT);
+
+    // connect
+    if (::connect(clientSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
+    {
+        HandleError("Connect");
+        return 0;
+    }
+
+    cout << "Conencted to Server!!" << endl;
+
+    char sendBuffer[BUFSIZE] = "Hello World";
+    char recvBuffer[BUFSIZE];
+    int len;
+
+    // send and recv
+    while (true)
+    {
+        len = ::send(clientSocket, sendBuffer, sizeof(sendBuffer), 0);
+        if (len == SOCKET_ERROR)
+        {
+            HandleError("Send");
+            break;
+        }
+
+        cout << "send data to server : " << len << " bytes" << endl;
+        /*
+        len = ::recv(clientSocket, recvBuffer, sizeof(recvBuffer), 0);
+        if (len == SOCKET_ERROR)
+        {
+            HandleError("Recv");
+            break;
+        }
+
+        cout << "recv data from server : " << len << " bytes" << endl;
+        cout << "data = " << recvBuffer << endl;
+        */
+        this_thread::sleep_for(1s);
+
+    }
+
+    // close socket
+    ::closesocket(clientSocket);
+
+    // winsock close
+    ::WSACleanup();
+    return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
