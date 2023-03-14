@@ -1,13 +1,5 @@
-#include <iostream>
-#include <thread>
-#include <vector>
-
-#include <WinSock2.h>
-#include <MSWSock.h>
-#include <WS2tcpip.h>
-#pragma comment(lib, "ws2_32.lib")
-
-using namespace std;
+#include "pch.h"
+#include "CorePch.h"
 
 #define SERVERPORT 7777
 #define BUFSIZE 100
@@ -69,8 +61,8 @@ void WorkerThreadMain(HANDLE iocpHandle)
 
         if (overlappedEx->type == IO_TYPE::READ)
         {
-            cout << "Recv Data IOCP = " << bytesTransferred << " bytes" << endl;
-            cout << "Data = " << session->Buffer << endl;
+            cout << "Server | Recv Data IOCP = " << bytesTransferred << " bytes" << endl;
+            cout << "Server | Data = " << session->Buffer << endl;
 
             WSABUF wsaBuf;
             wsaBuf.buf = session->Buffer;
@@ -92,8 +84,8 @@ void WorkerThreadMain(HANDLE iocpHandle)
         }
         else if (overlappedEx->type == IO_TYPE::WRITE)
         {
-            cout << "Send Data IOCP = " << bytesTransferred << " bytes" << endl;
-            cout << "Data = " << session->Buffer << endl;
+            cout << "Server | Send Data IOCP = " << bytesTransferred << " bytes" << endl;
+            cout << "Server |  Data = " << session->Buffer << endl;
 
             memset(&overlappedEx->overlapped, 0, sizeof(overlappedEx->overlapped));
             memset(session->Buffer, 0, sizeof(session->Buffer));
@@ -116,8 +108,6 @@ void WorkerThreadMain(HANDLE iocpHandle)
                 continue;
             }
         }
-
-        
     }
 }
 

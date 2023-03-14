@@ -1,12 +1,5 @@
-#include <iostream>
-#include <thread>
-
-#include <WinSock2.h>
-#include <MSWSock.h>
-#include <WS2tcpip.h>
-#pragma comment(lib, "ws2_32.lib")
-
-using namespace std;
+#include "CorePch.h"
+#include "pch.h"
 
 #define SERVERPORT 7777
 #define BUFSIZE 100
@@ -63,8 +56,8 @@ int main()
             break;
         }
 
-        cout << "send data to server : " << len << " bytes" << endl;
-        cout << "data = " << sendBuffer << endl;
+        cout << "Client | send data to server : " << len << " bytes" << endl;
+        cout << "Client | data = " << sendBuffer << endl;
 
 
         len = ::recv(clientSocket, recvBuffer, sizeof(recvBuffer), 0);
@@ -74,8 +67,8 @@ int main()
             break;
         }
 
-        cout << "recv data from server : " << len << " bytes" << endl;
-        cout << "data = " << recvBuffer << endl;
+        cout << "Client | recv data from server : " << len << " bytes" << endl;
+        cout << "Client | data = " << recvBuffer << endl;
         
         this_thread::sleep_for(1s);
 
