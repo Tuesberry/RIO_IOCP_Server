@@ -4,6 +4,9 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{7b5424df-f22d-4580-b7ad-fca4f9080437}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{bf59ad85-cd3f-4871-99b1-8383878a550b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
