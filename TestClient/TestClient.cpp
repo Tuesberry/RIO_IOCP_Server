@@ -1,77 +1,76 @@
-#include "CorePch.h"
+#include "CoreCommon.h"
 #include "pch.h"
-#include "Network/SocketCore.h"
+#include "Network/IocpService.h"
+#include "Network/IocpSession.h"
 
-#define SERVERPORT 7777
-#define BUFSIZE 100
+char sendBuffer[] = "Hello World";
 
-void HandleError(const char* cause)
+class ServerSession : public IocpSession
 {
-    _int32 errCode = ::WSAGetLastError();
-    cout << cause << " ErrorCode : " << errCode << endl;
-}
+public:
+	~ServerSession()
+	{
+		cout << "~ServerSession" << endl;
+	}
+
+	virtual void OnConnected() override
+	{
+		cout << "Connected To Server" << endl;
+		Send((BYTE*)sendBuffer, sizeof(sendBuffer));
+	}
+
+	virtual int OnRecv(BYTE* buffer, int len) override
+	{
+		cout << "OnRecv Len = " << len << endl;
+
+		this_thread::sleep_for(1s);
+
+		Send((BYTE*)sendBuffer, sizeof(sendBuffer));
+		return len;
+	}
+
+	virtual void OnSend(int len) override
+	{
+		cout << "OnSend Len = " << len << endl;
+	}
+
+	virtual void OnDisconnected() override
+	{
+		cout << "Disconnected" << endl;
+	}
+};
 
 int main()
 {
-    this_thread::sleep_for(1s);
+	this_thread::sleep_for(1s);
 
-    SocketCore sockCore;
+	std::shared_ptr<IocpClientService> service = std::make_shared<IocpClientService>(
+		SockAddress("127.0.0.1", 7777),
+		std::make_shared<IocpCore>(),
+		std::make_shared<ServerSession>, // TODO : SessionManager µî
+		10);
 
-    if (sockCore.Init() == false)
-        return 0;
+	service->Start();
 
-    if (sockCore.Socket() == false)
-    {
-        HandleError("socket");
-        return 0;
-    }
+	SYSTEM_INFO si;
+	GetSystemInfo(&si);
 
-    SockAddress sockAddress("127.0.0.1", SERVERPORT);
-    if (sockCore.Connect(sockAddress) == false)
-    {
-        HandleError("Connect");
-        return 0;
-    }
+	vector<thread> threads;
+	for (int i = 0; i < si.dwNumberOfProcessors; i++)
+	{
+		threads.push_back(thread([=]()
+			{
+				while (true)
+				{
+					service->GetIocpCore()->ExecuteTask();
+				}
+			}));
+	}
 
-    cout << "Conencted to Server!!" << endl;
+	// thread join
+	for (int i = 0; i < threads.size(); i++)
+	{
+		threads[i].join();
+	}
 
-    char sendBuffer[BUFSIZE] = "Hello World";
-    char recvBuffer[BUFSIZE];
-    int len;
-
-    // send and recv
-    while (true)
-    {
-        len = sockCore.Send(sendBuffer, sizeof(sendBuffer));
-        if (len == SOCKET_ERROR)
-        {
-            HandleError("Send");
-            break;
-        }
-
-        cout << "Client | send data to server : " << len << " bytes" << endl;
-        cout << "Client | data = " << sendBuffer << endl;
-
-
-        len = sockCore.Recv(recvBuffer, sizeof(recvBuffer));
-        if (len == SOCKET_ERROR)
-        {
-            HandleError("Recv");
-            break;
-        }
-
-        cout << "Client | recv data from server : " << len << " bytes" << endl;
-        cout << "Client | data = " << recvBuffer << endl;
-        
-        this_thread::sleep_for(1s);
-
-    }
-
-    // close socket
-    sockCore.Close();
-
-    // winsock close
-    sockCore.Clear();
-
-    return 0;
 }

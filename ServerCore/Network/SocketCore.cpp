@@ -39,106 +39,114 @@ bool SocketCore::Clear()
 	return true;
 }
 
-bool SocketCore::Socket()
+SOCKET SocketCore::Socket()
 {
-	m_socket = CreateSocket();
-	if (m_socket == INVALID_SOCKET)
-		return false;
-	return true;
+	return CreateSocket();
 }
 
-bool SocketCore::Close()
+bool SocketCore::Close(SOCKET& socket)
 {
-	if (m_socket == INVALID_SOCKET)
+	if (socket == INVALID_SOCKET)
 		return false;
 
-	::closesocket(m_socket);
-	m_socket = INVALID_SOCKET;
-
-	return true;
-}
-
-bool SocketCore::Bind(SockAddress& sockAddr)
-{
-	if (m_socket == INVALID_SOCKET)
-		return false;
-
-	if (::bind(m_socket, (SOCKADDR*)&sockAddr.GetSockAddr(), sockAddr.GetAddrSize()) == SOCKET_ERROR)
-		return false;
+	::closesocket(socket);
+	socket = INVALID_SOCKET;
 
 	return true;
 }
 
-bool SocketCore::Listen()
+bool SocketCore::Bind(SOCKET socket, SockAddress sockAddr)
 {
-	if (m_socket == INVALID_SOCKET)
+	if (socket == INVALID_SOCKET)
 		return false;
 
-	if (::listen(m_socket, SOMAXCONN) == SOCKET_ERROR)
-		return false;
-
-	return true;
+	return SOCKET_ERROR != ::bind(socket, reinterpret_cast<const SOCKADDR*>(&sockAddr.GetSockAddr()), sockAddr.GetAddrSize());
 }
 
-SOCKET SocketCore::Accept()
+bool SocketCore::BindAddrAny(SOCKET socket, unsigned short port)
 {
-	if (m_socket == INVALID_SOCKET)
+	SOCKADDR_IN address;
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = ::htonl(INADDR_ANY);
+	address.sin_port = ::htons(port);
+
+	return SOCKET_ERROR != ::bind(socket, reinterpret_cast<const SOCKADDR*>(&address), sizeof(address));
+}
+
+bool SocketCore::Listen(SOCKET socket)
+{
+	if (socket == INVALID_SOCKET)
+		return false;
+
+	return SOCKET_ERROR != ::listen(socket, SOMAXCONN);
+}
+
+SOCKET SocketCore::Accept(SOCKET socket)
+{
+	if (socket == INVALID_SOCKET)
 		return INVALID_SOCKET;
 
 	SOCKADDR_IN clientAddr;
 	int addrLen = sizeof(clientAddr);
-	return ::accept(m_socket, (SOCKADDR*)&clientAddr, &addrLen);
+	return ::accept(socket, (SOCKADDR*)&clientAddr, &addrLen);
 }
 
-bool SocketCore::Connect(SockAddress& sockAddr)
+bool SocketCore::Connect(SOCKET socket, SockAddress& sockAddr)
 {
-	if (m_socket == INVALID_SOCKET)
+	if (socket == INVALID_SOCKET)
 		return false;	
 
-	if (::connect(m_socket, (SOCKADDR*)&sockAddr.GetSockAddr(), sockAddr.GetAddrSize()) == SOCKET_ERROR)
-		return false;
-
-	return true;
+	return SOCKET_ERROR != ::connect(socket, (SOCKADDR*)&sockAddr.GetSockAddr(), sockAddr.GetAddrSize());
 }
 
-int SocketCore::Send(char* buf, int size)
+int SocketCore::Send(SOCKET socket, char* buf, int size)
 {
-	if (m_socket == INVALID_SOCKET)
+	if (socket == INVALID_SOCKET)
 		return SOCKET_ERROR;
 
-	return ::send(m_socket, buf, size, 0);
+	return ::send(socket, buf, size, 0);
 }
 
-int SocketCore::Recv(char* buf, int size)
+int SocketCore::Recv(SOCKET socket, char* buf, int size)
 {
-	if (m_socket == INVALID_SOCKET)
+	if (socket == INVALID_SOCKET)
 		return SOCKET_ERROR;
 
-	return ::recv(m_socket, buf, size, 0);
+	return ::recv(socket, buf, size, 0);
 }
 
-void SocketCore::SetNodelay(bool optVal)
+bool SocketCore::SetNodelay(SOCKET socket, bool optVal)
 {
-	SetSockOpt<int>(IPPROTO_TCP, TCP_NODELAY, optVal);
+	return SetSockOpt<int>(socket, IPPROTO_TCP, TCP_NODELAY, optVal);
 }
 
-void SocketCore::SetLinger(bool optVal, int time)
+bool SocketCore::SetLinger(SOCKET socket, bool optVal, int time)
 {
 	linger templinger;
 	templinger.l_onoff = optVal;
 	templinger.l_linger = time;
 
-	SetSockOpt<linger>(SOL_SOCKET, SO_LINGER, templinger);
+	return SetSockOpt<linger>(socket, SOL_SOCKET, SO_LINGER, templinger);
 }
 
-void SocketCore::SetSendBufSiz(int size)
+bool SocketCore::SetSendBufSiz(SOCKET socket, int size)
 {
-	SetSockOpt<char>(SOL_SOCKET, SO_SNDBUF, size);
+	return SetSockOpt<char>(socket, SOL_SOCKET, SO_SNDBUF, size);
 }
 
-void SocketCore::SetRecvBufSiz(int size)
+bool SocketCore::SetRecvBufSiz(SOCKET socket, int size)
 {
-	SetSockOpt<char>(SOL_SOCKET, SO_RCVBUF, size);
+	return SetSockOpt<char>(socket, SOL_SOCKET, SO_RCVBUF, size);
+}
+
+bool SocketCore::SetReuseAddr(SOCKET socket, bool optVal)
+{
+	return SetSockOpt<int>(socket, SOL_SOCKET, SO_REUSEADDR, optVal);
+}
+
+bool SocketCore::SetUpdateAcceptSocket(SOCKET socket, SOCKET listenSocket)
+{
+	return SetSockOpt<SOCKET>(socket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, listenSocket);
 }
 
 SOCKET SocketCore::CreateSocket()
@@ -153,10 +161,10 @@ bool SocketCore::BindWindowsFunction(SOCKET socket, GUID guid, LPVOID* fn)
 }
 
 template<typename T>
-void SocketCore::SetSockOpt(int level, int optName, T optVal)
+bool SocketCore::SetSockOpt(SOCKET socket, int level, int optName, T optVal)
 {
-	if (m_socket == INVALID_SOCKET)
-		return;
+	if (socket == INVALID_SOCKET)
+		return false;
 
-	setsockopt(m_socket, level, optName, reinterpret_cast<char*>(&optVal), sizeof(T));
+	return SOCKET_ERROR != setsockopt(socket, level, optName, reinterpret_cast<char*>(&optVal), sizeof(T));
 }

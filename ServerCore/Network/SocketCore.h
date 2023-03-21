@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+#include "Common.h"
 #include "SockAddress.h"
 
 /* ----------------------------
@@ -16,35 +16,38 @@ public:
 	SocketCore& operator=(SocketCore&& other) = delete;
 	~SocketCore() = default;
 
-	bool Init();
-	bool Clear();
-	bool Socket();
-	bool Close();
+	static bool Init();
+	static bool Clear();
+	static SOCKET Socket();
+	static bool Close(SOCKET& socket);
 
 	// server
-	bool Bind(SockAddress& sockAddr);
-	bool Listen();
-	SOCKET Accept();
+	static bool Bind(SOCKET socket, SockAddress sockAddr);
+	static bool BindAddrAny(SOCKET socket, unsigned short port);
+	static bool Listen(SOCKET socket);
+	static SOCKET Accept(SOCKET socket);
 
 	// client
-	bool Connect(SockAddress& sockAddr);
+	static bool Connect(SOCKET socket, SockAddress& sockAddr);
 
 	// send & recv
-	int Send(char* buf, int size);
-	int Recv(char* buf, int size);
-	
+	static int Send(SOCKET socket, char* buf, int size);
+	static int Recv(SOCKET socket, char* buf, int size);
+
 	// set socket option
-	void SetNodelay(bool optVal);
-	void SetLinger(bool optVal, int time);
-	void SetSendBufSiz(int size);
-	void SetRecvBufSiz(int size);
+	static bool SetNodelay(SOCKET socket, bool optVal);
+	static bool SetLinger(SOCKET socket, bool optVal, int time);
+	static bool SetSendBufSiz(SOCKET socket, int size);
+	static bool SetRecvBufSiz(SOCKET socket, int size);
+	static bool SetReuseAddr(SOCKET socket, bool optVal);
+	static bool SetUpdateAcceptSocket(SOCKET socket, SOCKET listenSocket);
 
 private:
-	SOCKET CreateSocket();
-	bool BindWindowsFunction(SOCKET socket, GUID guid, LPVOID* fn);
+	static SOCKET CreateSocket();
+	static bool BindWindowsFunction(SOCKET socket, GUID guid, LPVOID* fn);
 
 	template<typename T>
-	void SetSockOpt(int level, int optName, T optVal);
+	inline static bool SetSockOpt(SOCKET socket, int level, int optName, T optVal);
 
 public:
 	static LPFN_CONNECTEX ConnectEx;

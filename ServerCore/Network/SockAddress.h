@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+#include "Common.h"
 
 /* ----------------------------
 *		SockAddress
@@ -8,15 +8,11 @@
 class SockAddress
 {
 public:
-	SockAddress() = delete;
+	SockAddress() = default;
 
 	SockAddress(const char* ip, unsigned short port);
 	SockAddress(SOCKADDR_IN sockAddr);
 
-	SockAddress(const SockAddress& other) = delete;
-	SockAddress(SockAddress&& other) = delete;
-	SockAddress& operator=(const SockAddress& other) = delete;
-	SockAddress& operator=(SockAddress&& other) = delete;
 	~SockAddress() = default;
 
 	SOCKADDR_IN& GetSockAddr();
