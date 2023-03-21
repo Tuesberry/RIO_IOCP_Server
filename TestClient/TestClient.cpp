@@ -1,5 +1,6 @@
 #include "CorePch.h"
 #include "pch.h"
+#include "Network/SocketCore.h"
 
 #define SERVERPORT 7777
 #define BUFSIZE 100
@@ -14,27 +15,19 @@ int main()
 {
     this_thread::sleep_for(1s);
 
-    // Init Winsock
-    WSADATA wsaData;
-    if (::WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    SocketCore sockCore;
+
+    if (sockCore.Init() == false)
         return 0;
 
-    // socket
-    SOCKET clientSocket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (clientSocket == INVALID_SOCKET)
+    if (sockCore.Socket() == false)
     {
         HandleError("socket");
         return 0;
     }
 
-    SOCKADDR_IN serverAddr;
-    ::memset(&serverAddr, 0, sizeof(serverAddr)); 
-    serverAddr.sin_family = AF_INET;
-    ::inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
-    serverAddr.sin_port = ::htons(SERVERPORT);
-
-    // connect
-    if (::connect(clientSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
+    SockAddress sockAddress("127.0.0.1", SERVERPORT);
+    if (sockCore.Connect(sockAddress) == false)
     {
         HandleError("Connect");
         return 0;
@@ -49,7 +42,7 @@ int main()
     // send and recv
     while (true)
     {
-        len = ::send(clientSocket, sendBuffer, sizeof(sendBuffer), 0);
+        len = sockCore.Send(sendBuffer, sizeof(sendBuffer));
         if (len == SOCKET_ERROR)
         {
             HandleError("Send");
@@ -60,7 +53,7 @@ int main()
         cout << "Client | data = " << sendBuffer << endl;
 
 
-        len = ::recv(clientSocket, recvBuffer, sizeof(recvBuffer), 0);
+        len = sockCore.Recv(recvBuffer, sizeof(recvBuffer));
         if (len == SOCKET_ERROR)
         {
             HandleError("Recv");
@@ -75,9 +68,10 @@ int main()
     }
 
     // close socket
-    ::closesocket(clientSocket);
+    sockCore.Close();
 
     // winsock close
-    ::WSACleanup();
+    sockCore.Clear();
+
     return 0;
 }

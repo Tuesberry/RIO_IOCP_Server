@@ -1,24 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Main">
+    <Filter Include="Header Files">
       <UniqueIdentifier>{97f896a9-b0b3-454d-bef9-6740ee09670a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Utils">
+    <Filter Include="Source Files">
       <UniqueIdentifier>{64a181e6-4706-422c-b024-bdec7d0c5c47}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="TestClient.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
     <ClCompile Include="pch.cpp">
-      <Filter>Utils</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestClient.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
-      <Filter>Utils</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
