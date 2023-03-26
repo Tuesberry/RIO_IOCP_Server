@@ -2,17 +2,16 @@
 #include "Common.h"
 
 class IocpObject;
-class IocpSession;
 
 /* ----------------------------
-*		EventType
+*		IO_TYPE
 ---------------------------- */
 
-enum class EventType : unsigned _int8
+enum class IO_TYPE
 {
+	ACCEPT,
 	CONNECT,
 	DISCONNECT,
-	ACCEPT,
 	RECV,
 	SEND
 };
@@ -25,7 +24,7 @@ class IocpEvent : public OVERLAPPED
 {
 public:
 	IocpEvent() = delete;
-	IocpEvent(EventType type);
+	IocpEvent(IO_TYPE type);
 	IocpEvent(const IocpEvent& other) = delete;
 	IocpEvent(IocpEvent&& other) = delete;
 	IocpEvent& operator=(const IocpEvent& other) = delete;
@@ -35,7 +34,7 @@ public:
 	void Init();
 
 public:
-	EventType m_eventType;
+	IO_TYPE m_eventType;
 	shared_ptr<IocpObject> m_owner;
 };
 
@@ -46,10 +45,13 @@ public:
 class AcceptEvent : public IocpEvent
 {
 public:
-	AcceptEvent() : IocpEvent(EventType::ACCEPT){}
+	AcceptEvent() :IocpEvent(IO_TYPE::ACCEPT) {}
 
-public:
-	shared_ptr<IocpSession>	m_session = nullptr;
+	AcceptEvent(const AcceptEvent& other) = delete;
+	AcceptEvent(AcceptEvent&& other) = delete;
+	AcceptEvent& operator=(const AcceptEvent& other) = delete;
+	AcceptEvent& operator=(AcceptEvent&& other) = delete;
+	~AcceptEvent() = default;
 };
 
 /* ----------------------------
@@ -59,7 +61,13 @@ public:
 class ConnectEvent : public IocpEvent
 {
 public:
-	ConnectEvent() : IocpEvent(EventType::CONNECT) {}
+	ConnectEvent() :IocpEvent(IO_TYPE::CONNECT) {}
+
+	ConnectEvent(const ConnectEvent& other) = delete;
+	ConnectEvent(ConnectEvent&& other) = delete;
+	ConnectEvent& operator=(const ConnectEvent& other) = delete;
+	ConnectEvent& operator=(ConnectEvent&& other) = delete;
+	~ConnectEvent() = default;
 };
 
 /* ----------------------------
@@ -69,7 +77,13 @@ public:
 class DisconnectEvent : public IocpEvent
 {
 public:
-	DisconnectEvent() : IocpEvent(EventType::DISCONNECT) {}
+	DisconnectEvent() :IocpEvent(IO_TYPE::DISCONNECT) {}
+
+	DisconnectEvent(const DisconnectEvent& other) = delete;
+	DisconnectEvent(DisconnectEvent&& other) = delete;
+	DisconnectEvent& operator=(const DisconnectEvent& other) = delete;
+	DisconnectEvent& operator=(DisconnectEvent&& other) = delete;
+	~DisconnectEvent() = default;
 };
 
 /* ----------------------------
@@ -79,7 +93,13 @@ public:
 class RecvEvent : public IocpEvent
 {
 public:
-	RecvEvent() : IocpEvent(EventType::RECV) {}
+	RecvEvent() :IocpEvent(IO_TYPE::RECV) {}
+
+	RecvEvent(const RecvEvent& other) = delete;
+	RecvEvent(RecvEvent&& other) = delete;
+	RecvEvent& operator=(const RecvEvent& other) = delete;
+	RecvEvent& operator=(RecvEvent&& other) = delete;
+	~RecvEvent() = default;
 };
 
 /* ----------------------------
@@ -89,8 +109,11 @@ public:
 class SendEvent : public IocpEvent
 {
 public:
-	SendEvent() : IocpEvent(EventType::SEND) {}
+	SendEvent() :IocpEvent(IO_TYPE::SEND) {}
 
-	// TEMP
-	vector<BYTE> m_buffer;
+	SendEvent(const SendEvent& other) = delete;
+	SendEvent(SendEvent&& other) = delete;
+	SendEvent& operator=(const SendEvent& other) = delete;
+	SendEvent& operator=(SendEvent&& other) = delete;
+	~SendEvent() = default;
 };

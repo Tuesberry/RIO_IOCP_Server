@@ -10,7 +10,7 @@ class SockAddress
 public:
 	SockAddress() = default;
 
-	SockAddress(const char* ip, unsigned short port);
+	SockAddress(wstring ip, unsigned short port);
 	SockAddress(SOCKADDR_IN sockAddr);
 
 	~SockAddress() = default;
@@ -19,7 +19,7 @@ public:
 	int GetAddrSize();
 
 	wstring GetIpAddress();
-	void SetIpAddress(const char* ip);
+	void SetIpAddress(wstring ip);
 
 	unsigned short GetPortNum();
 	void SetPortNum(unsigned short port);

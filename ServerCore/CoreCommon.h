@@ -12,7 +12,8 @@ using namespace std;
 #include <WS2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 
-void HandleError(const char* cause);
+#include <wchar.h>
 
 #include <mutex>
 
+void HandleError(const char* cause);

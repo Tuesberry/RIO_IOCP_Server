@@ -1,8 +1,8 @@
 #include "IocpEvent.h"
 
-IocpEvent::IocpEvent(EventType type)
-	:m_eventType(type)
-	,m_owner(nullptr)
+IocpEvent::IocpEvent(IO_TYPE type)
+	: m_eventType(type)
+	, m_owner(nullptr)
 {
 	Init();
 }

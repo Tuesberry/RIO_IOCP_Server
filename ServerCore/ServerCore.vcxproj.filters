@@ -13,6 +13,12 @@
     <Filter Include="Source Files\Network">
       <UniqueIdentifier>{63c7a881-8e74-4c54-aac9-db6f00e2a549}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Network\IOCP">
+      <UniqueIdentifier>{545e7f55-650b-4f3e-8117-41e6a92e5a70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network\IOCP">
+      <UniqueIdentifier>{ba0a0c1f-ed0e-4dab-b2e8-b347254f5d3e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreCommon.h">
@@ -28,19 +34,16 @@
       <Filter>Header Files\Network</Filter>
     </ClInclude>
     <ClInclude Include="Network\IocpCore.h">
-      <Filter>Header Files\Network</Filter>
+      <Filter>Header Files\Network\IOCP</Filter>
     </ClInclude>
     <ClInclude Include="Network\IocpEvent.h">
-      <Filter>Header Files\Network</Filter>
+      <Filter>Header Files\Network\IOCP</Filter>
     </ClInclude>
     <ClInclude Include="Network\IocpListener.h">
-      <Filter>Header Files\Network</Filter>
+      <Filter>Header Files\Network\IOCP</Filter>
     </ClInclude>
     <ClInclude Include="Network\IocpSession.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\IocpService.h">
-      <Filter>Header Files\Network</Filter>
+      <Filter>Header Files\Network\IOCP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -57,19 +60,16 @@
       <Filter>Source Files\Network</Filter>
     </ClCompile>
     <ClCompile Include="Network\IocpCore.cpp">
-      <Filter>Source Files\Network</Filter>
+      <Filter>Source Files\Network\IOCP</Filter>
     </ClCompile>
     <ClCompile Include="Network\IocpEvent.cpp">
-      <Filter>Source Files\Network</Filter>
+      <Filter>Source Files\Network\IOCP</Filter>
     </ClCompile>
     <ClCompile Include="Network\IocpListener.cpp">
-      <Filter>Source Files\Network</Filter>
+      <Filter>Source Files\Network\IOCP</Filter>
     </ClCompile>
     <ClCompile Include="Network\IocpSession.cpp">
-      <Filter>Source Files\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="Network\IocpService.cpp">
-      <Filter>Source Files\Network</Filter>
+      <Filter>Source Files\Network\IOCP</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

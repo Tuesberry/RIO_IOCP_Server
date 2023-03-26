@@ -1,10 +1,10 @@
 #include "SockAddress.h"
 
-SockAddress::SockAddress(const char* ip, unsigned short port)
+SockAddress::SockAddress(wstring ip, unsigned short port)
 {
 	memset(&m_sockAddress, 0, sizeof(m_sockAddress));
 	m_sockAddress.sin_family = AF_INET;
-	::inet_pton(AF_INET, ip, &m_sockAddress.sin_addr);
+	::InetPtonW(AF_INET, ip.c_str(), &m_sockAddress.sin_addr);
 	m_sockAddress.sin_port = htons(port);
 }
 
@@ -30,9 +30,9 @@ wstring SockAddress::GetIpAddress()
 	return wstring(ipaddr);
 }
 
-void SockAddress::SetIpAddress(const char* ip)
+void SockAddress::SetIpAddress(wstring ip)
 {
-	::inet_pton(AF_INET, ip, &m_sockAddress.sin_addr);
+	::InetPtonW(AF_INET, ip.c_str(), &m_sockAddress.sin_addr);
 }
 
 unsigned short SockAddress::GetPortNum()

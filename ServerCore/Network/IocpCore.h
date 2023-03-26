@@ -1,15 +1,17 @@
 #pragma once
 #include "Common.h"
 
+class IocpEvent;
+
 /* ----------------------------
-*		IocpObject
+*		IocpCore
 ---------------------------- */
 
 class IocpObject : public enable_shared_from_this<IocpObject>
 {
 public:
 	virtual HANDLE GetHandle() abstract;
-	virtual void ExecuteTask(class IocpEvent* iocpEvent, int bytesTransferred = 0) abstract;
+	virtual void Dispatch(IocpEvent* iocpEvent, int bytesTransferred = 0) abstract;
 };
 
 /* ----------------------------
@@ -24,15 +26,15 @@ public:
 	IocpCore(IocpCore&& other) = delete;
 	IocpCore& operator=(const IocpCore& other) = delete;
 	IocpCore& operator=(IocpCore&& other) = delete;
-	~IocpCore();
+	~IocpCore() = default;
 
 	HANDLE GetHandle() { return m_iocpHandle; }
 
 	bool Register(shared_ptr<IocpObject> iocpObject);
-	bool ExecuteTask(unsigned int timeOut = INFINITE);
+	bool Dispatch(unsigned int timeOutMs = INFINITE);
 
 private:
-	bool CreateIocpHandle();
+	void CreateIocpHandle();
 
 private:
 	HANDLE m_iocpHandle;
