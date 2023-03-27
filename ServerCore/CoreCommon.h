@@ -13,7 +13,7 @@ using namespace std;
 #pragma comment(lib, "ws2_32.lib")
 
 #include <wchar.h>
-
+#include <functional>
 #include <mutex>
 
 void HandleError(const char* cause);

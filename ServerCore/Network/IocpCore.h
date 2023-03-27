@@ -4,7 +4,7 @@
 class IocpEvent;
 
 /* ----------------------------
-*		IocpCore
+*		IocpObject
 ---------------------------- */
 
 class IocpObject : public enable_shared_from_this<IocpObject>

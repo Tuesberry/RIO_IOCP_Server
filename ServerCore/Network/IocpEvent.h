@@ -2,6 +2,7 @@
 #include "Common.h"
 
 class IocpObject;
+class IocpSession;
 
 /* ----------------------------
 *		IO_TYPE
@@ -52,6 +53,10 @@ public:
 	AcceptEvent& operator=(const AcceptEvent& other) = delete;
 	AcceptEvent& operator=(AcceptEvent&& other) = delete;
 	~AcceptEvent() = default;
+
+public:
+	// accept socket session
+	shared_ptr<IocpSession> m_session;
 };
 
 /* ----------------------------
@@ -116,4 +121,6 @@ public:
 	SendEvent& operator=(const SendEvent& other) = delete;
 	SendEvent& operator=(SendEvent&& other) = delete;
 	~SendEvent() = default;
+public:
+	BYTE m_sendBuffer[1000];
 };

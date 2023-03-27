@@ -3,18 +3,22 @@
 #include "IocpCore.h"
 
 class AcceptEvent;
+class SockAddress;
+class IocpServer;
 
 class IocpListener : public IocpObject
 {
 public:
-	IocpListener();
+	IocpListener(shared_ptr<IocpServer> ownServer);
+
+	IocpListener() = delete;
 	IocpListener(const IocpListener& other) = delete;
 	IocpListener(IocpListener&& other) = delete;
 	IocpListener& operator=(const IocpListener& other) = delete;
 	IocpListener& operator=(IocpListener&& other) = delete;
 	~IocpListener();
 
-	bool StartAccept(unsigned int portNum);
+	bool StartAccept();
 	void CloseSocket();
 
 	void RegisterAccept(AcceptEvent* acceptEvent);
@@ -26,4 +30,6 @@ public:
 
 private:
 	SOCKET m_listener;
+	vector<AcceptEvent*> m_acceptEvents;
+	shared_ptr<IocpServer> m_ownerServer;
 };

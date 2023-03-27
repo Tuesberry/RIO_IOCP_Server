@@ -4,6 +4,8 @@
 #include "IocpEvent.h"
 #include "SockAddress.h"
 
+class IocpService;
+
 class IocpSession : public IocpObject
 {
 public:
@@ -14,20 +16,34 @@ public:
 	IocpSession& operator=(IocpSession&& other) = delete;
 	~IocpSession();
 
+	// get
+	SOCKET GetSocket() { return m_socket; }
+	SockAddress GetAddr() { return m_address; }
+
+	// set
+	void SetAddr(SOCKADDR_IN addr) { m_address = SockAddress(addr); }
+	void SetAddr(SockAddress sockAddr) { m_address = sockAddr; }
+	void SetService(shared_ptr<IocpService> iocpService) { m_iocpService = iocpService; }
+
+	bool IsConnected() { return m_bConnected; }
+
+	void Disconnect();
+	void Send();
+
 public:
 	virtual HANDLE GetHandle() override;
 	virtual void Dispatch(IocpEvent* iocpEvent, int bytesTransferred = 0) override;
 
-private:
-	void RegisterConnect();
+public:
+	bool RegisterConnect();
 	void RegisterDisconnect();
-	void RegisterRecv(RecvEvent* recvEvent);
-	void RegisterSend();
+	void RegisterRecv();
+	void RegisterSend(BYTE* sendData, int dataLen);
 
 	void ProcessConnect();
 	void ProcessDisconnect();
-	void ProcessRecv();
-	void ProcessSend();
+	void ProcessRecv(int bytesTransferred);
+	void ProcessSend(SendEvent* sendEvent, int bytesTransferred);
 
 protected:
 	virtual void OnConnected(){}
@@ -36,7 +52,20 @@ protected:
 	virtual void OnDisconnected(){}
 
 private:
-	SOCKET m_socket = INVALID_SOCKET;
-	SockAddress m_address = {};
-	atomic<bool> m_bConnected = false;
+	// socket
+	SOCKET m_socket;
+	SockAddress m_address;
+	atomic<bool> m_bConnected;
+
+	// iocp event
+	RecvEvent m_recvEvent;
+	ConnectEvent m_connectEvent;
+	DisconnectEvent m_disconnectEvent;
+
+	// iocp service
+	shared_ptr<IocpService> m_iocpService;
+
+public:
+	// recvBuffer
+	BYTE m_recvBuffer[1000];
 };

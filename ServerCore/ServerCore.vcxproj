@@ -164,20 +164,30 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CoreCommon.h" />
+    <ClInclude Include="Network\IocpClient.h" />
     <ClInclude Include="Network\IocpCore.h" />
     <ClInclude Include="Network\IocpEvent.h" />
     <ClInclude Include="Network\IocpListener.h" />
+    <ClInclude Include="Network\IocpServer.h" />
+    <ClInclude Include="Network\IocpService.h" />
     <ClInclude Include="Network\IocpSession.h" />
+    <ClInclude Include="Network\RecvBuffer.h" />
+    <ClInclude Include="Network\SendBuffer.h" />
     <ClInclude Include="Network\SockAddress.h" />
     <ClInclude Include="Network\SocketCore.h" />
     <ClInclude Include="Common.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreCommon.cpp" />
+    <ClCompile Include="Network\IocpClient.cpp" />
     <ClCompile Include="Network\IocpCore.cpp" />
     <ClCompile Include="Network\IocpEvent.cpp" />
     <ClCompile Include="Network\IocpListener.cpp" />
+    <ClCompile Include="Network\IocpServer.cpp" />
+    <ClCompile Include="Network\IocpService.cpp" />
     <ClCompile Include="Network\IocpSession.cpp" />
+    <ClCompile Include="Network\RecvBuffer.cpp" />
+    <ClCompile Include="Network\SendBuffer.cpp" />
     <ClCompile Include="Network\SockAddress.cpp" />
     <ClCompile Include="Network\SocketCore.cpp" />
     <ClCompile Include="Common.cpp">

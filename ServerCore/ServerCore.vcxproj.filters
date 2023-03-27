@@ -19,6 +19,12 @@
     <Filter Include="Source Files\Network\IOCP">
       <UniqueIdentifier>{ba0a0c1f-ed0e-4dab-b2e8-b347254f5d3e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Network\RIO">
+      <UniqueIdentifier>{9e413b80-b9dd-459d-b75b-834caec6fe99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network\RIO">
+      <UniqueIdentifier>{3debe47f-37af-456c-9730-82503df53d41}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreCommon.h">
@@ -45,6 +51,21 @@
     <ClInclude Include="Network\IocpSession.h">
       <Filter>Header Files\Network\IOCP</Filter>
     </ClInclude>
+    <ClInclude Include="Network\IocpServer.h">
+      <Filter>Header Files\Network\IOCP</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\RecvBuffer.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IocpService.h">
+      <Filter>Header Files\Network\IOCP</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IocpClient.h">
+      <Filter>Header Files\Network\IOCP</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\SendBuffer.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -70,6 +91,21 @@
     </ClCompile>
     <ClCompile Include="Network\IocpSession.cpp">
       <Filter>Source Files\Network\IOCP</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\IocpServer.cpp">
+      <Filter>Source Files\Network\IOCP</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\RecvBuffer.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\IocpService.cpp">
+      <Filter>Source Files\Network\IOCP</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\IocpClient.cpp">
+      <Filter>Source Files\Network\IOCP</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\SendBuffer.cpp">
+      <Filter>Source Files\Network</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
