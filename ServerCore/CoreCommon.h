@@ -6,6 +6,7 @@ using namespace std;
 #include <thread>
 #include <vector>
 #include <set>
+#include <string>
 
 #include <WinSock2.h>
 #include <MSWSock.h>

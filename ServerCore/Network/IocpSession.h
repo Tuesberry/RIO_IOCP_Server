@@ -27,8 +27,9 @@ public:
 
 	bool IsConnected() { return m_bConnected; }
 
+	bool Connect();
 	void Disconnect();
-	void Send();
+	void Send(BYTE* buffer, int len);
 
 public:
 	virtual HANDLE GetHandle() override;

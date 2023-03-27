@@ -9,17 +9,9 @@ IocpServer::IocpServer(
 	int maxSessionCnt,
 	int multipleThreadNum
 )
-	: IocpService(iocpCore, sessionFactory, serverAddress, maxSessionCnt, ServiceType::SERVER)
+	: IocpService(ServiceType::SERVER, iocpCore, sessionFactory, serverAddress, maxSessionCnt, multipleThreadNum)
 	, m_iocpListener(nullptr)
-	, m_workerThreads()
-	, m_threadCnt(0)
 {
-	// check number of cpus
-	SYSTEM_INFO si;
-	GetSystemInfo(&si);
-
-	// set thread cnt
-	m_threadCnt = si.dwNumberOfProcessors * multipleThreadNum;
 }
 
 IocpServer::~IocpServer()
@@ -32,7 +24,7 @@ bool IocpServer::StartServer()
 	if (CanStart() == false)
 		return false;
 
-	m_iocpListener = make_shared<IocpListener>(shared_from_this());
+	m_iocpListener = make_shared<IocpListener>(static_pointer_cast<IocpServer>(shared_from_this()));
 	if (m_iocpListener == nullptr)
 		return false;
 
@@ -48,23 +40,14 @@ bool IocpServer::StartServer()
 
 void IocpServer::RunServer()
 {
-	if (m_bStart == false)
+	if (CanStart() == false)
 	{
 		HandleError("RunServer");
 		return;
 	}
 
-	// create workerthreads
-	for (int i = 0; i < m_threadCnt; i++)
-	{
-		m_workerThreads.push_back(thread([=]() 
-			{
-				while (true)
-				{
-					m_iocpCore->Dispatch();
-				}
-			}));
-	}
+	// create threads
+	CreateWorkerThreads();
 
 	// TODO : server command check thread
 }
@@ -74,14 +57,11 @@ void IocpServer::StopServer()
 	// close listener socket
 	m_iocpListener->CloseSocket();
 
-	// join thread
-	for (thread& thread : m_workerThreads)
-	{
-		if (thread.joinable() == true)
-			thread.join();
-	}
+	// DisconnectAllSessions
+	DisconnectAllSession();
 
-	// TODO : Session Stop
+	// join threads
+	JoinWorkerThreads();
 
 	// server stop
 	m_bStart = false;

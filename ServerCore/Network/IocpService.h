@@ -23,11 +23,12 @@ class IocpService : public enable_shared_from_this<IocpService>
 {
 public:
 	IocpService(
+		ServiceType serviceType,
 		shared_ptr<IocpCore> iocpCore,
 		SessionFactory sessionFactory,
 		SockAddress address,
 		int maxSessionCnt,
-		ServiceType serviceType
+		int multipleThreadNum = 1
 	);
 
 	IocpService() = delete;
@@ -41,6 +42,11 @@ public:
 	shared_ptr<IocpSession> CreateSession();
 	void AddSession(shared_ptr<IocpSession> session);
 	void ReleaseSession(shared_ptr<IocpSession> session);
+	void DisconnectAllSession();
+
+	// thread
+	void CreateWorkerThreads();
+	void JoinWorkerThreads();
 
 	// get method
 	shared_ptr<IocpCore> GetIocpCore() { return m_iocpCore; }
@@ -72,4 +78,7 @@ protected:
 	// start service
 	bool m_bStart;
 
+	// worker threads
+	vector<thread> m_workerThreads;
+	int m_threadCnt;
 };

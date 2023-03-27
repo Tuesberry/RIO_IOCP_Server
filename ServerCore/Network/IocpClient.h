@@ -28,9 +28,4 @@ public:
 	bool StartClient();
 	void RunClient();
 	void StopClient();
-
-private:
-	// worker threads
-	vector<thread> m_workerThreads;
-	int m_threadCnt;
 };

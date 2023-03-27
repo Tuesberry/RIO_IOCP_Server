@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "CoreCommon.h"
-#include "Network/IocpService.h"
+#include "Network/IocpServer.h"
 #include "Network/IocpSession.h"
 
 class GameSession : public IocpSession
@@ -27,32 +27,33 @@ public:
 
 int main()
 {
-    shared_ptr<IocpServerService> service = std::make_shared<IocpServerService>(
-        SockAddress("127.0.0.1", 7777),
+    shared_ptr<IocpServer> server = std::make_shared<IocpServer>(
         std::make_shared<IocpCore>(),
-        std::make_shared<GameSession>, // TODO : SessionManager µî
-        10);
+        std::make_shared<GameSession>, 
+        SockAddress(L"127.0.0.1", 7777),
+        10,
+        2);
 
-    service->Start();
-
-    SYSTEM_INFO si;
-    GetSystemInfo(&si);
-
-    vector<thread> threads;
-    for (int i = 0; i < si.dwNumberOfProcessors; i++)
+    if (server->StartServer() == false)
     {
-        threads.push_back(thread([=]()
-            {
-                while (true)
-                {
-                    service->GetIocpCore()->ExecuteTask();
-                }
-            }));
+        HandleError("StartServer");
+        return 0;
     }
-
-    // thread join
-    for (int i = 0; i < threads.size(); i++)
+    
+    server->RunServer();
+    /*
+    while (true)
     {
-        threads[i].join();
+        string inputCmd;
+        getline(std::cin, inputCmd);
+
+        if (inputCmd == "quit")
+        {
+            break;
+        }
     }
+    */
+    server->JoinWorkerThreads();
+
+    return 0;
 }

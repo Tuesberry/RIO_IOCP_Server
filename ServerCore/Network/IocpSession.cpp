@@ -21,6 +21,11 @@ IocpSession::~IocpSession()
 	SocketCore::Close(m_socket);
 }
 
+bool IocpSession::Connect()
+{
+	return RegisterConnect();
+}
+
 void IocpSession::Disconnect()
 {
 	if (m_bConnected.exchange(false) == false)
@@ -34,8 +39,9 @@ void IocpSession::Disconnect()
 	RegisterDisconnect();
 }
 
-void IocpSession::Send()
+void IocpSession::Send(BYTE* buffer, int len)
 {
+	RegisterSend(buffer, len);
 }
 
 HANDLE IocpSession::GetHandle()
@@ -95,9 +101,11 @@ bool IocpSession::RegisterConnect()
 		{
 			m_connectEvent.m_owner = nullptr;
 			HandleError("ConnectEx");
-			return;
+			return false;
 		}
 	}
+	
+	return true;
 }
 
 void IocpSession::RegisterDisconnect()

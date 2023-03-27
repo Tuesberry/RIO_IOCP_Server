@@ -30,8 +30,4 @@ public:
 private:
 	// listener
 	shared_ptr<IocpListener> m_iocpListener;
-
-	// worker threads
-	vector<thread> m_workerThreads;
-	int m_threadCnt;
 };

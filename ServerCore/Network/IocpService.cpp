@@ -3,11 +3,12 @@
 #include "IocpSession.h"
 
 IocpService::IocpService(
+	ServiceType serviceType,
 	shared_ptr<IocpCore> iocpCore, 
 	SessionFactory sessionFactory, 
 	SockAddress address,
 	int maxSessionCnt,
-	ServiceType serviceType
+	int multipleThreadNum
 )
 	: m_serviceType(serviceType)
 	, m_sessionFactory(sessionFactory)
@@ -18,7 +19,15 @@ IocpService::IocpService(
 	, m_iocpCore(iocpCore)
 	, m_address(address)
 	, m_bStart(false)
+	, m_workerThreads()
+	, m_threadCnt(0)
 {
+	// check number of cpus
+	SYSTEM_INFO si;
+	GetSystemInfo(&si);
+
+	// set thread cnt
+	m_threadCnt = si.dwNumberOfProcessors * multipleThreadNum;
 }
 
 IocpService::~IocpService()
@@ -48,4 +57,37 @@ void IocpService::ReleaseSession(shared_ptr<IocpSession> session)
 	lock_guard<mutex> lock(m_sessionLock);
 	m_serverSessions.erase(session);
 	m_sessionCnt--;
+}
+
+void IocpService::DisconnectAllSession()
+{
+	lock_guard<mutex> lock(m_sessionLock);
+	for (shared_ptr<IocpSession> session : m_serverSessions)
+	{
+		session->Disconnect();
+	}
+}
+
+void IocpService::CreateWorkerThreads()
+{
+	for (int i = 0; i < m_threadCnt; i++)
+	{
+		m_workerThreads.push_back(thread([=]()
+			{
+				while (true)
+				{
+					m_iocpCore->Dispatch();
+				}
+			}));
+	}
+}
+
+void IocpService::JoinWorkerThreads()
+{
+	// join thread
+	for (thread& thread : m_workerThreads)
+	{
+		if (thread.joinable() == true)
+			thread.join();
+	}
 }

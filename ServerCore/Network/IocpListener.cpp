@@ -15,6 +15,11 @@ IocpListener::IocpListener(shared_ptr<IocpServer> ownServer)
 IocpListener::~IocpListener()
 {
 	CloseSocket();
+
+	for (AcceptEvent* event : m_acceptEvents)
+	{
+		delete(event);
+	}
 }
 
 bool IocpListener::StartAccept()
@@ -34,11 +39,11 @@ bool IocpListener::StartAccept()
 		return false;
 
 	// set linger
-	if (SocketCore::SetLinger(m_listener, false, 0) == false)
+	if (SocketCore::SetLinger(m_listener, 0, 0) == false)
 		return false;
 
 	// bind
-	if (SocketCore::Bind(m_listener, m_ownerServer->GetServerAddress()) == false)
+	if (SocketCore::Bind(m_listener, m_ownerServer->GetAddress()) == false)
 		return false;
 
 	// listen
@@ -105,7 +110,7 @@ void IocpListener::ProcessAccept(AcceptEvent* acceptEvent)
 	::getpeername(session->GetSocket(), (SOCKADDR*)&sessionAddr, &addrlen);
 
 	// set session addr
-	session->SetAddr(sessionAddr);
+	session->SetAddr(SockAddress(sessionAddr));
 
 	// process connect
 	session->ProcessConnect();

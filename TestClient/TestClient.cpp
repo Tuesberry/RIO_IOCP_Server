@@ -1,6 +1,6 @@
 #include "CoreCommon.h"
 #include "pch.h"
-#include "Network/IocpService.h"
+#include "Network/IocpClient.h"
 #include "Network/IocpSession.h"
 
 char sendBuffer[] = "Hello World";
@@ -44,33 +44,20 @@ int main()
 {
 	this_thread::sleep_for(1s);
 
-	std::shared_ptr<IocpClientService> service = std::make_shared<IocpClientService>(
-		SockAddress("127.0.0.1", 7777),
+	std::shared_ptr<IocpClient> client = std::make_shared<IocpClient>(
 		std::make_shared<IocpCore>(),
 		std::make_shared<ServerSession>, // TODO : SessionManager µî
-		10);
+		SockAddress(L"127.0.0.1", 7777),
+		10,
+		2);
 
-	service->Start();
-
-	SYSTEM_INFO si;
-	GetSystemInfo(&si);
-
-	vector<thread> threads;
-	for (int i = 0; i < si.dwNumberOfProcessors; i++)
+	if (client->StartClient() == false)
 	{
-		threads.push_back(thread([=]()
-			{
-				while (true)
-				{
-					service->GetIocpCore()->ExecuteTask();
-				}
-			}));
+		HandleError("StartClient");
+		return 0;
 	}
+	
+	client->RunClient();
 
-	// thread join
-	for (int i = 0; i < threads.size(); i++)
-	{
-		threads[i].join();
-	}
-
+	client->JoinWorkerThreads();
 }
