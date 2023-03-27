@@ -33,6 +33,10 @@ bool IocpListener::StartAccept()
 	if (m_listener == INVALID_SOCKET)
 		return false;
 
+	// register listener
+	if (m_ownerServer->GetIocpCore()->Register(shared_from_this()) == false)
+		return false;
+
 	// set sockopt
 	// reuse address
 	if (SocketCore::SetReuseAddr(m_listener, true) == false)

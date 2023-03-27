@@ -31,8 +31,8 @@ int main()
         std::make_shared<IocpCore>(),
         std::make_shared<GameSession>, 
         SockAddress(L"127.0.0.1", 7777),
-        10,
-        2);
+        1,
+        1);
 
     if (server->StartServer() == false)
     {

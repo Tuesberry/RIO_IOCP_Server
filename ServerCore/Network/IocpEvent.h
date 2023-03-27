@@ -56,7 +56,7 @@ public:
 
 public:
 	// accept socket session
-	shared_ptr<IocpSession> m_session;
+	shared_ptr<IocpSession> m_session = nullptr;
 };
 
 /* ----------------------------
@@ -122,5 +122,5 @@ public:
 	SendEvent& operator=(SendEvent&& other) = delete;
 	~SendEvent() = default;
 public:
-	BYTE m_sendBuffer[1000];
+	vector<BYTE> m_sendBuffer;
 };

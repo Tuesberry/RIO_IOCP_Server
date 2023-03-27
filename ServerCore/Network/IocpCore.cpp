@@ -7,6 +7,11 @@ IocpCore::IocpCore()
 	CreateIocpHandle();
 }
 
+IocpCore::~IocpCore()
+{
+	::CloseHandle(m_iocpHandle);
+}
+
 bool IocpCore::Register(shared_ptr<IocpObject> iocpObject)
 {
 	if (::CreateIoCompletionPort(iocpObject->GetHandle(), m_iocpHandle, /*key*/0, 0) == NULL)
@@ -21,7 +26,7 @@ bool IocpCore::Dispatch(unsigned int timeOutMs)
 	ULONG_PTR key = 0;
 	IocpEvent* iocpEvent = nullptr;
 
-	BOOL retVal = ::GetQueuedCompletionStatus(m_iocpHandle, &bytesTransferred, &key, (LPOVERLAPPED*)&iocpEvent, timeOutMs);
+	BOOL retVal = ::GetQueuedCompletionStatus(m_iocpHandle, &bytesTransferred, &key, reinterpret_cast<LPOVERLAPPED*>(&iocpEvent), timeOutMs);
 
 	if (retVal == TRUE)
 	{

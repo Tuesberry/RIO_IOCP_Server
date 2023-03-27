@@ -33,8 +33,8 @@ void IocpSession::Disconnect()
 
 	cout << "Disconnect session" << endl;
 
-	OnDisconnected();
-	m_iocpService->ReleaseSession(static_pointer_cast<IocpSession>(shared_from_this()));
+	//OnDisconnected();
+	//m_iocpService->ReleaseSession(static_pointer_cast<IocpSession>(shared_from_this()));
 
 	RegisterDisconnect();
 }
@@ -77,7 +77,7 @@ bool IocpSession::RegisterConnect()
 	if (IsConnected())
 		return false;
 
-	if (m_iocpService->GetServiceType() == ServiceType::SERVER)
+	if (m_iocpService->GetServiceType() != ServiceType::CLIENT)
 		return false;
 
 	// set reuse address
@@ -136,11 +136,11 @@ void IocpSession::RegisterRecv()
 	// set wsaBuf
 	WSABUF wsaBuf;
 	wsaBuf.buf = reinterpret_cast<CHAR*>(m_recvBuffer);
-	wsaBuf.len = sizeof(m_recvBuffer) / sizeof(m_recvBuffer[0]);
+	wsaBuf.len = sizeof(m_recvBuffer) / sizeof(BYTE);
 
 	DWORD recvLen = 0;
 	DWORD flags = 0;
-	if (::WSARecv(m_socket, &wsaBuf, 1, &recvLen, &flags, &m_recvEvent, NULL) == SOCKET_ERROR)
+	if (::WSARecv(m_socket, &wsaBuf, 1, &recvLen, &flags, &m_recvEvent, nullptr) == SOCKET_ERROR)
 	{
 		if (::WSAGetLastError() != ERROR_IO_PENDING)
 		{
@@ -160,13 +160,13 @@ void IocpSession::RegisterSend(BYTE* sendData, int dataLen)
 	// send는 recv와 달리 여러번 가능..
 	SendEvent* sendEvent = new SendEvent();
 	sendEvent->m_owner = shared_from_this();
-	sendEvent->Init();
-	memcpy(sendEvent->m_sendBuffer, sendData, dataLen);
+	sendEvent->m_sendBuffer.resize(dataLen);
+	memcpy(sendEvent->m_sendBuffer.data(), sendData, dataLen);
 
 	// init wsaBuf
 	WSABUF wsaBuf;
-	wsaBuf.buf = reinterpret_cast<CHAR*>(sendEvent->m_sendBuffer);
-	wsaBuf.len = dataLen;
+	wsaBuf.buf = (char*)sendEvent->m_sendBuffer.data();
+	wsaBuf.len = (ULONG)sendEvent->m_sendBuffer.size();
 
 	// WSASend
 	DWORD sendLen = 0;
@@ -201,6 +201,9 @@ void IocpSession::ProcessConnect()
 void IocpSession::ProcessDisconnect()
 {
 	m_disconnectEvent.m_owner = nullptr;
+
+	OnDisconnected();
+	m_iocpService->ReleaseSession(static_pointer_cast<IocpSession>(shared_from_this()));
 }
 
 void IocpSession::ProcessRecv(int bytesTransferred)
@@ -214,6 +217,8 @@ void IocpSession::ProcessRecv(int bytesTransferred)
 	}
 
 	OnRecv(m_recvBuffer, bytesTransferred);
+
+	RegisterRecv();
 }
 
 void IocpSession::ProcessSend(SendEvent* sendEvent, int bytesTransferred)
@@ -228,4 +233,5 @@ void IocpSession::ProcessSend(SendEvent* sendEvent, int bytesTransferred)
 	}
 
 	OnSend(bytesTransferred);
+
 }

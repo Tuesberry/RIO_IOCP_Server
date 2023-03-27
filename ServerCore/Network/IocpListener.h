@@ -1,9 +1,9 @@
 #pragma once
 #include "Common.h"
 #include "IocpCore.h"
+#include "SockAddress.h"
 
 class AcceptEvent;
-class SockAddress;
 class IocpServer;
 
 class IocpListener : public IocpObject

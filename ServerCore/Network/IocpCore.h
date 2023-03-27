@@ -26,7 +26,7 @@ public:
 	IocpCore(IocpCore&& other) = delete;
 	IocpCore& operator=(const IocpCore& other) = delete;
 	IocpCore& operator=(IocpCore&& other) = delete;
-	~IocpCore() = default;
+	~IocpCore();
 
 	HANDLE GetHandle() { return m_iocpHandle; }
 
