@@ -2,7 +2,7 @@
 #include "CoreCommon.h"
 #include "pch.h"
 #include "Network/IocpSession.h"
-
+#include "Utils/ConsoleOutputManager.h"
 char sendData[] = "Hello World";
 
 class ClientSession : public IocpSession
@@ -15,7 +15,7 @@ public:
 
 	virtual void OnConnected() override
 	{
-		cout << "Connected To Server" << endl;
+		GCoutMgr << "Connected To Server";
 		int dataLen = sizeof(sendData) / sizeof(BYTE);
 		shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(dataLen);
 		::memcpy(sendBuffer->GetData(), &sendData, sizeof(sendData));
@@ -26,7 +26,7 @@ public:
 	virtual void OnRecvPacket(BYTE* buffer, int len) override
 	{
 		cout << "OnRecv Len = " << len << endl;
-		cout << "OnRecv Data = " << buffer[len] << endl;
+		cout << "OnRecv Data = " << buffer << endl;
 
 		this_thread::sleep_for(1s);
 

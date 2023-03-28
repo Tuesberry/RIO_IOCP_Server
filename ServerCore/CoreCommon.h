@@ -23,3 +23,5 @@ using namespace std;
 #define len(arr) static_cast<int>(sizeof(arr)/sizeof(arr[0]))
 
 void HandleError(const char* cause);
+
+extern class ConsoleOutputManager GCoutMgr;

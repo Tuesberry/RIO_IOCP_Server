@@ -1,6 +1,9 @@
 #include "Common.h"
 #include "CoreCommon.h"
 #include "Network/SocketCore.h"
+#include "Utils/ConsoleOutputManager.h"
+
+ConsoleOutputManager GCoutMgr;
 
 void HandleError(const char* cause)
 {

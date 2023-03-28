@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Network\RIO">
       <UniqueIdentifier>{3debe47f-37af-456c-9730-82503df53d41}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Utils">
+      <UniqueIdentifier>{8bef0fc7-bcae-466f-8101-11cc234c851a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{da022053-f8a1-49bd-b454-267ad40d63e8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreCommon.h">
@@ -69,6 +75,12 @@
     <ClInclude Include="Network\Packet.h">
       <Filter>Header Files\Network</Filter>
     </ClInclude>
+    <ClInclude Include="Utils\ConsoleOutputManager.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\BufferHelper.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -109,6 +121,12 @@
     </ClCompile>
     <ClCompile Include="Network\SendBuffer.cpp">
       <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\ConsoleOutputManager.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\BufferHelper.cpp">
+      <Filter>Source Files\Utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

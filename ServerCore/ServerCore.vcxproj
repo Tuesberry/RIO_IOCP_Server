@@ -177,6 +177,8 @@
     <ClInclude Include="Network\SockAddress.h" />
     <ClInclude Include="Network\SocketCore.h" />
     <ClInclude Include="Common.h" />
+    <ClInclude Include="Utils\BufferHelper.h" />
+    <ClInclude Include="Utils\ConsoleOutputManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreCommon.cpp" />
@@ -197,6 +199,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Utils\BufferHelper.cpp" />
+    <ClCompile Include="Utils\ConsoleOutputManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
