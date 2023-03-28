@@ -25,6 +25,7 @@ public:
 	// get
 	SOCKET GetSocket() { return m_socket; }
 	SockAddress GetAddr() { return m_address; }
+	shared_ptr<IocpService> GetService() { return m_iocpService; }
 
 	bool IsConnected() { return m_bConnected; }
 

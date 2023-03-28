@@ -7,7 +7,9 @@
 enum PROTO_ID : unsigned short
 {
 	TEST,
-
+	LOGIN,
+	INFO,
+	RESULT
 };
 
 #pragma pack(1)
@@ -21,10 +23,33 @@ struct PacketHeader
 };
 
 /* ----------------------------
-*		PKT_TEST
+*		PKT_LOGIN
 ---------------------------- */
-struct PKT_TEST
+struct PKT_LOGIN
 {
 	PacketHeader header;
+	int id;
 };
+
+/* ----------------------------
+*		PKT_INFO
+---------------------------- */
+struct PKT_INFO
+{
+	PacketHeader header;
+	int id;
+	int posX;
+	int poxY;
+};
+
+/* ----------------------------
+*		PKT_RESULT
+---------------------------- */
+struct PKT_RESULT
+{
+	PacketHeader header;
+	int id;
+	bool result;
+};
+
 #pragma pack()

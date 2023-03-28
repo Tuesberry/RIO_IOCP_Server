@@ -2,48 +2,25 @@
 #include "CoreCommon.h"
 #include "pch.h"
 #include "Network/IocpSession.h"
-#include "Utils/ConsoleOutputManager.h"
-char sendData[] = "Hello World";
+
+//char sendData[] = "Hello World";
 
 class ClientSession : public IocpSession
 {
 public:
-	~ClientSession()
-	{
-		cout << "~ClientSession" << endl;
-	}
+	ClientSession();
+	~ClientSession();
 
-	virtual void OnConnected() override
-	{
-		GCoutMgr << "Connected To Server";
-		int dataLen = sizeof(sendData) / sizeof(BYTE);
-		shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(dataLen);
-		::memcpy(sendBuffer->GetData(), &sendData, sizeof(sendData));
-		sendBuffer->OnWrite(dataLen);
-		Send(sendBuffer);
-	}
+	virtual void OnConnected() override;
+	virtual void OnRecvPacket(BYTE* buffer, int len) override;
+	virtual void OnSend(int len) override;
+	virtual void OnDisconnected() override;
 
-	virtual void OnRecvPacket(BYTE* buffer, int len) override
-	{
-		cout << "OnRecv Len = " << len << endl;
-		cout << "OnRecv Data = " << buffer << endl;
+	void SendLogin();
+	void SendInfo();
 
-		this_thread::sleep_for(1s);
-
-		int dataLen = sizeof(sendData) / sizeof(BYTE);
-		shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(dataLen);
-		::memcpy(sendBuffer->GetData(), &sendData, sizeof(sendData));
-		sendBuffer->OnWrite(dataLen);
-		Send(sendBuffer);
-	}
-
-	virtual void OnSend(int len) override
-	{
-		cout << "OnSend Len = " << len << endl;
-	}
-
-	virtual void OnDisconnected() override
-	{
-		cout << "Disconnected" << endl;
-	}
+public:
+	int m_sessionID;
+	int m_posX;
+	int m_posY;
 };

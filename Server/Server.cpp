@@ -10,7 +10,7 @@ int main()
         std::make_shared<IocpCore>(),
         std::make_shared<ServerSession>, 
         SockAddress(L"127.0.0.1", 7777),
-        50,
+        20,
         1);
 
     if (server->StartServer() == false)
@@ -20,18 +20,7 @@ int main()
     }
     
     server->RunServer();
-    /*
-    while (true)
-    {
-        string inputCmd;
-        getline(std::cin, inputCmd);
 
-        if (inputCmd == "quit")
-        {
-            break;
-        }
-    }
-    */
     server->JoinWorkerThreads();
 
     return 0;

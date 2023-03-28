@@ -303,7 +303,6 @@ void IocpSession::ProcessSend(int bytesTransferred)
 
 int IocpSession::OnRecv(BYTE* buffer, int len)
 {
-	/*
 	int processLen = 0;
 
 	while (true)
@@ -329,7 +328,4 @@ int IocpSession::OnRecv(BYTE* buffer, int len)
 	}
 
 	return processLen;
-	*/
-	OnRecvPacket(buffer, len);
-	return len;
 }
