@@ -9,7 +9,12 @@ IocpSession::IocpSession()
 	, m_recvEvent()
 	, m_connectEvent()
 	, m_disconnectEvent()
+	, m_sendEvent()
 	, m_iocpService(nullptr)
+	, m_recvBuffer(BUFSIZE)
+	, m_sendBufferQueue()
+	, m_sendBufLock()
+	, m_bSendRegistered(false)
 {
 	m_socket = SocketCore::Socket();
 	if (m_socket == INVALID_SOCKET)
@@ -33,15 +38,29 @@ void IocpSession::Disconnect()
 
 	cout << "Disconnect session" << endl;
 
-	//OnDisconnected();
-	//m_iocpService->ReleaseSession(static_pointer_cast<IocpSession>(shared_from_this()));
-
 	RegisterDisconnect();
 }
 
-void IocpSession::Send(BYTE* buffer, int len)
+void IocpSession::Send(shared_ptr<SendBuffer> sendBuffer)
 {
-	RegisterSend(buffer, len);
+	if (IsConnected() == false)
+		return;
+
+	bool registered = false;
+	{
+		m_sendBufLock.lock();
+
+		// enqueue sendbuffer
+		m_sendBufferQueue.push(sendBuffer);
+
+		if (m_bSendRegistered.exchange(true) == false)
+			registered = true;
+
+		m_sendBufLock.unlock();
+	}
+
+	if (registered)
+		RegisterSend();
 }
 
 HANDLE IocpSession::GetHandle()
@@ -64,7 +83,7 @@ void IocpSession::Dispatch(IocpEvent* iocpEvent, int bytesTransferred)
 		ProcessRecv(bytesTransferred);
 		break;
 	case IO_TYPE::SEND:
-		ProcessSend(static_cast<SendEvent*>(iocpEvent), bytesTransferred);
+		ProcessSend(bytesTransferred);
 		break;
 	default:
 		HandleError("IocpSession::Dispatch");
@@ -135,8 +154,8 @@ void IocpSession::RegisterRecv()
 
 	// set wsaBuf
 	WSABUF wsaBuf;
-	wsaBuf.buf = reinterpret_cast<CHAR*>(m_recvBuffer);
-	wsaBuf.len = sizeof(m_recvBuffer) / sizeof(BYTE);
+	wsaBuf.buf = reinterpret_cast<CHAR*>(m_recvBuffer.GetWritePos());
+	wsaBuf.len = m_recvBuffer.GetFreeSize();
 
 	DWORD recvLen = 0;
 	DWORD flags = 0;
@@ -151,30 +170,49 @@ void IocpSession::RegisterRecv()
 	}
 }
 
-void IocpSession::RegisterSend(BYTE* sendData, int dataLen)
+void IocpSession::RegisterSend()
 {
 	if (!IsConnected())
 		return;
 
-	// Init SendEvent
-	// send는 recv와 달리 여러번 가능..
-	SendEvent* sendEvent = new SendEvent();
-	sendEvent->m_owner = shared_from_this();
-	sendEvent->m_sendBuffer.resize(dataLen);
-	memcpy(sendEvent->m_sendBuffer.data(), sendData, dataLen);
+	// Scatter-Gather
+	// init m_sendEvent
+	m_sendEvent.Init();
+	m_sendEvent.m_owner = shared_from_this();
+	// add sendBuffer in sendEvent
+	{
+		m_sendBufLock.lock();
 
-	// init wsaBuf
-	WSABUF wsaBuf;
-	wsaBuf.buf = (char*)sendEvent->m_sendBuffer.data();
-	wsaBuf.len = (ULONG)sendEvent->m_sendBuffer.size();
+		while (m_sendBufferQueue.empty() == false)
+		{
+			shared_ptr<SendBuffer> sendBuf = m_sendBufferQueue.front();
+			m_sendBufferQueue.pop();
 
+			m_sendEvent.m_sendBuffer.push_back(sendBuf);
+		}
+
+		m_sendBufLock.unlock();
+	}
+	// add all sendData in WSABuf
+	vector<WSABUF> wsaBuf;
+	wsaBuf.reserve(m_sendEvent.m_sendBuffer.size());
+	for (shared_ptr<SendBuffer> sendBuf : m_sendEvent.m_sendBuffer)
+	{
+		WSABUF buf;
+		buf.buf = (char*)sendBuf->GetData();
+		buf.len = sendBuf->GetDataSize();
+		wsaBuf.push_back(buf);
+	}
+	
 	// WSASend
-	DWORD sendLen = 0;
-	if (::WSASend(m_socket, &wsaBuf, 1, &sendLen, 0, sendEvent, NULL) == SOCKET_ERROR)
+	DWORD bytesTransferred = 0;
+	if (::WSASend(m_socket, wsaBuf.data(), static_cast<DWORD>(wsaBuf.size()), &bytesTransferred, 0, &m_sendEvent, NULL) == SOCKET_ERROR)
 	{
 		if (::WSAGetLastError() != ERROR_IO_PENDING)
 		{
-			sendEvent->m_owner = nullptr;
+			m_sendEvent.m_owner = nullptr;
+			m_sendEvent.m_sendBuffer.clear();
+			m_bSendRegistered.store(false);
 			HandleError("WSASend");
 			return;
 		}
@@ -216,15 +254,32 @@ void IocpSession::ProcessRecv(int bytesTransferred)
 		return;
 	}
 
-	OnRecv(m_recvBuffer, bytesTransferred);
+	if (m_recvBuffer.OnWrite(bytesTransferred) == false)
+	{
+		Disconnect();
+		return;
+	}
 
+	// on recv
+	int dataSize = m_recvBuffer.GetDataSize();
+	int processLen = OnRecv(m_recvBuffer.GetReadPos(), bytesTransferred);
+	if (processLen < 0 || dataSize < processLen || m_recvBuffer.OnRead(processLen) == false)
+	{
+		Disconnect();
+		return;
+	}
+
+	// adjust cursor
+	m_recvBuffer.AdjustPos();
+
+	// register recv
 	RegisterRecv();
 }
 
-void IocpSession::ProcessSend(SendEvent* sendEvent, int bytesTransferred)
+void IocpSession::ProcessSend(int bytesTransferred)
 {
-	sendEvent->m_owner = nullptr;
-	delete(sendEvent);
+	m_sendEvent.m_owner = nullptr;
+	m_sendEvent.m_sendBuffer.clear();
 
 	if (bytesTransferred == 0)
 	{
@@ -234,4 +289,47 @@ void IocpSession::ProcessSend(SendEvent* sendEvent, int bytesTransferred)
 
 	OnSend(bytesTransferred);
 
+	// send queue check
+	m_sendBufLock.lock();
+	if (m_sendBufferQueue.empty())
+	{
+		m_bSendRegistered.store(false);
+		m_sendBufLock.unlock();
+		return;
+	}
+	m_sendBufLock.unlock();
+	RegisterSend();
+}
+
+int IocpSession::OnRecv(BYTE* buffer, int len)
+{
+	/*
+	int processLen = 0;
+
+	while (true)
+	{
+		int dataSize = len - processLen;
+
+		// packet header parsing possible?
+		if (dataSize < sizeof(PacketHeader))
+			break;
+
+		// packet header parsing
+		PacketHeader header = *(reinterpret_cast<PacketHeader*>(&buffer[processLen]));
+
+		// packet enable?
+		if (dataSize < header.size)
+			break;
+
+		// packet enable
+		OnRecvPacket(&buffer[processLen], header.size);
+
+		processLen += header.size;
+
+	}
+
+	return processLen;
+	*/
+	OnRecvPacket(buffer, len);
+	return len;
 }

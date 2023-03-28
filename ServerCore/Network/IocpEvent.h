@@ -1,5 +1,6 @@
 #pragma once
 #include "Common.h"
+#include "SendBuffer.h"
 
 class IocpObject;
 class IocpSession;
@@ -122,5 +123,5 @@ public:
 	SendEvent& operator=(SendEvent&& other) = delete;
 	~SendEvent() = default;
 public:
-	vector<BYTE> m_sendBuffer;
+	vector<shared_ptr<SendBuffer>> m_sendBuffer;
 };

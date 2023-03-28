@@ -3,10 +3,9 @@
 #include <iostream>
 using namespace std;
 
-#include <thread>
 #include <vector>
 #include <set>
-#include <string>
+#include <queue>
 
 #include <WinSock2.h>
 #include <MSWSock.h>
@@ -14,7 +13,13 @@ using namespace std;
 #pragma comment(lib, "ws2_32.lib")
 
 #include <wchar.h>
+#include <string>
 #include <functional>
+
+#include <thread>
 #include <mutex>
+
+#define BUFSIZE 1000
+#define len(arr) static_cast<int>(sizeof(arr)/sizeof(arr[0]))
 
 void HandleError(const char* cause);

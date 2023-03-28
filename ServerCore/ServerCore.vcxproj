@@ -171,6 +171,7 @@
     <ClInclude Include="Network\IocpServer.h" />
     <ClInclude Include="Network\IocpService.h" />
     <ClInclude Include="Network\IocpSession.h" />
+    <ClInclude Include="Network\Packet.h" />
     <ClInclude Include="Network\RecvBuffer.h" />
     <ClInclude Include="Network\SendBuffer.h" />
     <ClInclude Include="Network\SockAddress.h" />

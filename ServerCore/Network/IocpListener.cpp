@@ -86,7 +86,7 @@ void IocpListener::RegisterAccept(AcceptEvent* acceptEvent)
 
 	// AcceptEx
 	DWORD bytesReceived = 0;
-	BOOL retVal = SocketCore::AcceptEx(m_listener, session->GetSocket(), session->m_recvBuffer, 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytesReceived, static_cast<LPOVERLAPPED>(acceptEvent));
+	BOOL retVal = SocketCore::AcceptEx(m_listener, session->GetSocket(), session->m_recvBuffer.GetWritePos(), 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytesReceived, static_cast<LPOVERLAPPED>(acceptEvent));
 	if (retVal == FALSE)
 	{
 		if (::WSAGetLastError() != WSA_IO_PENDING)
