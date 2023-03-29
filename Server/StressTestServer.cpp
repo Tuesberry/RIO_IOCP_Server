@@ -46,7 +46,9 @@ void StressTestServer::Draw()
 		result = m_server->GetClientInfo(i, cInfo);
 		if (result == true)
 		{
-			cout << "Session " << i << " | posX : " << cInfo.posX << ", posY : " << cInfo.posY << endl;
+			string str;
+			str = "Session " + to_string(i) + "    | posX : " + to_string(cInfo.posX) + ", posY : " + to_string(cInfo.posY) + "    ";
+			cout << str << endl;
 		}
 		else
 		{
