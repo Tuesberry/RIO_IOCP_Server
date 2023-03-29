@@ -19,10 +19,11 @@ ClientSession::~ClientSession()
 
 void ClientSession::OnConnected()
 {
-	GCoutMgr << "Connected To Server";
-
 	// set sessionID
 	m_sessionID = GetService()->GetConnectCnt();
+
+	string temp = "Connected To Server |   ID :  " + to_string(m_sessionID);
+	GCoutMgr << temp;
 
 	// sendLogin
 	SendLogin();
@@ -48,7 +49,7 @@ void ClientSession::OnRecvPacket(BYTE* buffer, int len)
 
 void ClientSession::OnSend(int len)
 {
-	cout << "OnSend Len = " << len << endl;
+	//cout << "OnSend Len = " << len << endl;
 }
 
 void ClientSession::OnDisconnected()
@@ -74,6 +75,8 @@ void ClientSession::SendLogin()
 
 void ClientSession::SendInfo()
 {
+	UpdatePos();
+
 	shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(sizeof(PKT_INFO));
 	BufferWriter bw(sendBuffer->GetData(), sendBuffer->GetFreeSize());
 
@@ -88,4 +91,10 @@ void ClientSession::SendInfo()
 
 	sendBuffer->OnWrite(sizeof(PKT_INFO));
 	Send(sendBuffer);
+}
+
+void ClientSession::UpdatePos()
+{
+	m_posX = rand() % 100;
+	m_posY = rand() % 100;
 }

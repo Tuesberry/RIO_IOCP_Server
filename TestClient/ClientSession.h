@@ -18,7 +18,7 @@ public:
 
 	void SendLogin();
 	void SendInfo();
-
+	void UpdatePos();
 public:
 	int m_sessionID;
 	int m_posX;

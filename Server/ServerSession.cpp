@@ -21,21 +21,11 @@ void ServerSession::OnRecvPacket(BYTE* buffer, int len)
     bool result = ServerPacketHandler::HandlePacket(
         static_pointer_cast<ServerSession>(shared_from_this()), buffer, len);
     SendResult((result && m_connectID != 0));
-    // Echo
-    //cout << "OnRecv Len = " << len << endl;
-    //cout << "Data = " << buffer << endl;
-    /*
-    shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(len);
-    BufferWriter bufferWriter(sendBuffer->GetData(), sendBuffer->GetFreeSize());
-    bufferWriter.Write(buffer, len);
-    sendBuffer->OnWrite(len);
-    Send(sendBuffer);
-    */
 }
 
 void ServerSession::OnSend(int len)
 {
-    cout << "OnSend Len = " << len << endl;
+    //cout << "OnSend Len = " << len << endl;
 }
 
 void ServerSession::SendResult(bool isOk)

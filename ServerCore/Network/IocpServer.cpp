@@ -67,4 +67,38 @@ void IocpServer::StopServer()
 	m_bStart = false;
 }
 
+void IocpServer::AddNewClient(int id)
+{
+	lock_guard<mutex> lock(m_clientInfoLock);
+	CLIENT_INFO tempInfo = { 0,0 };
+	m_clientInfo.insert(make_pair(id, tempInfo));
+}
 
+void IocpServer::RemoveClient(int id)
+{
+	lock_guard<mutex> lock(m_clientInfoLock);
+	m_clientInfo.erase(id);
+}
+
+void IocpServer::SetClientPos(int id, int posX, int posY)
+{
+	lock_guard<mutex> lock(m_clientInfoLock);
+	auto iterCInfo = m_clientInfo.find(id);
+	iterCInfo->second.posX = posX;
+	iterCInfo->second.posY = posY;
+}
+
+bool IocpServer::GetClientInfo(int id, CLIENT_INFO& info)
+{
+	lock_guard<mutex> lock(m_clientInfoLock);
+
+	auto iterCInfo = m_clientInfo.find(id);
+
+	if (iterCInfo == m_clientInfo.end())
+		return false;
+
+	info.posX = iterCInfo->second.posX;
+	info.posY = iterCInfo->second.posY;
+
+	return true;
+}
