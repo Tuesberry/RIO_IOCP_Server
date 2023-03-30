@@ -82,7 +82,7 @@ void IocpServer::RemoveClient(int id)
 
 void IocpServer::SetClientPos(int id, int posX, int posY)
 {
-	lock_guard<mutex> lock(m_clientInfoLock);
+	//lock_guard<mutex> lock(m_clientInfoLock);
 	auto iterCInfo = m_clientInfo.find(id);
 	iterCInfo->second.posX = posX;
 	iterCInfo->second.posY = posY;
@@ -90,7 +90,7 @@ void IocpServer::SetClientPos(int id, int posX, int posY)
 
 bool IocpServer::GetClientInfo(int id, CLIENT_INFO& info)
 {
-	lock_guard<mutex> lock(m_clientInfoLock);
+	//lock_guard<mutex> lock(m_clientInfoLock);
 
 	auto iterCInfo = m_clientInfo.find(id);
 

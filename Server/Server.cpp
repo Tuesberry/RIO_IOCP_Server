@@ -12,7 +12,7 @@ int main()
         std::make_shared<ServerSession>,
         SockAddress(L"127.0.0.1", 7777),
         50,
-        1));
+        2));
 
     stressTestServer.RunServer();
 
