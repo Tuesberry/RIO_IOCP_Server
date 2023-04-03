@@ -9,12 +9,11 @@ public:
     ServerSession();
     ~ServerSession();
 
+    virtual void OnConnected() override;
     virtual void OnRecvPacket(BYTE* buffer, int len) override;
     virtual void OnSend(int len) override;
+    virtual void OnDisconnected() override;
 
     void SendResult(bool isOk);
 public:
-    int m_connectID;
-    int m_posX;
-    int m_posY;
 };

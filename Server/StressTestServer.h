@@ -2,6 +2,11 @@
 #include "CoreCommon.h"
 #include "Network/IocpServer.h"
 
+struct Client
+{
+	
+};
+
 class StressTestServer
 {
 public:
