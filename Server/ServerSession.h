@@ -9,11 +9,15 @@ public:
     ServerSession();
     ~ServerSession();
 
-    virtual void OnConnected() override;
     virtual void OnRecvPacket(BYTE* buffer, int len) override;
     virtual void OnSend(int len) override;
     virtual void OnDisconnected() override;
 
-    void SendResult(bool isOk);
+    void SendMoveMsg(int targetId, unsigned short x, unsigned short y);
+    void SendEnterMsg(int targetId, unsigned short x, unsigned short y);
+    void SendLeaveMsg(int targetId);
+
 public:
+    int m_connectClientId;
+    int m_moveTime;
 };

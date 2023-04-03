@@ -1,6 +1,6 @@
 #pragma once
-#include "pch.h"
 #include "StressTestServer.h"
+#include "Room.h"
 
 StressTestServer::StressTestServer(shared_ptr<IocpServer> server)
 	:m_server(server)
@@ -38,6 +38,7 @@ void StressTestServer::Draw()
 	cout << currCnt << endl;
 		
 	//system("cls");
+	/*
 	MoveCursor(0, 3);
 	CLIENT_INFO cInfo;
 	bool result;
@@ -55,6 +56,7 @@ void StressTestServer::Draw()
 			m_server->RemoveClient(i);
 		}
 	}
+	*/
 }
 
 void StressTestServer::InitDraw()

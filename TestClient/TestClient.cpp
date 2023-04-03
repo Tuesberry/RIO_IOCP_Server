@@ -12,7 +12,7 @@ int main()
 		std::make_shared<IocpCore>(),
 		std::make_shared<ClientSession>, // TODO : SessionManager µî
 		SockAddress(L"127.0.0.1", 7777),
-		20,
+		1,
 		2);
 
 	if (client->StartClient() == false)

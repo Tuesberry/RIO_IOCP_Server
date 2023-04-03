@@ -37,11 +37,20 @@ struct PKT_C2S_LOGIN
 /* ----------------------------
 *		PKT_C2S_MOVE
 ---------------------------- */
+enum MOVE_DIRECTION : unsigned short
+{
+	FRONT,
+	RIGHT,
+	LEFT,
+	BACK
+};
+
 struct PKT_C2S_MOVE
 {
 	PacketHeader header;
 	int id;
-	int direction;
+	unsigned short direction;
+	unsigned int moveTime; // delay 계산 용도
 };
 
 /* ----------------------------

@@ -17,10 +17,10 @@ public:
 	virtual void OnDisconnected() override;
 
 	void SendLogin();
-	void SendInfo();
-	void UpdatePos();
+	void SendMove();
+
 public:
 	int m_sessionID;
-	int m_posX;
-	int m_posY;
+	unsigned short m_posX;
+	unsigned short m_posY;
 };

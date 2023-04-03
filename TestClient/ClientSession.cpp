@@ -7,14 +7,14 @@
 
 ClientSession::ClientSession()
 	: m_sessionID(0)
-	, m_posX(10)
-	, m_posY(10)
+	, m_posX(0)
+	, m_posY(0)
 {
 }
 
 ClientSession::~ClientSession()
 {
-	cout << "~ClientSession" << endl;
+	//cout << "~ClientSession" << endl;
 }
 
 void ClientSession::OnConnected()
@@ -27,13 +27,6 @@ void ClientSession::OnConnected()
 
 	// sendLogin
 	SendLogin();
-	/*
-	int dataLen = sizeof(sendData) / sizeof(BYTE);
-	shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(dataLen);
-	::memcpy(sendBuffer->GetData(), &sendData, sizeof(sendData));
-	sendBuffer->OnWrite(dataLen);
-	Send(sendBuffer);
-	*/
 }
 
 void ClientSession::OnRecvPacket(BYTE* buffer, int len)
@@ -44,7 +37,7 @@ void ClientSession::OnRecvPacket(BYTE* buffer, int len)
 	if (result == false)
 		Disconnect();
 
-	SendInfo();
+	SendMove();
 }
 
 void ClientSession::OnSend(int len)
@@ -59,42 +52,33 @@ void ClientSession::OnDisconnected()
 
 void ClientSession::SendLogin()
 {
-	shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(sizeof(PKT_LOGIN));
+	shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(sizeof(PKT_C2S_LOGIN));
 	BufferWriter bw(sendBuffer->GetData(), sendBuffer->GetFreeSize());
 
-	PKT_LOGIN pktResult;
-	pktResult.header.id = PROTO_ID::LOGIN;
-	pktResult.header.size = sizeof(PKT_LOGIN);
-	pktResult.id = m_sessionID;
+	PKT_C2S_LOGIN pktLogin;
+	pktLogin.header.id = PROTO_ID::LOGIN;
+	pktLogin.header.size = sizeof(PKT_C2S_LOGIN);
+	pktLogin.id = m_sessionID;
 
-	bw.Write(&pktResult, sizeof(PKT_LOGIN));
+	bw.Write(&pktLogin, sizeof(PKT_C2S_LOGIN));
 
-	sendBuffer->OnWrite(sizeof(PKT_LOGIN));
+	sendBuffer->OnWrite(sizeof(PKT_C2S_LOGIN));
 	Send(sendBuffer);
 }
 
-void ClientSession::SendInfo()
+void ClientSession::SendMove()
 {
-	UpdatePos();
-
-	shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(sizeof(PKT_INFO));
+	shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(sizeof(PKT_C2S_MOVE));
 	BufferWriter bw(sendBuffer->GetData(), sendBuffer->GetFreeSize());
 
-	PKT_INFO pktResult;
-	pktResult.header.id = PROTO_ID::INFO;
-	pktResult.header.size = sizeof(PKT_INFO);
-	pktResult.id = m_sessionID;
-	pktResult.posX = m_posX;
-	pktResult.poxY = m_posY;
+	PKT_C2S_MOVE pktMove;
+	pktMove.header.id = PROTO_ID::C2S_MOVE;
+	pktMove.header.size = sizeof(PKT_C2S_MOVE);
+	pktMove.id = m_sessionID;
+	pktMove.direction = rand() % 4;
 
-	bw.Write(&pktResult, sizeof(PKT_INFO));
+	bw.Write(&pktMove, sizeof(PKT_C2S_MOVE));
 
-	sendBuffer->OnWrite(sizeof(PKT_INFO));
+	sendBuffer->OnWrite(sizeof(PKT_C2S_MOVE));
 	Send(sendBuffer);
-}
-
-void ClientSession::UpdatePos()
-{
-	m_posX = rand() % 100;
-	m_posY = rand() % 100;
 }

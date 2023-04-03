@@ -4,6 +4,7 @@
 #include "ServerSession.h"
 #include "Utils/BufferHelper.h"
 #include "Network/IocpServer.h"
+#include "Room.h"
 
 bool ServerPacketHandler::HandlePacket(shared_ptr<ServerSession>session, BYTE* buffer, int len)
 {
@@ -17,8 +18,11 @@ bool ServerPacketHandler::HandlePacket(shared_ptr<ServerSession>session, BYTE* b
 	case PROTO_ID::LOGIN :
 		return Handle_LOGIN(session, buffer, len);
 		break;
-	case PROTO_ID::INFO :
-		return Handle_INFO(session, buffer, len);
+	case PROTO_ID::C2S_MOVE:
+		return Handle_C2S_MOVE(session, buffer, len);
+		break;
+	case PROTO_ID::LOGOUT:
+		return Handle_LOGOUT(session, buffer, len);
 		break;
 	default:
 		break;
@@ -37,38 +41,64 @@ bool ServerPacketHandler::Handle_LOGIN(shared_ptr<ServerSession>session, BYTE* b
 	if (header.size > len)
 		return false;
 
-	br >> session->m_connectID;
+	br >> session->m_connectClientId;
 	
-	//cout << session->m_connectID << " : login" << endl;
-	shared_ptr<IocpServer> server = static_pointer_cast<IocpServer>(session->GetService());
-	server->AddNewClient(session->m_connectID);
-	
+	// login
+	shared_ptr<Player> player = make_shared<Player>(session->m_connectClientId, session);
+	gRoom.Login(player);
+
+	// move packet
+	session->SendMoveMsg(session->m_connectClientId, player->m_posX, player->m_posY);
+
 	return true;
 }
 
-bool ServerPacketHandler::Handle_INFO(shared_ptr<ServerSession>session, BYTE* buffer, int len)
+bool ServerPacketHandler::Handle_C2S_MOVE(shared_ptr<ServerSession>session, BYTE* buffer, int len)
 {
 	BufferReader br(buffer, len);
 
 	PacketHeader header;
 	br >> header;
 
+	// check packet size
 	if (header.size > len)
 		return false;
 
+	// check id validation
 	int id;
 	br >> id;
-	if (id != session->m_connectID)
+	if (id != session->m_connectClientId)
 		return false;
 
-	int posX, posY = 0;
-	br >> posX >> posY;
+	// get information
+	unsigned short direction;
+	br >> direction >> session->m_moveTime;
 
-	shared_ptr<IocpServer> server = static_pointer_cast<IocpServer>(session->GetService());
-	server->SetClientPos(session->m_connectID, posX, posY);
+	// move player
+	gRoom.MovePlayer(session->m_connectClientId, direction);
 
-	//cout << session->m_connectID << " : send Info" << endl;
-	//cout << session->m_posX << " " << session->m_posY << endl;
+	return true;
+}
+
+bool ServerPacketHandler::Handle_LOGOUT(shared_ptr<ServerSession> session, BYTE* buffer, int len)
+{
+	BufferReader br(buffer, len);
+
+	PacketHeader header;
+	br >> header;
+
+	// check packet size
+	if (header.size > len)
+		return false;
+
+	// check id validation
+	int id;
+	br >> id;
+	if (id != session->m_connectClientId)
+		return false;
+
+	// logout
+	session->Disconnect();
 
 	return true;
 }

@@ -3,24 +3,23 @@
 #include "ServerSession.h"
 #include "Utils/BufferHelper.h"
 #include "ServerPacketHandler.h"
+#include "Room.h"
 
 ServerSession::ServerSession()
-    : m_connectID(0)
-    , m_posX(0)
-    , m_posY(0)
+    : m_connectClientId(0)
+    , m_moveTime(0)
 {
 }
 
 ServerSession::~ServerSession()
 {
-    cout << "~ServerSession" << endl;
+    //cout << "~ServerSession" << endl;
 }
 
 void ServerSession::OnRecvPacket(BYTE* buffer, int len)
 {
     bool result = ServerPacketHandler::HandlePacket(
         static_pointer_cast<ServerSession>(shared_from_this()), buffer, len);
-    SendResult((result && m_connectID != 0));
 }
 
 void ServerSession::OnSend(int len)
@@ -28,19 +27,66 @@ void ServerSession::OnSend(int len)
     //cout << "OnSend Len = " << len << endl;
 }
 
-void ServerSession::SendResult(bool isOk)
+void ServerSession::OnDisconnected()
 {
-    shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(sizeof(PKT_RESULT));
+    gRoom.Logout(m_connectClientId);
+}
+
+void ServerSession::SendMoveMsg(int targetId, unsigned short x, unsigned short y)
+{
+    shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(sizeof(PKT_S2C_MOVE));
     BufferWriter bw(sendBuffer->GetData(), sendBuffer->GetFreeSize());
-    
-    PKT_RESULT pktResult;
-    pktResult.header.id = PROTO_ID::RESULT;
-    pktResult.header.size = sizeof(PKT_RESULT);
-    pktResult.id = m_connectID;
-    pktResult.result = isOk;
 
-    bw.Write(&pktResult, sizeof(PKT_RESULT));
+    PKT_S2C_MOVE pktMove;
+    pktMove.header.id = PROTO_ID::S2C_MOVE;
+    pktMove.header.size = sizeof(PKT_S2C_MOVE);
+    pktMove.id = targetId;
+    pktMove.x = x;
+    pktMove.y = y;
+    pktMove.moveTime = NULL;
 
-    sendBuffer->OnWrite(sizeof(PKT_RESULT));
+    if (targetId == m_connectClientId)
+    {
+        // 자기 자신의 move message인 경우
+        pktMove.moveTime = m_moveTime;
+    }
+
+    bw.Write(&pktMove, sizeof(PKT_S2C_MOVE));
+
+    sendBuffer->OnWrite(sizeof(PKT_S2C_MOVE));
+    Send(sendBuffer);
+}
+
+void ServerSession::SendEnterMsg(int targetId, unsigned short x, unsigned short y)
+{
+    shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(sizeof(PKT_S2C_ENTER));
+    BufferWriter bw(sendBuffer->GetData(), sendBuffer->GetFreeSize());
+
+    PKT_S2C_ENTER pktEnter;
+    pktEnter.header.id = PROTO_ID::S2C_ENTER;
+    pktEnter.header.size = sizeof(PKT_S2C_ENTER);
+    pktEnter.id = targetId;
+    pktEnter.x = x;
+    pktEnter.y = y;
+
+    bw.Write(&pktEnter, sizeof(PKT_S2C_ENTER));
+
+    sendBuffer->OnWrite(sizeof(PKT_S2C_ENTER));
+    Send(sendBuffer);
+}
+
+void ServerSession::SendLeaveMsg(int targetId)
+{
+    shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(sizeof(PKT_S2C_LEAVE));
+    BufferWriter bw(sendBuffer->GetData(), sendBuffer->GetFreeSize());
+
+    PKT_S2C_LEAVE pktLeave;
+    pktLeave.header.id = PROTO_ID::S2C_LEAVE;
+    pktLeave.header.size = sizeof(PKT_S2C_LEAVE);
+    pktLeave.id = targetId;
+
+    bw.Write(&pktLeave, sizeof(PKT_S2C_LEAVE));
+
+    sendBuffer->OnWrite(sizeof(PKT_S2C_LEAVE));
     Send(sendBuffer);
 }
