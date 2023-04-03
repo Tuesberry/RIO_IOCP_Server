@@ -44,7 +44,7 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 	int id;
 	br >> id;
 	if (id != session->m_sessionID)
-		return false;
+		return true;
 
 	br >> session->m_posX >> session->m_posY;
 
@@ -67,7 +67,7 @@ bool ClientPacketHandler::Handle_S2C_ENTER(shared_ptr<ClientSession> session, BY
 	// check id validation
 	int id;
 	br >> id;
-	if (id != session->m_sessionID)
+	if (id == session->m_sessionID)
 		return false;
 
 	return true;
@@ -87,7 +87,7 @@ bool ClientPacketHandler::Handle_S2C_LEAVE(shared_ptr<ClientSession> session, BY
 	// check id validation
 	int id;
 	br >> id;
-	if (id != session->m_sessionID)
+	if (id == session->m_sessionID)
 		return false;
 
 	return true;
