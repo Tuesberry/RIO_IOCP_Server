@@ -12,4 +12,5 @@ private:
 	static bool Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYTE* buffer, int len);
 	static bool Handle_S2C_ENTER(shared_ptr<ClientSession> session, BYTE* buffer, int len);
 	static bool Handle_S2C_LEAVE(shared_ptr<ClientSession> session, BYTE* buffer, int len);
+	static bool Handle_LOGIN_RESULT(shared_ptr<ClientSession> session, BYTE* buffer, int len);
 };

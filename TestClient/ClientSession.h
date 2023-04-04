@@ -3,8 +3,6 @@
 #include "pch.h"
 #include "Network/IocpSession.h"
 
-//char sendData[] = "Hello World";
-
 class ClientSession : public IocpSession
 {
 public:
@@ -23,4 +21,5 @@ public:
 	int m_sessionID;
 	unsigned short m_posX;
 	unsigned short m_posY;
+
 };

@@ -5,6 +5,11 @@
 
 class Room
 {
+	enum {
+		VIEW_DISTANCE = 100,
+		WAITING_TIME_LIMIT = 1,
+	};
+
 public:
 	Room();
 	Room(const Room& other) = delete;
@@ -19,6 +24,7 @@ public:
 	void Logout(unsigned int userId);
 	void MovePlayer(unsigned int userId, unsigned short direction);
 
+	int GetLoginCnt() { return m_players.size(); }
 private:
 	bool IsNear(unsigned int userId1, unsigned int userId2);
 	bool IsNear(
@@ -33,17 +39,24 @@ private:
 	void SendLeaveMsg(unsigned int userId, unsigned int targetId);
 
 	void UpdatePlayers();
+	void UpdatePlayerPosition(int direction, shared_ptr<Player> player);
+
+	void FindNearPlayer(unordered_set<int>& viewList, shared_ptr<Player> player);
+
+	bool IsValidPlayer(unsigned int userId);
 
 private:
-	atomic<int> m_searchCnt;
-	mutex m_changingLock;
+	atomic<int> m_moveCnt; 
+	atomic<bool> m_bUpdate;
+
+	mutex m_playerLock;
 	map<unsigned int, std::shared_ptr<Player>> m_players;
 
 	// Room 접속 대기
 	vector<unsigned int> m_disconnectId;
 	map<unsigned int, std::shared_ptr<Player>> m_connectId;
 
-	int m_viewDistance = 5;
+	high_resolution_clock::time_point m_lastUpdateTime;
 };
 
 extern Room gRoom;

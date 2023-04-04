@@ -22,6 +22,9 @@ bool ClientPacketHandler::HandlePacket(shared_ptr<ClientSession> session, BYTE* 
 	case PROTO_ID::S2C_LEAVE:
 		return Handle_S2C_LEAVE(session, buffer, len);
 		break;
+	case PROTO_ID::LOGIN_RESULT:
+		return Handle_LOGIN_RESULT(session, buffer, len);
+		break;
 	default:
 		break;
 	}
@@ -42,13 +45,18 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 
 	// check id validation
 	int id;
-	br >> id;
+	int targetId;
+	br >> id >> targetId;
 	if (id != session->m_sessionID)
-		return true;
+		return false;
 
 	br >> session->m_posX >> session->m_posY;
 
-	cout << session->m_posX << " " << session->m_posY << endl;
+	//cout << session->m_posX << " " << session->m_posY << endl;
+	if (id == targetId)
+	{
+		session->SendMove();
+	}
 
 	return true;
 }
@@ -66,8 +74,9 @@ bool ClientPacketHandler::Handle_S2C_ENTER(shared_ptr<ClientSession> session, BY
 
 	// check id validation
 	int id;
-	br >> id;
-	if (id == session->m_sessionID)
+	int targetId;
+	br >> id >> targetId;
+	if (id != session->m_sessionID)
 		return false;
 
 	return true;
@@ -86,9 +95,42 @@ bool ClientPacketHandler::Handle_S2C_LEAVE(shared_ptr<ClientSession> session, BY
 
 	// check id validation
 	int id;
-	br >> id;
-	if (id == session->m_sessionID)
+	int targetId;
+	br >> id >> targetId;
+	if (id != session->m_sessionID)
 		return false;
+
+	return true;
+}
+
+bool ClientPacketHandler::Handle_LOGIN_RESULT(shared_ptr<ClientSession> session, BYTE* buffer, int len)
+{
+	BufferReader br(buffer, len);
+
+	PacketHeader header;
+	br >> header;
+
+	// check packet size
+	if (header.size > len)
+		return false;
+
+	// check id validation
+	int id;
+	br >> id;
+	if (id != session->m_sessionID)
+		return false;
+
+	bool result;
+	br >> result;
+	if (result == false)
+		return false;
+
+	br >> session->m_posX >> session->m_posY;
+
+	//cout << session->m_posX << " " << session->m_posY << endl;
+	//cout << "login" << endl;
+
+	session->SendMove();
 
 	return true;
 }

@@ -7,6 +7,7 @@
 enum PROTO_ID : unsigned short
 {
 	LOGIN,
+	LOGIN_RESULT,
 	C2S_MOVE,
 	S2C_MOVE,
 	S2C_ENTER,
@@ -26,12 +27,24 @@ struct PacketHeader
 };
 
 /* ----------------------------
-*		PKT_LOGIN
+*		PKT_C2S_LOGIN
 ---------------------------- */
 struct PKT_C2S_LOGIN
 {
 	PacketHeader header;
 	int id;
+};
+
+/* ---------------------------------
+*		PKT_S2C_LOGIN_RESULT
+--------------------------------- */
+struct PKT_S2C_LOGIN_RESULT
+{
+	PacketHeader header;
+	int id;
+	bool result;
+	unsigned short x;
+	unsigned short y;
 };
 
 /* ----------------------------
@@ -60,6 +73,7 @@ struct PKT_S2C_MOVE
 {
 	PacketHeader header;
 	int id;
+	int targetId;
 	unsigned short x;
 	unsigned short y;
 	unsigned int moveTime; // delay 계산 용도
@@ -72,6 +86,7 @@ struct PKT_S2C_ENTER
 {
 	PacketHeader header;
 	int id;
+	int targetId;
 	unsigned short x;
 	unsigned short y;
 };
@@ -83,6 +98,7 @@ struct PKT_S2C_LEAVE
 {
 	PacketHeader header;
 	int id;
+	int targetId;
 };
 
 /* ----------------------------

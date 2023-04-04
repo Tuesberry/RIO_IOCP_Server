@@ -1,7 +1,7 @@
 #include "RecvBuffer.h"
 
 RecvBuffer::RecvBuffer(int bufferSize)
-	: m_capacity(bufferSize * 2)
+	: m_capacity(bufferSize * 3)
 	, m_bufferSize(bufferSize)
 	, m_readPos(0)
 	, m_writePos(0)
@@ -38,7 +38,7 @@ void RecvBuffer::AdjustPos()
 	}
 	else
 	{
-		if (GetFreeSize() < (m_bufferSize / 2))
+		if (GetFreeSize() < (m_bufferSize))
 		{
 			::memcpy(&m_buffer[0], &m_buffer[m_readPos], dataSize);
 			m_readPos = 0;

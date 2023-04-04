@@ -16,6 +16,7 @@ public:
     void SendMoveMsg(int targetId, unsigned short x, unsigned short y);
     void SendEnterMsg(int targetId, unsigned short x, unsigned short y);
     void SendLeaveMsg(int targetId);
+    void SendLoginResult(bool result, unsigned short x, unsigned short y);
 
 public:
     int m_connectClientId;

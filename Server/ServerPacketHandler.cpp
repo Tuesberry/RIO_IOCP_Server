@@ -47,9 +47,6 @@ bool ServerPacketHandler::Handle_LOGIN(shared_ptr<ServerSession>session, BYTE* b
 	shared_ptr<Player> player = make_shared<Player>(session->m_connectClientId, session);
 	gRoom.Login(player);
 
-	// move packet
-	session->SendMoveMsg(session->m_connectClientId, player->m_posX, player->m_posY);
-
 	return true;
 }
 

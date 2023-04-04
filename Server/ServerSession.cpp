@@ -40,7 +40,8 @@ void ServerSession::SendMoveMsg(int targetId, unsigned short x, unsigned short y
     PKT_S2C_MOVE pktMove;
     pktMove.header.id = PROTO_ID::S2C_MOVE;
     pktMove.header.size = sizeof(PKT_S2C_MOVE);
-    pktMove.id = targetId;
+    pktMove.id = m_connectClientId;
+    pktMove.targetId = targetId;
     pktMove.x = x;
     pktMove.y = y;
     pktMove.moveTime = NULL;
@@ -65,7 +66,8 @@ void ServerSession::SendEnterMsg(int targetId, unsigned short x, unsigned short 
     PKT_S2C_ENTER pktEnter;
     pktEnter.header.id = PROTO_ID::S2C_ENTER;
     pktEnter.header.size = sizeof(PKT_S2C_ENTER);
-    pktEnter.id = targetId;
+    pktEnter.id = m_connectClientId;
+    pktEnter.targetId = targetId;
     pktEnter.x = x;
     pktEnter.y = y;
 
@@ -83,10 +85,29 @@ void ServerSession::SendLeaveMsg(int targetId)
     PKT_S2C_LEAVE pktLeave;
     pktLeave.header.id = PROTO_ID::S2C_LEAVE;
     pktLeave.header.size = sizeof(PKT_S2C_LEAVE);
-    pktLeave.id = targetId;
+    pktLeave.id = m_connectClientId;
+    pktLeave.targetId = targetId;
 
     bw.Write(&pktLeave, sizeof(PKT_S2C_LEAVE));
 
     sendBuffer->OnWrite(sizeof(PKT_S2C_LEAVE));
+    Send(sendBuffer);
+}
+
+void ServerSession::SendLoginResult(bool result, unsigned short x, unsigned short y)
+{
+    shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(sizeof(PKT_S2C_LOGIN_RESULT));
+    BufferWriter bw(sendBuffer->GetData(), sendBuffer->GetFreeSize());
+
+    PKT_S2C_LOGIN_RESULT pktEnter;
+    pktEnter.header.id = PROTO_ID::LOGIN_RESULT;
+    pktEnter.header.size = sizeof(PKT_S2C_LOGIN_RESULT);
+    pktEnter.id = m_connectClientId;
+    pktEnter.x = x;
+    pktEnter.y = y;
+
+    bw.Write(&pktEnter, sizeof(PKT_S2C_LOGIN_RESULT));
+
+    sendBuffer->OnWrite(sizeof(PKT_S2C_LOGIN_RESULT));
     Send(sendBuffer);
 }

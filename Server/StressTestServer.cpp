@@ -36,6 +36,9 @@ void StressTestServer::Draw()
 
 	MoveCursor(25, 0);
 	cout << currCnt << endl;
+
+	MoveCursor(25, 1);
+	cout << gRoom.GetLoginCnt() << endl;
 		
 	//system("cls");
 	/*
@@ -61,8 +64,8 @@ void StressTestServer::Draw()
 
 void StressTestServer::InitDraw()
 {
-	cout << "Connected Client Count:\n" << endl;
-
+	cout << "Connected Client Count:" << endl;
+	cout << "Login Client Count:" << endl;
 	DrawMap();
 }
 

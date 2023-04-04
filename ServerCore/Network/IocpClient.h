@@ -28,4 +28,12 @@ public:
 	bool StartClient();
 	void RunClient();
 	void StopClient();
+
+	// session
+	bool ConnectNewSession();
+	bool DisconnectSession();
+
+public:
+	atomic<bool> m_bCanConnected;
+	high_resolution_clock::time_point m_lastConnectTime;
 };

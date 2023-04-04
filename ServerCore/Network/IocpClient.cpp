@@ -9,6 +9,8 @@ IocpClient::IocpClient(
 	int multipleThreadNum
 )
 	:IocpService(ServiceType::CLIENT,iocpCore, sessionFactory, connectAddress, maxSessionCnt, multipleThreadNum)
+	, m_lastConnectTime()
+	, m_bCanConnected(true)
 {
 }
 
@@ -21,14 +23,6 @@ bool IocpClient::StartClient()
 {
 	if (CanStart() == false)
 		return false;
-
-	// connect sessions
-	for (int i = 0; i < m_maxSessionCnt; i++)
-	{
-		shared_ptr<IocpSession> session = CreateSession();
-		if (session->Connect() == false)
-			return false;
-	}
 
 	// set client start
 	m_bStart = true;
@@ -55,4 +49,18 @@ void IocpClient::StopClient()
 
 	// stop client
 	m_bStart = false;
+}
+
+bool IocpClient::ConnectNewSession()
+{
+	shared_ptr<IocpSession> session = CreateSession();
+	return session->Connect();
+}
+
+bool IocpClient::DisconnectSession()
+{
+	lock_guard<mutex> lock(m_sessionLock);
+	set<shared_ptr<IocpSession>>::iterator it = m_serverSessions.begin();
+	(*it)->Disconnect();
+	return true;
 }

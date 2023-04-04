@@ -34,9 +34,9 @@ bool IocpSession::Connect()
 void IocpSession::Disconnect()
 {
 	if (m_bConnected.exchange(false) == false)
+	{
 		return;
-
-	cout << "Disconnect session" << endl;
+	}
 
 	RegisterDisconnect();
 }

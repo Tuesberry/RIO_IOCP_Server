@@ -4,6 +4,9 @@
 #include "Utils/ConsoleOutputManager.h"
 #include "Utils/BufferHelper.h"
 #include "Network/IocpService.h"
+#include "Network/IocpClient.h"
+
+atomic<int> gSessionID = 0;
 
 ClientSession::ClientSession()
 	: m_sessionID(0)
@@ -20,10 +23,12 @@ ClientSession::~ClientSession()
 void ClientSession::OnConnected()
 {
 	// set sessionID
-	m_sessionID = GetService()->GetConnectCnt();
+	m_sessionID = gSessionID.fetch_add(1);
+	m_sessionID++;
 
-	string temp = "Connected To Server |   ID :  " + to_string(m_sessionID);
-	GCoutMgr << temp;
+	shared_ptr<IocpClient> service = static_pointer_cast<IocpClient>(GetService());
+	service->m_lastConnectTime = high_resolution_clock::now();
+	service->m_bCanConnected.store(true);
 
 	// sendLogin
 	SendLogin();
@@ -37,7 +42,7 @@ void ClientSession::OnRecvPacket(BYTE* buffer, int len)
 	if (result == false)
 		Disconnect();
 
-	SendMove();
+	//SendMove();
 }
 
 void ClientSession::OnSend(int len)
@@ -47,7 +52,7 @@ void ClientSession::OnSend(int len)
 
 void ClientSession::OnDisconnected()
 {
-	cout << "Disconnected" << endl;
+	cout << "Disconnected | session = " << m_sessionID << endl;
 }
 
 void ClientSession::SendLogin()
