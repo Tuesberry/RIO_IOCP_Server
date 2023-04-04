@@ -3,6 +3,7 @@
 #include "ClientPacketHandler.h"
 #include "ClientSession.h"
 #include "Utils/BufferHelper.h"
+#include "StressTestClient.h"
 
 bool ClientPacketHandler::HandlePacket(shared_ptr<ClientSession> session, BYTE* buffer, int len)
 {
@@ -52,9 +53,30 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 
 	br >> session->m_posX >> session->m_posY;
 
+	unsigned int prevMoveTime = 0;
+	br >> prevMoveTime;
+
 	//cout << session->m_posX << " " << session->m_posY << endl;
 	if (id == targetId)
 	{
+		unsigned int prevTime = session->m_moveTime;
+		session->m_moveTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - prevMoveTime;
+		
+		// check delay > delay_limit
+		gDelayMgr.UpdateDelay(session->m_moveTime);
+
+		// update avg delay
+		if (session->m_bAddDelay == false)
+		{
+			gDelayMgr.AddNewInAvgDelay(session->m_moveTime);
+			session->m_bAddDelay = true;
+		}
+		else
+		{
+			gDelayMgr.UpdateAvgDelay(session->m_moveTime, prevTime);
+		}
+
+		gDelayMgr.updateCnt++;
 		session->SendMove();
 	}
 

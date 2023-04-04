@@ -22,4 +22,6 @@ public:
 	unsigned short m_posX;
 	unsigned short m_posY;
 
+	unsigned int m_moveTime;
+	bool m_bAddDelay;
 };
