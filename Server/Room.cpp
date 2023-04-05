@@ -315,7 +315,6 @@ bool Room::IsValidPlayer(unsigned int userId)
 	}
 	if (m_players.find(userId)->second->m_ownerSession == nullptr)
 	{
-		cout << "ddddddd" << endl;
 		return false;
 	}
 

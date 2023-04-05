@@ -64,7 +64,7 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 		
 		// check delay > delay_limit
 		gDelayMgr.UpdateDelay(static_cast<int>(session->m_moveTime));
-		cout << static_cast<int>(session->m_moveTime) << endl;
+		// cout << id << " " << targetId << " " << static_cast<int>(session->m_moveTime) << endl;
 		// update avg delay
 		if (session->m_bAddDelay == false)
 		{
@@ -76,7 +76,7 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 			gDelayMgr.UpdateAvgDelay(session->m_moveTime, prevTime);
 		}
 
-		gDelayMgr.updateCnt++;
+		gDelayMgr.m_updateCnt++;
 		session->SendMove();
 	}
 

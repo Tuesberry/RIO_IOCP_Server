@@ -7,8 +7,9 @@ class DelayManager
 public:
 	enum
 	{
-		CONNECT_DELAY_INIT_MS = 10,
+		CONNECT_DELAY_INIT_MICROS = 10000,
 		DELAY_LIMIT_MS = 100,
+		AVG_DELAY_LIMIT_MS = 100,
 	};
 
 	DelayManager();
@@ -24,23 +25,25 @@ public:
 	void AddNewInAvgDelay(int delay);
 	void DeleteInAvgDelay(int delay);
 
-	void CheckDelay();
+	void UpdateConnectionStatus();
 
 public:
-	unsigned int m_connectionDelay;
-	long int m_avgDelay;
+	unsigned int m_connectionDelay; // microseconds
+	long double m_avgDelay;
 	int m_delayCnt;
+
 	bool m_bCanConnect;
+	bool m_bDisconnect;
 
-	mutex m_updateLock;
+	mutex m_updateAvgLock;
+	mutex m_updateDelayLock;
 
-	int updateCnt = 0;
+	int m_updateCnt;
 };
 extern DelayManager gDelayMgr;
 
 class StressTestClient
 {
-	
 public:
 	StressTestClient() = delete;
 	StressTestClient(shared_ptr<IocpClient> client);

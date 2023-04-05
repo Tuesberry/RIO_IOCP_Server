@@ -54,7 +54,7 @@ void ClientSession::OnSend(int len)
 
 void ClientSession::OnDisconnected()
 {
-	cout << "Disconnected | session = " << m_sessionID << endl;
+	//cout << "Disconnected | session = " << m_sessionID << endl;
 }
 
 void ClientSession::SendLogin()

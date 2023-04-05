@@ -7,7 +7,7 @@ class Room
 {
 	enum {
 		VIEW_DISTANCE = 100,
-		WAITING_TIME_LIMIT = 1,
+		WAITING_TIME_LIMIT = 5,
 	};
 
 public:
