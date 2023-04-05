@@ -63,8 +63,8 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 		session->m_moveTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - prevMoveTime;
 		
 		// check delay > delay_limit
-		gDelayMgr.UpdateDelay(session->m_moveTime);
-
+		gDelayMgr.UpdateDelay(static_cast<int>(session->m_moveTime));
+		cout << static_cast<int>(session->m_moveTime) << endl;
 		// update avg delay
 		if (session->m_bAddDelay == false)
 		{

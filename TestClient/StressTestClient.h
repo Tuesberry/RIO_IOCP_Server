@@ -18,17 +18,17 @@ public:
 	DelayManager& operator=(DelayManager&& other) = delete;
 	~DelayManager() = default;
 
-	void UpdateDelay(unsigned int delay);
+	void UpdateDelay(int delay);
 
-	void UpdateAvgDelay(unsigned int delay, unsigned int prevDelay);
-	void AddNewInAvgDelay(unsigned int delay);
-	void DeleteInAvgDelay(unsigned int delay);
+	void UpdateAvgDelay(int delay, int prevDelay);
+	void AddNewInAvgDelay(int delay);
+	void DeleteInAvgDelay(int delay);
 
 	void CheckDelay();
 
 public:
 	unsigned int m_connectionDelay;
-	unsigned long int m_avgDelay;
+	long int m_avgDelay;
 	int m_delayCnt;
 	bool m_bCanConnect;
 

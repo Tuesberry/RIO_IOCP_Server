@@ -11,28 +11,29 @@ DelayManager::DelayManager()
 {
 }
 
-void DelayManager::UpdateDelay(unsigned int delay)
+void DelayManager::UpdateDelay(int delay)
 {
+	lock_guard<mutex> lock(m_updateLock);
 	if (delay > DELAY_LIMIT_MS)
 	{
 		m_connectionDelay++;
 	}
 }
 
-void DelayManager::UpdateAvgDelay(unsigned int delay, unsigned int prevDelay)
+void DelayManager::UpdateAvgDelay(int delay, int prevDelay)
 {
 	lock_guard<mutex> lock(m_updateLock);
 	m_avgDelay = (m_avgDelay * m_delayCnt - prevDelay + delay) / m_delayCnt;
 }
 
-void DelayManager::AddNewInAvgDelay(unsigned int delay)
+void DelayManager::AddNewInAvgDelay(int delay)
 {
 	lock_guard<mutex> lock(m_updateLock);
 	m_avgDelay = (m_avgDelay * m_delayCnt + delay) / (m_delayCnt + 1);
 	m_delayCnt++;
 }
 
-void DelayManager::DeleteInAvgDelay(unsigned int delay)
+void DelayManager::DeleteInAvgDelay(int delay)
 {
 	lock_guard<mutex> lock(m_updateLock);
 	m_avgDelay = (m_avgDelay * m_delayCnt - delay) / (m_delayCnt - 1);
