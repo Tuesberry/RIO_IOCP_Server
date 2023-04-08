@@ -153,12 +153,14 @@
   <ItemGroup>
     <ClCompile Include="ClientPacketHandler.cpp" />
     <ClCompile Include="ClientSession.cpp" />
+    <ClCompile Include="DelayManager.cpp" />
     <ClCompile Include="StressTestClient.cpp" />
     <ClCompile Include="TestClient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClientPacketHandler.h" />
     <ClInclude Include="ClientSession.h" />
+    <ClInclude Include="DelayManager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="StressTestClient.h" />
   </ItemGroup>

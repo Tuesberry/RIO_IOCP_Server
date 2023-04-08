@@ -14,6 +14,7 @@ ClientSession::ClientSession()
 	, m_posY(0)
 	, m_moveTime(0)
 	, m_bAddDelay(false)
+	, m_bLogin(false)
 {
 }
 
@@ -43,8 +44,6 @@ void ClientSession::OnRecvPacket(BYTE* buffer, int len)
 
 	if (result == false)
 		Disconnect();
-
-	//SendMove();
 }
 
 void ClientSession::OnSend(int len)
@@ -83,7 +82,7 @@ void ClientSession::SendMove()
 	pktMove.header.size = sizeof(PKT_C2S_MOVE);
 	pktMove.id = m_sessionID;
 	pktMove.direction = rand() % 4;
-	pktMove.moveTime = static_cast<unsigned>(duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count());
+	pktMove.moveTime = static_cast<unsigned>(duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count());
 
 	bw.Write(&pktMove, sizeof(PKT_C2S_MOVE));
 

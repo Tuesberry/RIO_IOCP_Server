@@ -64,3 +64,4 @@ bool IocpClient::DisconnectSession()
 	(*it)->Disconnect();
 	return true;
 }
+

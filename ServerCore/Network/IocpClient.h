@@ -29,9 +29,12 @@ public:
 	void RunClient();
 	void StopClient();
 
-	// session
+	// Session Connect & Disconnect
 	bool ConnectNewSession();
 	bool DisconnectSession();
+
+	// Session Access
+	set<shared_ptr<IocpSession>>& GetSessions() { return m_serverSessions; }
 
 public:
 	atomic<bool> m_bCanConnected;

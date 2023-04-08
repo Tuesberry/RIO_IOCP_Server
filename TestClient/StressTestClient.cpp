@@ -1,73 +1,12 @@
 #pragma once
 #include "StressTestClient.h"
+#include "ClientSession.h"
+#include "DelayManager.h"
 
-DelayManager gDelayMgr;
-
-DelayManager::DelayManager()
-	: m_connectionDelay(CONNECT_DELAY_INIT_MICROS)
-	, m_avgDelay(0)
-	, m_delayCnt(0)
-	, m_bCanConnect(true)
-	, m_bDisconnect(false)
-	, m_updateAvgLock()
-	, m_updateDelayLock()
-	, m_updateCnt(0)
-{
-}
-
-void DelayManager::UpdateDelay(int delay)
-{
-	lock_guard<mutex> lock(m_updateAvgLock);
-	if (delay > DELAY_LIMIT_MS)
-	{
-		//cout << delay << endl;
-		m_connectionDelay+= 10;
-	}
-}
-
-void DelayManager::UpdateAvgDelay(int delay, int prevDelay)
-{
-	lock_guard<mutex> lock(m_updateDelayLock);
-	m_avgDelay = (long double)(m_avgDelay * m_delayCnt - prevDelay + delay) / m_delayCnt;
-}
-
-void DelayManager::AddNewInAvgDelay(int delay)
-{
-	lock_guard<mutex> lock(m_updateDelayLock);
-	m_avgDelay = (long double)(m_avgDelay * m_delayCnt + delay) / ((long double)m_delayCnt + 1);
-	m_delayCnt++;
-}
-
-void DelayManager::DeleteInAvgDelay(int delay)
-{
-	lock_guard<mutex> lock(m_updateDelayLock);
-	m_avgDelay = (long double)(m_avgDelay * m_delayCnt - delay) / ((long double)m_delayCnt - 1);
-	m_delayCnt--;
-}
-
-void DelayManager::UpdateConnectionStatus()
-{
-	// 평균 반응 시간 > 150 ms -> 접속 시도 중지
-	if (m_bCanConnect)
-	{
-		if (m_avgDelay > AVG_DELAY_LIMIT_MS)
-		{
-			m_bCanConnect = false;
-			m_bDisconnect = true;
-		}
-	}
-	else
-	{
-		if (m_avgDelay < AVG_DELAY_LIMIT_MS)
-		{
-			m_bDisconnect = false;
-		}
-	}
-}
-
-StressTestClient::StressTestClient(shared_ptr<IocpClient> client)
+StressTestClient::StressTestClient(shared_ptr<IocpClient> client, int clientNum)
 	: m_client(client)
 	, m_initCursor()
+	, m_clientNum(clientNum)
 {
 }
 
@@ -86,61 +25,67 @@ void StressTestClient::RunServer()
 	InitOutput();
 	while (true)
 	{
-		UpdateConnection();
+		UpdateSessions();
 		UpdateOutput();
 	}
 
 	m_client->JoinWorkerThreads();
 }
 
-void StressTestClient::UpdateConnection()
+void StressTestClient::UpdateSessions()
 {
-	// check delay
-	gDelayMgr.UpdateConnectionStatus();
-
-	if (gDelayMgr.m_bCanConnect)
+	if (m_client->GetConnectCnt() == 0)
 	{
-		// connect 
-		if (m_client->ConnectNewSession() == false)
-			return;
-
-		// connect delay
-		this_thread::sleep_for(::microseconds(gDelayMgr.m_connectionDelay));
+		ConnectToServer(PACKET_SEND_DURATION);
 	}
-	else if(gDelayMgr.m_bDisconnect)
+	else
 	{
-		// disconnect
-		if (m_client->DisconnectSession() == false)
-			return;
-
-		// disconnect delay
-		this_thread::sleep_for(::milliseconds(100));
+		SendPacketToServer(PACKET_SEND_DURATION);
 	}
+}
 
-	/*
-	bool expected = true;
-	if (m_client->m_bCanConnected.compare_exchange_weak(expected, false) == true)
+void StressTestClient::SendPacketToServer(int duration)
+{
+	set<shared_ptr<IocpSession>>& sessions = m_client->GetSessions();
+	set<shared_ptr<IocpSession>>::iterator iter;
+
+	int startTime = 0;
+	int processTime = 0;
+
+	for (iter = sessions.begin(); iter != sessions.end(); iter++)
 	{
-		// check last connection time
-		m_lastConnectTime = duration_cast<microseconds>(m_client->m_lastConnectTime - m_connectStartTime);
-
-		if (m_lastConnectTime.count() > CONNECT_TIME_LIMIT_MS)
+		startTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
+		shared_ptr<ClientSession> cliSession = static_pointer_cast<ClientSession>(*iter);
+		
+		if (cliSession->m_bLogin)
 		{
-			m_client->DisconnectSession();
+			cliSession->SendMove();
+			processTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - startTime;
+			this_thread::sleep_for(::milliseconds((duration / m_clientNum) - processTime));
+		}
+		else
+		{
+			std::cout << "login not complete!" << std::endl;
+		}
+	}
+}
+
+void StressTestClient::ConnectToServer(int duration)
+{
+	int startTime = 0;
+	int processTime = 0;
+
+	for (int i = 0; i < m_clientNum; i++)
+	{
+		startTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
+		if (m_client->ConnectNewSession() == false)
+		{
+			HandleError("ConnectToServer");
 			return;
 		}
-			
-
-		//cout << sec.count() << endl;
-		//cout << duration_cast<milliseconds>(m_client->m_lastConnectTime).count() << endl;
-
-		// set new connection
-		m_connectStartTime = high_resolution_clock::now();
-
-		if (m_client->ConnectNewSession() == false)
-			return;
+		processTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - startTime;
+		this_thread::sleep_for(::milliseconds((duration / m_clientNum) - processTime));
 	}
-	*/
 }
 
 void StressTestClient::InitOutput()
@@ -151,17 +96,13 @@ void StressTestClient::InitOutput()
 	m_initCursor.X = presentCur.dwCursorPosition.X;
 	m_initCursor.Y = presentCur.dwCursorPosition.Y;
 
-	cout << "Current Connection Delay : " << endl;
-	cout << "Current Avg Delay : " << endl;
+	cout << "Current Client-Server Packet Send-Recv Delay \n = " << endl;
 }
 
 void StressTestClient::UpdateOutput()
 {
-	MoveCursor(25, 0);
-	cout << (long double)gDelayMgr.m_connectionDelay / 1000 << " milliseconds   \n";
-
-	MoveCursor(23, 1);
-	cout << gDelayMgr.m_avgDelay << " milliseconds   \n";
+	MoveCursor(3, 1);
+	cout << gDelayMgr.GetAvgDelay() / 1000 << " milliseconds   \n";
 }
 
 void StressTestClient::MoveCursor(int x, int y)

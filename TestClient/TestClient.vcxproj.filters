@@ -21,6 +21,9 @@
     <ClCompile Include="StressTestClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DelayManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -33,6 +36,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StressTestClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DelayManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

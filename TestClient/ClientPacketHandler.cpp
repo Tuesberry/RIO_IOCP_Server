@@ -4,6 +4,7 @@
 #include "ClientSession.h"
 #include "Utils/BufferHelper.h"
 #include "StressTestClient.h"
+#include "DelayManager.h"
 
 bool ClientPacketHandler::HandlePacket(shared_ptr<ClientSession> session, BYTE* buffer, int len)
 {
@@ -56,16 +57,12 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 	unsigned int prevMoveTime = 0;
 	br >> prevMoveTime;
 
-	//cout << session->m_posX << " " << session->m_posY << endl;
+	// update client-server pakcet transfer delay
 	if (id == targetId)
 	{
 		unsigned int prevTime = session->m_moveTime;
-		session->m_moveTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - prevMoveTime;
+		session->m_moveTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - prevMoveTime;
 		
-		// check delay > delay_limit
-		gDelayMgr.UpdateDelay(static_cast<int>(session->m_moveTime));
-		// cout << id << " " << targetId << " " << static_cast<int>(session->m_moveTime) << endl;
-		// update avg delay
 		if (session->m_bAddDelay == false)
 		{
 			gDelayMgr.AddNewInAvgDelay(session->m_moveTime);
@@ -75,9 +72,6 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 		{
 			gDelayMgr.UpdateAvgDelay(session->m_moveTime, prevTime);
 		}
-
-		gDelayMgr.m_updateCnt++;
-		session->SendMove();
 	}
 
 	return true;
@@ -147,12 +141,11 @@ bool ClientPacketHandler::Handle_LOGIN_RESULT(shared_ptr<ClientSession> session,
 	if (result == false)
 		return false;
 
+	// login complete
+	session->m_bLogin = true;
+
+	// get player initial position
 	br >> session->m_posX >> session->m_posY;
-
-	//cout << session->m_posX << " " << session->m_posY << endl;
-	//cout << "login" << endl;
-
-	session->SendMove();
 
 	return true;
 }

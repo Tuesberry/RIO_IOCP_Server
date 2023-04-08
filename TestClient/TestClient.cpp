@@ -7,13 +7,16 @@
 int main()
 {
 	this_thread::sleep_for(1s);
+	int ClientNum = 10;
 
 	StressTestClient stressTestClient(std::make_shared<IocpClient>(
 		std::make_shared<IocpCore>(),
 		std::make_shared<ClientSession>, // TODO : SessionManager µî
 		SockAddress(L"127.0.0.1", 7777),
 		500,
-		2));
+		2)
+		,ClientNum
+	);
 	
 	stressTestClient.RunServer();
 }
