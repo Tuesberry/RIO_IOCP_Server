@@ -9,8 +9,6 @@ IocpClient::IocpClient(
 	int multipleThreadNum
 )
 	:IocpService(ServiceType::CLIENT,iocpCore, sessionFactory, connectAddress, maxSessionCnt, multipleThreadNum)
-	, m_lastConnectTime()
-	, m_bCanConnected(true)
 {
 }
 

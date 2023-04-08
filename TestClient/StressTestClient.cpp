@@ -42,6 +42,7 @@ void StressTestClient::UpdateSessions()
 	{
 		SendPacketToServer(PACKET_SEND_DURATION);
 	}
+	this_thread::sleep_for(1s);
 }
 
 void StressTestClient::SendPacketToServer(int duration)
@@ -60,13 +61,13 @@ void StressTestClient::SendPacketToServer(int duration)
 		if (cliSession->m_bLogin)
 		{
 			cliSession->SendMove();
-			processTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - startTime;
-			this_thread::sleep_for(::milliseconds((duration / m_clientNum) - processTime));
 		}
-		else
+		else if(cliSession->m_bConnect && cliSession->m_bStartLogin == false)
 		{
-			std::cout << "login not complete!" << std::endl;
+			cliSession->SendLogin();
 		}
+		processTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - startTime;
+		//this_thread::sleep_for(::milliseconds((duration / m_clientNum) - processTime));
 	}
 }
 
@@ -84,9 +85,10 @@ void StressTestClient::ConnectToServer(int duration)
 			return;
 		}
 		processTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - startTime;
-		this_thread::sleep_for(::milliseconds((duration / m_clientNum) - processTime));
+		//this_thread::sleep_for(::milliseconds((duration / m_clientNum) - processTime));
 	}
 }
+
 
 void StressTestClient::InitOutput()
 {
@@ -96,13 +98,16 @@ void StressTestClient::InitOutput()
 	m_initCursor.X = presentCur.dwCursorPosition.X;
 	m_initCursor.Y = presentCur.dwCursorPosition.Y;
 
-	cout << "Current Client-Server Packet Send-Recv Delay \n = " << endl;
+	cout << "Current Client-Server Packet Send-Recv Delay \n = \n";
+	cout << "Current Login Delay \n = \n";
 }
 
 void StressTestClient::UpdateOutput()
 {
 	MoveCursor(3, 1);
-	cout << gDelayMgr.GetAvgDelay() / 1000 << " milliseconds   \n";
+	cout << gDelayMgr.GetAvgDelay() / 1000 << " milliseconds     ";
+	MoveCursor(3, 3);
+	cout << gDelayMgr.GetAvgLoginDelay() / 1000 << " milliseconds     ";
 }
 
 void StressTestClient::MoveCursor(int x, int y)

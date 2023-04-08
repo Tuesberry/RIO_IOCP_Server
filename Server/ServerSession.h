@@ -21,4 +21,5 @@ public:
 public:
     int m_connectClientId;
     int m_moveTime;
+    int m_loginTime;
 };

@@ -8,6 +8,7 @@
 ServerSession::ServerSession()
     : m_connectClientId(0)
     , m_moveTime(0)
+    , m_loginTime(0)
 {
 }
 
@@ -105,6 +106,7 @@ void ServerSession::SendLoginResult(bool result, unsigned short x, unsigned shor
     pktEnter.id = m_connectClientId;
     pktEnter.x = x;
     pktEnter.y = y;
+    pktEnter.loginTime = m_loginTime;
 
     bw.Write(&pktEnter, sizeof(PKT_S2C_LOGIN_RESULT));
 

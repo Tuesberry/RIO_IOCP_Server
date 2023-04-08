@@ -15,6 +15,8 @@ ClientSession::ClientSession()
 	, m_moveTime(0)
 	, m_bAddDelay(false)
 	, m_bLogin(false)
+	, m_bStartLogin(false)
+	, m_bConnect(false)
 {
 }
 
@@ -29,12 +31,8 @@ void ClientSession::OnConnected()
 	m_sessionID = gSessionID.fetch_add(1);
 	m_sessionID++;
 
-	shared_ptr<IocpClient> service = static_pointer_cast<IocpClient>(GetService());
-	service->m_lastConnectTime = high_resolution_clock::now();
-	service->m_bCanConnected.store(true);
-
-	// sendLogin
-	SendLogin();
+	// connect OK
+	m_bConnect = true;
 }
 
 void ClientSession::OnRecvPacket(BYTE* buffer, int len)
@@ -58,6 +56,8 @@ void ClientSession::OnDisconnected()
 
 void ClientSession::SendLogin()
 {
+	m_bStartLogin = true;
+
 	shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(sizeof(PKT_C2S_LOGIN));
 	BufferWriter bw(sendBuffer->GetData(), sendBuffer->GetFreeSize());
 
@@ -65,6 +65,7 @@ void ClientSession::SendLogin()
 	pktLogin.header.id = PROTO_ID::LOGIN;
 	pktLogin.header.size = sizeof(PKT_C2S_LOGIN);
 	pktLogin.id = m_sessionID;
+	pktLogin.loginTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
 
 	bw.Write(&pktLogin, sizeof(PKT_C2S_LOGIN));
 

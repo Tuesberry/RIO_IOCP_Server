@@ -35,8 +35,4 @@ public:
 
 	// Session Access
 	set<shared_ptr<IocpSession>>& GetSessions() { return m_serverSessions; }
-
-public:
-	atomic<bool> m_bCanConnected;
-	high_resolution_clock::time_point m_lastConnectTime;
 };

@@ -62,7 +62,7 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 	{
 		unsigned int prevTime = session->m_moveTime;
 		session->m_moveTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - prevMoveTime;
-		
+		//cout << session->m_moveTime << endl;
 		if (session->m_bAddDelay == false)
 		{
 			gDelayMgr.AddNewInAvgDelay(session->m_moveTime);
@@ -146,6 +146,13 @@ bool ClientPacketHandler::Handle_LOGIN_RESULT(shared_ptr<ClientSession> session,
 
 	// get player initial position
 	br >> session->m_posX >> session->m_posY;
+
+	// update login delay
+	unsigned int loginTryTime;
+	br >> loginTryTime;
+
+	unsigned int loginDelay = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - loginTryTime;
+	gDelayMgr.UpdateLoginDelay(loginDelay);
 
 	return true;
 }

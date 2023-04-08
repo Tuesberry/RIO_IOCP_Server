@@ -41,7 +41,7 @@ bool ServerPacketHandler::Handle_LOGIN(shared_ptr<ServerSession>session, BYTE* b
 	if (header.size > len)
 		return false;
 
-	br >> session->m_connectClientId;
+	br >> session->m_connectClientId >> session->m_loginTime;
 	
 	// login
 	shared_ptr<Player> player = make_shared<Player>(session->m_connectClientId, session);

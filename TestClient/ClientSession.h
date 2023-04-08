@@ -25,4 +25,6 @@ public:
 	unsigned int m_moveTime;
 	bool m_bAddDelay;
 	bool m_bLogin;
+	bool m_bStartLogin;
+	bool m_bConnect;
 };
