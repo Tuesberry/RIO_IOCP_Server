@@ -54,24 +54,31 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 
 	br >> session->m_posX >> session->m_posY;
 
-	unsigned int prevMoveTime = 0;
-	br >> prevMoveTime;
-
 	// update client-server pakcet transfer delay
 	if (id == targetId)
 	{
+		int prevMoveTime = 0;
+		br >> prevMoveTime;
+
+		int prevProcessTime = session->m_processTime;
+		br >> session->m_processTime;
+		//cout << session->m_processTime << endl;
+
 		unsigned int prevTime = session->m_moveTime;
 		session->m_moveTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - prevMoveTime;
 		//cout << session->m_moveTime << endl;
 		if (session->m_bAddDelay == false)
 		{
 			gDelayMgr.AddNewInAvgDelay(session->m_moveTime);
+			gDelayMgr.AddNewInAvgProcessTime(session->m_processTime);
 			session->m_bAddDelay = true;
 		}
 		else
 		{
 			gDelayMgr.UpdateAvgDelay(session->m_moveTime, prevTime);
+			gDelayMgr.UpdateAvgProcessTime(session->m_processTime, prevProcessTime);
 		}
+		gDelayMgr.m_updateCnt++;
 	}
 
 	return true;

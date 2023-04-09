@@ -7,7 +7,7 @@
 int main()
 {
 	this_thread::sleep_for(1s);
-	int ClientNum = 300;
+	int ClientNum = 100;
 
 	StressTestClient stressTestClient(std::make_shared<IocpClient>(
 		std::make_shared<IocpCore>(),

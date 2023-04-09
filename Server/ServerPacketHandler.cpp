@@ -72,6 +72,7 @@ bool ServerPacketHandler::Handle_C2S_MOVE(shared_ptr<ServerSession>session, BYTE
 	br >> direction >> session->m_moveTime;
 
 	// move player
+	session->m_serverProcessTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
 	gRoom.MovePlayer(session->m_connectClientId, direction);
 
 	return true;

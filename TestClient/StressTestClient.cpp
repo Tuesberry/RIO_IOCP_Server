@@ -100,6 +100,7 @@ void StressTestClient::InitOutput()
 
 	cout << "Current Client-Server Packet Send-Recv Delay \n = \n";
 	cout << "Current Login Delay \n = \n";
+	cout << "Current Server Processing Delay \n = \n";
 }
 
 void StressTestClient::UpdateOutput()
@@ -108,6 +109,8 @@ void StressTestClient::UpdateOutput()
 	cout << gDelayMgr.GetAvgDelay() / 1000 << " milliseconds     ";
 	MoveCursor(3, 3);
 	cout << gDelayMgr.GetAvgLoginDelay() / 1000 << " milliseconds     ";
+	MoveCursor(3, 5);
+	cout << gDelayMgr.GetAvgProcessTime() / 1000 << " milliseconds     " << endl;
 }
 
 void StressTestClient::MoveCursor(int x, int y)

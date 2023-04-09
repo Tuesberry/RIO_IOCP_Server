@@ -33,7 +33,7 @@ struct PKT_C2S_LOGIN
 {
 	PacketHeader header;
 	int id;
-	unsigned int loginTime;
+	int loginTime;
 };
 
 /* ---------------------------------
@@ -46,7 +46,7 @@ struct PKT_S2C_LOGIN_RESULT
 	bool result;
 	unsigned short x;
 	unsigned short y;
-	unsigned int loginTime;
+	int loginTime;
 };
 
 /* ----------------------------
@@ -65,7 +65,7 @@ struct PKT_C2S_MOVE
 	PacketHeader header;
 	int id;
 	unsigned short direction;
-	unsigned int moveTime; // delay 계산 용도
+	int moveTime; // delay 계산 용도
 };
 
 /* ----------------------------
@@ -78,8 +78,8 @@ struct PKT_S2C_MOVE
 	int targetId;
 	unsigned short x;
 	unsigned short y;
-	unsigned int moveTime; // delay 계산 용도
-	unsigned int processTime; // process time 계산
+	int moveTime; // delay 계산 용도
+	int processTime; // process time 계산
 };
 
 /* ----------------------------

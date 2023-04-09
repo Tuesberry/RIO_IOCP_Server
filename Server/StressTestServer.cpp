@@ -39,27 +39,6 @@ void StressTestServer::Draw()
 
 	MoveCursor(25, 1);
 	cout << gRoom.GetLoginCnt() << endl;
-		
-	//system("cls");
-	/*
-	MoveCursor(0, 3);
-	CLIENT_INFO cInfo;
-	bool result;
-	for (int i = 1; i <= currCnt; i++)
-	{
-		result = m_server->GetClientInfo(i, cInfo);
-		if (result == true)
-		{
-			string str;
-			str = "Session " + to_string(i) + "    | posX : " + to_string(cInfo.posX) + ", posY : " + to_string(cInfo.posY) + "    ";
-			cout << str << endl;
-		}
-		else
-		{
-			m_server->RemoveClient(i);
-		}
-	}
-	*/
 }
 
 void StressTestServer::InitDraw()

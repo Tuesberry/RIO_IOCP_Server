@@ -10,6 +10,7 @@ Room::Room()
 	, m_disconnectId()
 	, m_connectId()
 	, m_lastUpdateTime(high_resolution_clock::now())
+	, m_updateCnt(0)
 {
 }
 
@@ -85,9 +86,6 @@ void Room::MovePlayer(unsigned int userId, unsigned short direction)
 	// UpdatePlayerPosition using direction
 	UpdatePlayerPosition(direction, player);
 
-	// send move packet to me
-	SendMoveMsg(userId, userId);
-
 	// oldViewList & newViewList
 	unordered_set<int> oldViewList = player->m_viewList;
 	unordered_set<int> newViewList;
@@ -142,6 +140,9 @@ void Room::MovePlayer(unsigned int userId, unsigned short direction)
 
 	// player view list update
 	player->m_viewList = newViewList;
+
+	// send move packet to me
+	SendMoveMsg(userId, userId);
 
 	// moveCnt && update
 	m_moveCnt.fetch_sub(1);
@@ -261,16 +262,28 @@ void Room::UpdatePlayerPosition(int direction, shared_ptr<Player> player)
 	switch (direction)
 	{
 	case MOVE_DIRECTION::FRONT:
-		player->m_posY += 1;
+		if (player->m_posY + 1 > MAP_HEIGHT)
+			player->m_posY = 0;
+		else
+			player->m_posY += 1;
 		break;
 	case MOVE_DIRECTION::BACK:
-		player->m_posY -= 1;
+		if (player->m_posY - 1 < 0)
+			player->m_posY = MAP_HEIGHT;
+		else
+			player->m_posY -= 1;
 		break;
 	case MOVE_DIRECTION::RIGHT:
-		player->m_posX += 1;
+		if (player->m_posX + 1 > MAP_WIDTH)
+			player->m_posX = 0;
+		else
+			player->m_posX += 1;
 		break;
 	case MOVE_DIRECTION::LEFT:
-		player->m_posX -= 1;
+		if (player->m_posX - 1 < MAP_WIDTH)
+			player->m_posX = MAP_WIDTH;
+		else
+			player->m_posX -= 1;
 		break;
 	default:
 		break;

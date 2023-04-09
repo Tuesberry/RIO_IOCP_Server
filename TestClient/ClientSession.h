@@ -22,7 +22,8 @@ public:
 	unsigned short m_posX;
 	unsigned short m_posY;
 
-	unsigned int m_moveTime;
+	int m_moveTime;
+	int m_processTime;
 	bool m_bAddDelay;
 	bool m_bLogin;
 	bool m_bStartLogin;

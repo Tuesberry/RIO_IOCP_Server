@@ -5,9 +5,12 @@
 
 class Room
 {
+public:
 	enum {
 		VIEW_DISTANCE = 100,
 		WAITING_TIME_LIMIT = 5,
+		MAP_WIDTH = 800,
+		MAP_HEIGHT = 600
 	};
 
 public:
@@ -25,6 +28,8 @@ public:
 	void MovePlayer(unsigned int userId, unsigned short direction);
 
 	int GetLoginCnt() { return m_players.size(); }
+	int GetUpdateMoveCnt() { return m_moveCnt; }
+
 private:
 	bool IsNear(unsigned int userId1, unsigned int userId2);
 	bool IsNear(
@@ -44,6 +49,9 @@ private:
 	void FindNearPlayer(unordered_set<int>& viewList, shared_ptr<Player> player);
 
 	bool IsValidPlayer(unsigned int userId);
+
+public:
+	long long int m_updateCnt;
 
 private:
 	atomic<int> m_moveCnt; 

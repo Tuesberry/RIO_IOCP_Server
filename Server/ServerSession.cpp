@@ -9,6 +9,7 @@ ServerSession::ServerSession()
     : m_connectClientId(0)
     , m_moveTime(0)
     , m_loginTime(0)
+    , m_serverProcessTime(0)
 {
 }
 
@@ -46,11 +47,14 @@ void ServerSession::SendMoveMsg(int targetId, unsigned short x, unsigned short y
     pktMove.x = x;
     pktMove.y = y;
     pktMove.moveTime = NULL;
+    pktMove.processTime = NULL;
 
     if (targetId == m_connectClientId)
     {
         // 자기 자신의 move message인 경우
         pktMove.moveTime = m_moveTime;
+        pktMove.processTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - m_serverProcessTime;
+        gRoom.m_updateCnt++;
     }
 
     bw.Write(&pktMove, sizeof(PKT_S2C_MOVE));

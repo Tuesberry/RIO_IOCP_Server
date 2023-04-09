@@ -21,6 +21,9 @@ public:
 	Player& operator=(Player&& other) = delete;
 	~Player() = default;
 
+private:
+	void SetPlayerInitPos();
+
 public:
 	unsigned int m_playerId;
 	unsigned short m_posX;
