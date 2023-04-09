@@ -22,9 +22,9 @@ public:
 	void RunServer();
 
 private:
-	void UpdateSessions();
-	void SendPacketToServer(int duration);
-	void ConnectToServer(int duration);
+	void UpdateSessions(int idx);
+	void SendPacketToServer(int idx, int duration);
+	void ConnectToServer(int idx, int duration);
 
 	void InitOutput();
 	void UpdateOutput();
@@ -38,5 +38,8 @@ private:
 
 	// stress test
 	int m_clientNum;
-
+	int m_coreCnt;
+	int m_jobCnt;
+	vector<thread> m_threads;
+	bool m_bConnect;
 };

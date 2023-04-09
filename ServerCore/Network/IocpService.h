@@ -54,6 +54,7 @@ public:
 	int GetMaxSessionCnt() { return m_maxSessionCnt; }
 	ServiceType GetServiceType() { return m_serviceType; }
 	int GetConnectCnt() { return m_sessionCnt; }
+	int GetThreadCnt() { return m_threadCnt; }
 
 	// start
 	bool IsStart() { return m_bStart; }
