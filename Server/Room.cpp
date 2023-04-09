@@ -141,6 +141,9 @@ void Room::MovePlayer(unsigned int userId, unsigned short direction)
 	// player view list update
 	player->m_viewList = newViewList;
 
+	// move player
+	SendMoveMsg(userId, userId);
+
 	// moveCnt && update
 	m_moveCnt.fetch_sub(1);
 	if (m_moveCnt <= 0 && m_bUpdate == false)
