@@ -104,15 +104,16 @@ void ServerSession::SendLoginResult(bool result, unsigned short x, unsigned shor
     shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(sizeof(PKT_S2C_LOGIN_RESULT));
     BufferWriter bw(sendBuffer->GetData(), sendBuffer->GetFreeSize());
 
-    PKT_S2C_LOGIN_RESULT pktEnter;
-    pktEnter.header.id = PROTO_ID::LOGIN_RESULT;
-    pktEnter.header.size = sizeof(PKT_S2C_LOGIN_RESULT);
-    pktEnter.id = m_connectClientId;
-    pktEnter.x = x;
-    pktEnter.y = y;
-    pktEnter.loginTime = m_loginTime;
+    PKT_S2C_LOGIN_RESULT pktResult;
+    pktResult.header.id = PROTO_ID::LOGIN_RESULT;
+    pktResult.header.size = sizeof(PKT_S2C_LOGIN_RESULT);
+    pktResult.result = result;
+    pktResult.id = m_connectClientId;
+    pktResult.x = x;
+    pktResult.y = y;
+    pktResult.loginTime = m_loginTime;
 
-    bw.Write(&pktEnter, sizeof(PKT_S2C_LOGIN_RESULT));
+    bw.Write(&pktResult, sizeof(PKT_S2C_LOGIN_RESULT));
 
     sendBuffer->OnWrite(sizeof(PKT_S2C_LOGIN_RESULT));
     Send(sendBuffer);

@@ -42,7 +42,7 @@ bool ServerPacketHandler::Handle_LOGIN(shared_ptr<ServerSession>session, BYTE* b
 		return false;
 
 	br >> session->m_connectClientId >> session->m_loginTime;
-	
+
 	// login
 	shared_ptr<Player> player = make_shared<Player>(session->m_connectClientId, session);
 	gRoom.Login(player);

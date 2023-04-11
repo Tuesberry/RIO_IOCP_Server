@@ -87,7 +87,6 @@ void StressTestClient::SendPacketToServer(int idx, int duration)
 			i++;
 			continue;
 		}
-
 		startTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
 		
 		shared_ptr<ClientSession> cliSession = static_pointer_cast<ClientSession>(*iter);
