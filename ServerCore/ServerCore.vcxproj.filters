@@ -81,7 +81,19 @@
     <ClInclude Include="Utils\BufferHelper.h">
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="Network\RioCore.h">
+      <Filter>Header Files\Network\RIO</Filter>
+    </ClInclude>
     <ClInclude Include="Network\RioServer.h">
+      <Filter>Header Files\Network\RIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\RioSession.h">
+      <Filter>Header Files\Network\RIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\RioEvent.h">
+      <Filter>Header Files\Network\RIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\RioBuffer.h">
       <Filter>Header Files\Network\RIO</Filter>
     </ClInclude>
   </ItemGroup>
@@ -131,7 +143,19 @@
     <ClCompile Include="Utils\BufferHelper.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Network\RioCore.cpp">
+      <Filter>Source Files\Network\RIO</Filter>
+    </ClCompile>
     <ClCompile Include="Network\RioServer.cpp">
+      <Filter>Source Files\Network\RIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\RioSession.cpp">
+      <Filter>Source Files\Network\RIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\RioEvent.cpp">
+      <Filter>Source Files\Network\RIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\RioBuffer.cpp">
       <Filter>Source Files\Network\RIO</Filter>
     </ClCompile>
   </ItemGroup>

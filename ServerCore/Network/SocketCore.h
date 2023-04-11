@@ -45,6 +45,7 @@ public:
 private:
 	static SOCKET CreateSocket();
 	static bool BindWindowsFunction(SOCKET socket, GUID guid, LPVOID* fn);
+	static bool BindWindowsFunctionTable(SOCKET socket, GUID guid, LPVOID* fn);
 
 	template<typename T>
 	inline static bool SetSockOpt(SOCKET socket, int level, int optName, T optVal);
@@ -53,6 +54,9 @@ public:
 	static LPFN_CONNECTEX ConnectEx;
 	static LPFN_DISCONNECTEX DisconnectEx;
 	static LPFN_ACCEPTEX AcceptEx;
+
+	//rio
+	static RIO_EXTENSION_FUNCTION_TABLE RIO;
 
 private:
 	SOCKET m_socket;

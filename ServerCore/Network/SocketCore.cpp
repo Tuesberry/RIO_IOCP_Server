@@ -27,6 +27,8 @@ bool SocketCore::Init()
 		return false;
 	if (BindWindowsFunction(tempSocket, WSAID_ACCEPTEX, reinterpret_cast<LPVOID*>(&AcceptEx)) == false)
 		return false;
+	if (BindWindowsFunctionTable(tempSocket, WSAID_MULTIPLE_RIO, reinterpret_cast<LPVOID*>(&RIO)) == false)
+		return false;
 
 	return true;
 }
@@ -158,6 +160,12 @@ bool SocketCore::BindWindowsFunction(SOCKET socket, GUID guid, LPVOID* fn)
 {
 	DWORD bytes = 0;
 	return SOCKET_ERROR != ::WSAIoctl(socket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), fn, sizeof(*fn), OUT & bytes, NULL, NULL);
+}
+
+bool SocketCore::BindWindowsFunctionTable(SOCKET socket, GUID guid, LPVOID* fn)
+{
+	DWORD bytes = 0;
+	return SOCKET_ERROR != ::WSAIoctl(socket, SIO_GET_MULTIPLE_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), fn, sizeof(*fn), &bytes, NULL, NULL);
 }
 
 template<typename T>
