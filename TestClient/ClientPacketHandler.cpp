@@ -5,6 +5,7 @@
 #include "Utils/BufferHelper.h"
 #include "StressTestClient.h"
 #include "DelayManager.h"
+#include "DelayWriteManager.h"
 
 bool ClientPacketHandler::HandlePacket(shared_ptr<ClientSession> session, BYTE* buffer, int len)
 {
@@ -79,6 +80,10 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 			gDelayMgr.UpdateAvgProcessTime(session->m_processTime, prevProcessTime);
 		}
 		gDelayMgr.m_updateCnt++;
+
+		// write file
+		string data = to_string(session->m_moveTime) + " " + to_string(session->m_processTime);
+		gDelayWriteMgr.addData(data);
 	}
 
 	return true;

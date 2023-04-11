@@ -2,6 +2,7 @@
 #include "StressTestClient.h"
 #include "ClientSession.h"
 #include "DelayManager.h"
+#include "DelayWriteManager.h"
 #include <cmath>
 
 StressTestClient::StressTestClient(shared_ptr<IocpClient> client, int clientNum)
@@ -28,8 +29,13 @@ void StressTestClient::RunServer()
 	m_client->RunClient();
 	
 	InitOutput();
+
+	int startTime = 0;
+	int processTime = 0;
 	while (true)
 	{
+		startTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
+
 		for (int i = 0; i < m_coreCnt; i++)
 		{
 			m_threads.push_back(thread([i, this]()
@@ -41,6 +47,17 @@ void StressTestClient::RunServer()
 		for (thread& t : m_threads)
 			t.join();
 		
+		processTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - startTime;
+
+		if (processTime > 0)
+		{
+			this_thread::sleep_for(::milliseconds(PACKET_SEND_DURATION - processTime));
+		}
+		else
+		{
+			cout << "Timeout" << endl;
+		}
+
 		if (m_bConnect == false)
 		{
 			m_bConnect = true;
@@ -49,6 +66,7 @@ void StressTestClient::RunServer()
 		m_threads.clear();
 
 		UpdateOutput();
+		gDelayWriteMgr.WriteFile();
 	}
 
 	m_client->JoinWorkerThreads();
@@ -75,7 +93,6 @@ void StressTestClient::SendPacketToServer(int idx, int duration)
 	int processTime = 0;
 
 	int deltaTime = duration / m_clientNum;
-	this_thread::sleep_for(::milliseconds(deltaTime * idx));
 
 	int i = 0;
 	for (iter = sessions.begin(); iter != sessions.end(); iter++)
@@ -84,6 +101,10 @@ void StressTestClient::SendPacketToServer(int idx, int duration)
 		{
 			i++;
 			continue;
+		}
+		if (i == 0)
+		{
+			this_thread::sleep_for(::milliseconds(deltaTime * idx));
 		}
 
 		startTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
@@ -99,7 +120,9 @@ void StressTestClient::SendPacketToServer(int idx, int duration)
 		}
 	
 		processTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - startTime;
-		this_thread::sleep_for(::milliseconds(deltaTime * m_jobCnt - processTime));
+
+		if((i + m_coreCnt) <= (m_clientNum - 1))
+			this_thread::sleep_for(::milliseconds(deltaTime * m_jobCnt - processTime));
 		
 		i++;
 	}
@@ -111,12 +134,13 @@ void StressTestClient::ConnectToServer(int idx, int duration)
 	int processTime = 0;
 
 	int deltaTime = duration / m_clientNum;
-	this_thread::sleep_for(::milliseconds(deltaTime * idx));
 
 	for (int i = 0; i < m_jobCnt; i++)
 	{
 		if (i * m_coreCnt + idx >= m_clientNum)
 			break;
+		if(i == 0)
+			this_thread::sleep_for(::milliseconds(deltaTime * idx));
 
 		startTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
 		
@@ -127,7 +151,9 @@ void StressTestClient::ConnectToServer(int idx, int duration)
 		}
 
 		processTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - startTime;
-		this_thread::sleep_for(::milliseconds(deltaTime * m_jobCnt - processTime));
+
+		if(i <= m_jobCnt-1)
+			this_thread::sleep_for(::milliseconds(deltaTime * m_jobCnt - processTime));
 	}
 }
 
