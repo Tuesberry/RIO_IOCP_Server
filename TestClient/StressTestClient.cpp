@@ -42,7 +42,10 @@ void StressTestClient::RunServer()
 			t.join();
 		
 		if (m_bConnect == false)
+		{
 			m_bConnect = true;
+			this_thread::sleep_for(1000ms);
+		}
 
 		m_threads.clear();
 
@@ -92,14 +95,15 @@ void StressTestClient::SendPacketToServer(int idx, int duration)
 		{
 			cliSession->SendMove();
 		}
+		/*
 		else if (cliSession->m_bConnect && cliSession->m_bStartLogin == false)
 		{
 			cliSession->SendLogin();
 		}
-		
+		*/
 		processTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - startTime;
 		this_thread::sleep_for(::milliseconds(deltaTime * m_jobCnt - processTime));
-
+		
 		i++;
 	}
 }
@@ -139,7 +143,7 @@ void StressTestClient::InitOutput()
 	m_initCursor.Y = presentCur.dwCursorPosition.Y;
 
 	cout << "Current Client-Server Packet Send-Recv Delay \n = \n";
-	cout << "Current Login Delay \n = \n";
+	//cout << "Current Login Delay \n = \n";
 	cout << "Current Server Processing Delay \n = \n\n";
 }
 
@@ -148,8 +152,8 @@ void StressTestClient::UpdateOutput()
 	MoveCursor(3, 1);
 	cout << gDelayMgr.GetAvgDelay() / 1000 << " milliseconds     ";
 	MoveCursor(3, 3);
-	cout << gDelayMgr.GetAvgLoginDelay() / 1000 << " milliseconds     ";
-	MoveCursor(3, 5);
+	//cout << gDelayMgr.GetAvgLoginDelay() / 1000 << " milliseconds     ";
+	//MoveCursor(3, 5);
 	cout << gDelayMgr.GetAvgProcessTime() / 1000 << " milliseconds     " << endl;
 }
 

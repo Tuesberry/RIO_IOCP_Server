@@ -3,6 +3,7 @@
 LPFN_CONNECTEX SocketCore::ConnectEx = nullptr;
 LPFN_DISCONNECTEX SocketCore::DisconnectEx = nullptr;
 LPFN_ACCEPTEX SocketCore::AcceptEx = nullptr;
+RIO_EXTENSION_FUNCTION_TABLE SocketCore::RIO = { 0, };
 
 SocketCore::SocketCore()
 	: m_socket(INVALID_SOCKET)

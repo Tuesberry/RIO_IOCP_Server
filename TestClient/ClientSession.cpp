@@ -34,6 +34,8 @@ void ClientSession::OnConnected()
 
 	// connect OK
 	m_bConnect = true;
+
+	SendLogin();
 }
 
 void ClientSession::OnRecvPacket(BYTE* buffer, int len)
