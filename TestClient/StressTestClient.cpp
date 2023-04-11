@@ -44,7 +44,6 @@ void StressTestClient::RunServer()
 		if (m_bConnect == false)
 		{
 			m_bConnect = true;
-			this_thread::sleep_for(1000ms);
 		}
 
 		m_threads.clear();
@@ -65,7 +64,6 @@ void StressTestClient::UpdateSessions(int idx)
 	{
 		SendPacketToServer(idx, PACKET_SEND_DURATION);
 	}
-	//this_thread::sleep_for(1s);
 }
 
 void StressTestClient::SendPacketToServer(int idx, int duration)
@@ -82,11 +80,12 @@ void StressTestClient::SendPacketToServer(int idx, int duration)
 	int i = 0;
 	for (iter = sessions.begin(); iter != sessions.end(); iter++)
 	{
-		if (i % m_jobCnt != idx)
+		if (i % m_coreCnt != idx)
 		{
 			i++;
 			continue;
 		}
+
 		startTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
 		
 		shared_ptr<ClientSession> cliSession = static_pointer_cast<ClientSession>(*iter);
@@ -94,12 +93,11 @@ void StressTestClient::SendPacketToServer(int idx, int duration)
 		{
 			cliSession->SendMove();
 		}
-		/*
 		else if (cliSession->m_bConnect && cliSession->m_bStartLogin == false)
 		{
 			cliSession->SendLogin();
 		}
-		*/
+	
 		processTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - startTime;
 		this_thread::sleep_for(::milliseconds(deltaTime * m_jobCnt - processTime));
 		
@@ -142,7 +140,7 @@ void StressTestClient::InitOutput()
 	m_initCursor.Y = presentCur.dwCursorPosition.Y;
 
 	cout << "Current Client-Server Packet Send-Recv Delay \n = \n";
-	//cout << "Current Login Delay \n = \n";
+	cout << "Current Login Delay \n = \n";
 	cout << "Current Server Processing Delay \n = \n\n";
 }
 
@@ -151,8 +149,8 @@ void StressTestClient::UpdateOutput()
 	MoveCursor(3, 1);
 	cout << gDelayMgr.GetAvgDelay() / 1000 << " milliseconds     ";
 	MoveCursor(3, 3);
-	//cout << gDelayMgr.GetAvgLoginDelay() / 1000 << " milliseconds     ";
-	//MoveCursor(3, 5);
+	cout << gDelayMgr.GetAvgLoginDelay() / 1000 << " milliseconds     ";
+	MoveCursor(3, 5);
 	cout << gDelayMgr.GetAvgProcessTime() / 1000 << " milliseconds     " << endl;
 }
 
@@ -162,4 +160,16 @@ void StressTestClient::MoveCursor(int x, int y)
 	cursor.X = x + m_initCursor.X;
 	cursor.Y = y + m_initCursor.Y;
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursor);
+}
+
+void StressTestClient::Tester()
+{
+	set<shared_ptr<IocpSession>>& sessions = m_client->GetSessions();
+	set<shared_ptr<IocpSession>>::iterator iter;
+
+	for (iter = sessions.begin(); iter != sessions.end(); iter++)
+	{
+		shared_ptr<ClientSession> cliSession = static_pointer_cast<ClientSession>(*iter);
+		cout << cliSession->m_bStartLogin << " " << cliSession->m_bLogin << " " << iter->use_count() << endl;
+	}
 }

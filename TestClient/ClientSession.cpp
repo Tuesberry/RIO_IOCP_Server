@@ -35,7 +35,7 @@ void ClientSession::OnConnected()
 	// connect OK
 	m_bConnect = true;
 
-	SendLogin();
+	//SendLogin();
 }
 
 void ClientSession::OnRecvPacket(BYTE* buffer, int len)
@@ -49,7 +49,7 @@ void ClientSession::OnRecvPacket(BYTE* buffer, int len)
 
 void ClientSession::OnSend(int len)
 {
-	//cout << "OnSend Len = " << len << endl;
+	// cout << "OnSend Len = " << len << endl;
 }
 
 void ClientSession::OnDisconnected()

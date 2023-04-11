@@ -30,7 +30,7 @@ private:
 	void UpdateOutput();
 
 	void MoveCursor(int x, int y);
-
+	void Tester();
 private:
 	shared_ptr<IocpClient> m_client;
 
