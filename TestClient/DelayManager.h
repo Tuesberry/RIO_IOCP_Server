@@ -1,46 +1,51 @@
 #pragma once
+
 #include "CoreCommon.h"
 
-class DelayManager
+/* --------------------------------------------------------
+*	class:		DelayChecker
+*	Summary:	update delay average
+-------------------------------------------------------- */
+
+class DelayChecker final
 {
 public:
-	DelayManager();
+	DelayChecker() = default;
+	DelayChecker(const DelayChecker& other) = delete;
+	DelayChecker(DelayChecker&& other) = delete;
+	DelayChecker& operator=(const DelayChecker& other) = delete;
+	DelayChecker& operator=(DelayChecker&& other) = delete;
+	~DelayChecker() = default;
+
+	void UpdateAvgDelay(IN int delay);
+	long double GetAvgDelay() { return m_avgDelay; }
+
+private:
+	mutex m_updateLock;
+	long double m_avgDelay;
+	long int m_dataCnt;
+};
+
+/* --------------------------------------------------------
+*	class:		DelayManager
+*	Summary:	DelayManager manages delay used for 
+				testing server
+-------------------------------------------------------- */
+
+class DelayManager final
+{
+public:
+	DelayManager() = default;
 	DelayManager(const DelayManager& other) = delete;
 	DelayManager(DelayManager&& other) = delete;
 	DelayManager& operator=(const DelayManager& other) = delete;
 	DelayManager& operator=(DelayManager&& other) = delete;
 	~DelayManager() = default;
 
-	void UpdateAvgDelay(int delay, int prevDelay);
-	void AddNewInAvgDelay(int delay);
-
-	void UpdateAvgProcessTime(int processTime, int prevProcessTime);
-	void AddNewInAvgProcessTime(int processTime);
-
-	void UpdateLoginDelay(int delay);
-
-	long double GetAvgDelay() { return m_avgDelay; }
-	int GetDelayCnt() { return m_delayCnt; }
-	long double GetAvgLoginDelay() { return m_avgLoginDelay; }
-	int GetLoginCnt() { return m_loginCnt; }
-	long double GetAvgProcessTime() { return m_avgProcessTime; }
-	int GetProcessCnt() { return m_processCnt; }
-
 public:
-	long long int m_updateCnt;
-
-private:
-	mutex m_updateDelayLock;
-	long double m_avgDelay; 
-	int m_delayCnt;
-
-	mutex m_updateLoginLock;
-	long double m_avgLoginDelay;
-	int m_loginCnt;
-
-	mutex m_updateProcessLock;
-	long double m_avgProcessTime;
-	int m_processCnt;
+	DelayChecker m_avgSendingDelay;
+	DelayChecker m_avgProcessDelay;
+	DelayChecker m_avgLoginDelay;
 };
 
 extern DelayManager gDelayMgr;

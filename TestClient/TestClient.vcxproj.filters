@@ -24,9 +24,6 @@
     <ClCompile Include="DelayManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DelayWriteManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -42,9 +39,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DelayManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DelayWriteManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

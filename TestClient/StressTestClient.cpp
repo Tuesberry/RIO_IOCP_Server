@@ -2,7 +2,6 @@
 #include "StressTestClient.h"
 #include "ClientSession.h"
 #include "DelayManager.h"
-#include "DelayWriteManager.h"
 #include <cmath>
 
 StressTestClient::StressTestClient(shared_ptr<IocpClient> client, int clientNum)
@@ -66,7 +65,6 @@ void StressTestClient::RunServer()
 		m_threads.clear();
 
 		UpdateOutput();
-		gDelayWriteMgr.WriteFile();
 	}
 
 	m_client->JoinWorkerThreads();
@@ -168,16 +166,19 @@ void StressTestClient::InitOutput()
 	cout << "Current Client-Server Packet Send-Recv Delay \n = \n";
 	cout << "Current Login Delay \n = \n";
 	cout << "Current Server Processing Delay \n = \n\n";
+
+	cout.precision(4);
+	cout << fixed;
 }
 
 void StressTestClient::UpdateOutput()
 {
 	MoveCursor(3, 1);
-	cout << gDelayMgr.GetAvgDelay() / 1000 << " milliseconds     ";
+	cout << gDelayMgr.m_avgSendingDelay.GetAvgDelay() / 1000 << " milliseconds     ";
 	MoveCursor(3, 3);
-	cout << gDelayMgr.GetAvgLoginDelay() / 1000 << " milliseconds     ";
+	cout << gDelayMgr.m_avgLoginDelay.GetAvgDelay() / 1000 << " milliseconds     ";
 	MoveCursor(3, 5);
-	cout << gDelayMgr.GetAvgProcessTime() / 1000 << " milliseconds     " << endl;
+	cout << gDelayMgr.m_avgProcessDelay.GetAvgDelay() / 1000 << " milliseconds     " << endl;
 }
 
 void StressTestClient::MoveCursor(int x, int y)

@@ -1,9 +1,14 @@
 #pragma once
+
 #include "pch.h"
 #include "CoreCommon.h"
 
 class ClientSession;
 
+/* --------------------------------------------------------
+*	class:		ClientPacketHandler
+*	Summary:	packet handler for client packet
+-------------------------------------------------------- */
 class ClientPacketHandler
 {
 public:

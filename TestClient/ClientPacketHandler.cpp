@@ -1,12 +1,19 @@
-#pragma once
-#include "pch.h"
 #include "ClientPacketHandler.h"
 #include "ClientSession.h"
 #include "Utils/BufferHelper.h"
 #include "StressTestClient.h"
 #include "DelayManager.h"
-#include "DelayWriteManager.h"
 
+/* --------------------------------------------------------
+*	Method:		ClientPacketHandler::HandlePacket
+*	Summary:	handle packet
+*	Args:		shared_ptr<ClientSession> session
+*					owner of packet
+*				BYTE* buffer
+*					byte that transfered from server
+*				int len
+*					buffer size
+-------------------------------------------------------- */
 bool ClientPacketHandler::HandlePacket(shared_ptr<ClientSession> session, BYTE* buffer, int len)
 {
 	BufferReader br(buffer, len);
@@ -20,10 +27,12 @@ bool ClientPacketHandler::HandlePacket(shared_ptr<ClientSession> session, BYTE* 
 		return Handle_S2C_MOVE(session, buffer, len);
 		break;
 	case PROTO_ID::S2C_ENTER:
-		return Handle_S2C_ENTER(session, buffer, len);
+		//return Handle_S2C_ENTER(session, buffer, len);
+		return true;
 		break;
 	case PROTO_ID::S2C_LEAVE:
-		return Handle_S2C_LEAVE(session, buffer, len);
+		//return Handle_S2C_LEAVE(session, buffer, len);
+		return true;
 		break;
 	case PROTO_ID::LOGIN_RESULT:
 		return Handle_LOGIN_RESULT(session, buffer, len);
@@ -35,6 +44,16 @@ bool ClientPacketHandler::HandlePacket(shared_ptr<ClientSession> session, BYTE* 
 	return false;
 }
 
+/* --------------------------------------------------------
+*	Method:		ClientPacketHandler::Handle_S2C_MOVE
+*	Summary:	handle S2C_MOVE packet
+*	Args:		shared_ptr<ClientSession> session
+*					owner of packet
+*				BYTE* buffer
+*					byte that transfered from server
+*				int len
+*					buffer size
+-------------------------------------------------------- */
 bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYTE* buffer, int len)
 {
 	BufferReader br(buffer, len);
@@ -53,42 +72,40 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 	if (id != session->m_sessionID)
 		return false;
 
+	// In this time, other clients movement packets are not considered
+	// for stress test!
+	if (id != targetId)
+		return true;
+
+	// read position
 	br >> session->m_posX >> session->m_posY;
 
 	// update client-server pakcet transfer delay
-	if (id == targetId)
-	{
-		int prevMoveTime = 0;
-		br >> prevMoveTime;
+	// - read delay data
+	int moveStartTime = 0;
+	int processingTime = 0;
 
-		int prevProcessTime = session->m_processTime;
-		br >> session->m_processTime;
-		//cout << session->m_processTime << endl;
+	br >> moveStartTime >> processingTime;
 
-		unsigned int prevTime = session->m_moveTime;
-		session->m_moveTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - prevMoveTime;
-		//cout << session->m_moveTime << endl;
-		if (session->m_bAddDelay == false)
-		{
-			gDelayMgr.AddNewInAvgDelay(session->m_moveTime);
-			gDelayMgr.AddNewInAvgProcessTime(session->m_processTime);
-			session->m_bAddDelay = true;
-		}
-		else
-		{
-			gDelayMgr.UpdateAvgDelay(session->m_moveTime, prevTime);
-			gDelayMgr.UpdateAvgProcessTime(session->m_processTime, prevProcessTime);
-		}
-		gDelayMgr.m_updateCnt++;
+	int moveTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - moveStartTime;
 
-		// write file
-		string data = to_string(session->m_moveTime) + " " + to_string(session->m_processTime);
-		gDelayWriteMgr.addData(data);
-	}
+	// - update delay using delayManager
+	gDelayMgr.m_avgProcessDelay.UpdateAvgDelay(processingTime);
+	gDelayMgr.m_avgSendingDelay.UpdateAvgDelay(moveTime);
 
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		ClientPacketHandler::Handle_S2C_ENTER
+*	Summary:	handle S2C_ENTER packet
+*	Args:		shared_ptr<ClientSession> session
+*					owner of packet
+*				BYTE* buffer
+*					byte that transfered from server
+*				int len
+*					buffer size
+-------------------------------------------------------- */
 bool ClientPacketHandler::Handle_S2C_ENTER(shared_ptr<ClientSession> session, BYTE* buffer, int len)
 {
 	BufferReader br(buffer, len);
@@ -110,6 +127,16 @@ bool ClientPacketHandler::Handle_S2C_ENTER(shared_ptr<ClientSession> session, BY
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		ClientPacketHandler::Handle_S2C_LEAVE
+*	Summary:	handle S2C_LEAVE packet
+*	Args:		shared_ptr<ClientSession> session
+*					owner of packet
+*				BYTE* buffer
+*					byte that transfered from server
+*				int len
+*					buffer size
+-------------------------------------------------------- */
 bool ClientPacketHandler::Handle_S2C_LEAVE(shared_ptr<ClientSession> session, BYTE* buffer, int len)
 {
 	BufferReader br(buffer, len);
@@ -131,6 +158,16 @@ bool ClientPacketHandler::Handle_S2C_LEAVE(shared_ptr<ClientSession> session, BY
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		ClientPacketHandler::Handle_LOGIN_RESULT
+*	Summary:	handle LOGIN_RESULT packet
+*	Args:		shared_ptr<ClientSession> session
+*					owner of packet
+*				BYTE* buffer
+*					byte that transfered from server
+*				int len
+*					buffer size
+-------------------------------------------------------- */
 bool ClientPacketHandler::Handle_LOGIN_RESULT(shared_ptr<ClientSession> session, BYTE* buffer, int len)
 {
 	BufferReader br(buffer, len);
@@ -148,6 +185,7 @@ bool ClientPacketHandler::Handle_LOGIN_RESULT(shared_ptr<ClientSession> session,
 	if (id != session->m_sessionID)
 		return false;
 
+	// check result
 	bool result;
 	br >> result;
 	if (result == false)
@@ -160,11 +198,11 @@ bool ClientPacketHandler::Handle_LOGIN_RESULT(shared_ptr<ClientSession> session,
 	br >> session->m_posX >> session->m_posY;
 
 	// update login delay
-	unsigned int loginTryTime;
+	int loginTryTime;
 	br >> loginTryTime;
 
-	unsigned int loginDelay = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - loginTryTime;
-	gDelayMgr.UpdateLoginDelay(loginDelay);
+	int loginDelay = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - loginTryTime;
+	gDelayMgr.m_avgLoginDelay.UpdateAvgDelay(loginDelay);
 
 	return true;
 }

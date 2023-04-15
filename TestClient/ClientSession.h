@@ -1,8 +1,14 @@
 #pragma once
-#include "CoreCommon.h"
+
 #include "pch.h"
+#include "CoreCommon.h"
+
 #include "Network/IocpSession.h"
 
+/* --------------------------------------------------------
+*	class:		ClientSession
+*	Summary:	Session for Client
+-------------------------------------------------------- */
 class ClientSession : public IocpSession
 {
 public:
@@ -22,9 +28,6 @@ public:
 	unsigned short m_posX;
 	unsigned short m_posY;
 
-	int m_moveTime;
-	int m_processTime;
-	bool m_bAddDelay;
 	bool m_bLogin;
 	bool m_bStartLogin;
 	bool m_bConnect;
