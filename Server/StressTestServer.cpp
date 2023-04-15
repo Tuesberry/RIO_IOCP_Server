@@ -26,8 +26,6 @@ void StressTestServer::RunServer()
 	{
 		Draw();
 	}
-
-	m_server->JoinWorkerThreads();
 }
 
 void StressTestServer::Draw()

@@ -46,7 +46,6 @@ public:
 
 	// thread
 	void CreateWorkerThreads();
-	void JoinWorkerThreads();
 
 	// get method
 	shared_ptr<IocpCore> GetIocpCore() { return m_iocpCore; }
@@ -81,6 +80,5 @@ protected:
 	bool m_bStart;
 
 	// worker threads
-	vector<thread> m_workerThreads;
 	int m_threadCnt;
 };

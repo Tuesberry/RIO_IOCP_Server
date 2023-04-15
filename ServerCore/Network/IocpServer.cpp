@@ -60,9 +60,6 @@ void IocpServer::StopServer()
 	// DisconnectAllSessions
 	DisconnectAllSession();
 
-	// join threads
-	JoinWorkerThreads();
-
 	// server stop
 	m_bStart = false;
 }

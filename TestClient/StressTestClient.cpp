@@ -3,6 +3,82 @@
 #include "DelayManager.h"
 #include <cmath>
 
+TestSessionManager gTestSessionMgr;
+
+TestSessionManager::TestSessionManager()
+	: m_sessions()
+	, m_size(0)
+{
+}
+
+bool TestSessionManager::SendLogin(int idx)
+{
+	if (m_size <= idx)
+		return false;
+
+	ReadLockGuard lock(m_rwLock);
+	shared_ptr<ClientSession> session = m_sessions[idx].lock();
+	if (session)
+	{
+		session->SendLogin();
+	}
+
+	return true;
+}
+
+bool TestSessionManager::SendMove(int idx)
+{
+	if (m_size <= idx)
+		return false;
+
+	ReadLockGuard lock(m_rwLock);
+	shared_ptr<ClientSession> session = m_sessions[idx].lock();
+	if (session)
+	{
+		session->SendMove();
+	}
+
+	return true;
+}
+
+bool TestSessionManager::SendPacket(int idx)
+{
+	if (m_size <= idx)
+		return false;
+
+	ReadLockGuard lock(m_rwLock);
+	shared_ptr<ClientSession> session = m_sessions[idx].lock();
+	if (session)
+	{
+		if (session->m_bLogin)
+		{
+			session->SendMove();
+		}
+		else if (session->m_bStartLogin == false)
+		{
+			session->SendLogin();
+		}
+		gDelayMgr.m_sendCnt.fetch_add(1);
+	}
+
+	return true;
+}
+
+void TestSessionManager::AddSession(weak_ptr<ClientSession> session)
+{
+	WriteLockGuard lock(m_rwLock);
+	m_sessions.push_back(session);
+	m_size++;
+}
+
+void TestSessionManager::DeleteSession(int idx)
+{
+	WriteLockGuard lock(m_rwLock);
+	m_sessions.erase(m_sessions.begin() + idx);
+	m_size--;
+}
+
+
 StressTestClient::StressTestClient(shared_ptr<IocpClient> client, int clientNum)
 	: m_client(client)
 	, m_initCursor()
@@ -10,9 +86,8 @@ StressTestClient::StressTestClient(shared_ptr<IocpClient> client, int clientNum)
 	//, m_coreCnt(thread::hardware_concurrency())
 	, m_coreCnt(2)
 	, m_jobCnt(ceil(static_cast<double>(clientNum) / m_coreCnt))
-	, m_threads()
-	, m_bConnect(false)
 {
+	m_sendTime.resize(clientNum);
 }
 
 StressTestClient::~StressTestClient()
@@ -25,134 +100,78 @@ void StressTestClient::RunServer()
 	if (m_client->StartClient() == false)
 		return;
 
+	// run client
 	m_client->RunClient();
 	
+	// init output
 	InitOutput();
 
-	int startTime = 0;
-	int processTime = 0;
+	// connect sessions
+	ConnectToServer();
+
+	// reset sendTime
+	ResetSendTime();
+		
+	// create threads
+	// these threads send packets to server
+	for (int i = 0; i < m_coreCnt; i++)
+	{
+		gThreadMgr.CreateThread([=]() 
+			{
+				while (true)
+				{
+					SendToServer(i);
+				}
+			});
+	}
+
 	while (true)
 	{
-		startTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
-
-		for (int i = 0; i < m_coreCnt; i++)
-		{
-			m_threads.push_back(thread([i, this]()
-				{
-					UpdateSessions(i);
-				}));
-		}
-		
-		for (thread& t : m_threads)
-			t.join();
-		
-		processTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - startTime;
-
-		if (PACKET_SEND_DURATION - processTime > 0)
-		{
-			cout << PACKET_SEND_DURATION - processTime << endl;
-			this_thread::sleep_for(::milliseconds(PACKET_SEND_DURATION - processTime));
-		}
-		else
-		{
-			cout << "Timeout" << endl;
-		}
-
-		if (m_bConnect == false)
-		{
-			m_bConnect = true;
-		}
-
-		m_threads.clear();
-
 		UpdateOutput();
-	}
-
-	m_client->JoinWorkerThreads();
-}
-
-void StressTestClient::UpdateSessions(int idx)
-{
-	if (m_bConnect == false)
-	{
-		ConnectToServer(idx, PACKET_SEND_DURATION);
-	}
-	else
-	{
-		SendPacketToServer(idx, PACKET_SEND_DURATION);
+		this_thread::sleep_for(1s);
 	}
 }
 
-void StressTestClient::SendPacketToServer(int idx, int duration)
+void StressTestClient::ConnectToServer()
 {
-	set<shared_ptr<IocpSession>>& sessions = m_client->GetSessions();
-	set<shared_ptr<IocpSession>>::iterator iter;
-
-	int startTime = 0;
-	int processTime = 0;
-
-	int deltaTime = duration / m_clientNum;
-
-	int i = 0;
-	for (iter = sessions.begin(); iter != sessions.end(); iter++)
+	for (int i = 0; i < m_clientNum; i++)
 	{
-		if (i % m_coreCnt != idx)
-		{
-			i++;
-			continue;
-		}
-		if (i == 0)
-		{
-			this_thread::sleep_for(::milliseconds(deltaTime * idx));
-		}
-
-		startTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
-		
-		shared_ptr<ClientSession> cliSession = static_pointer_cast<ClientSession>(*iter);
-		if (cliSession->m_bLogin)
-		{
-			cliSession->SendMove();
-		}
-		else if (cliSession->m_bConnect && cliSession->m_bStartLogin == false)
-		{
-			cliSession->SendLogin();
-		}
-	
-		processTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - startTime;
-
-		if((i + m_coreCnt) <= (m_clientNum - 1))
-			this_thread::sleep_for(::milliseconds(deltaTime * m_jobCnt - processTime));
-		
-		i++;
-	}
-}
-
-void StressTestClient::ConnectToServer(int idx, int duration)
-{
-	int startTime = 0;
-	int processTime = 0;
-
-	int deltaTime = duration / m_clientNum;
-
-	for (int i = 0; i < m_jobCnt; i++)
-	{
-		if (i * m_coreCnt + idx >= m_clientNum)
-			break;
-		if(i == 0)
-			this_thread::sleep_for(::milliseconds(deltaTime * idx));
-
-		startTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
-		
 		if (m_client->ConnectNewSession() == false)
 		{
 			HandleError("ConnectToServer");
 			return;
 		}
+		this_thread::yield();
+	}
+}
 
-		processTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - startTime;
+void StressTestClient::SendToServer(int idx)
+{
+	int sIdx = 0;
+	
+	for (int i = 0; i < m_jobCnt; i++)
+	{
+		sIdx = i * m_coreCnt + idx;
+		if (sIdx >= m_clientNum)
+			break;
 
-		if(i <= m_jobCnt-1)
-			this_thread::sleep_for(::milliseconds(deltaTime * m_jobCnt - processTime));
+		if ((duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - m_sendTime[sIdx]) < PACKET_SEND_DURATION)
+			continue;
+
+		//cout << duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - m_sendTime[sIdx] << endl;
+		m_sendTime[sIdx] = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
+		gTestSessionMgr.SendPacket(sIdx);
+	}
+	this_thread::yield();
+}
+
+void StressTestClient::ResetSendTime()
+{
+	int startTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
+	double deltaTime = PACKET_SEND_DURATION / (double)m_clientNum;
+	for (int i = 0; i < m_clientNum; i++)
+	{
+		m_sendTime[i] = startTime + deltaTime * i;
 	}
 }
 
@@ -166,7 +185,9 @@ void StressTestClient::InitOutput()
 
 	cout << "Current Client-Server Packet Send-Recv Delay \n = \n";
 	cout << "Current Login Delay \n = \n";
-	cout << "Current Server Processing Delay \n = \n\n";
+	cout << "Current Server Processing Delay \n = \n";
+	cout << "Current Recv Packet Count \n = \n";
+	cout << "Current Send Packet Count \n = \n";
 }
 
 void StressTestClient::UpdateOutput()
@@ -176,7 +197,11 @@ void StressTestClient::UpdateOutput()
 	MoveCursor(3, 3);
 	cout << gDelayMgr.m_avgLoginDelay.GetAvgDelay() / 1000 << " milliseconds     ";
 	MoveCursor(3, 5);
-	cout << gDelayMgr.m_avgProcessDelay.GetAvgDelay() / 1000 << " milliseconds     " << endl;
+	cout << gDelayMgr.m_avgProcessDelay.GetAvgDelay() / 1000 << " milliseconds     ";
+	MoveCursor(3, 7);
+	cout << gDelayMgr.m_recvCnt.load() << "    ";
+	MoveCursor(3, 9);
+	cout << gDelayMgr.m_sendCnt.load() << "    \n";
 }
 
 void StressTestClient::MoveCursor(int x, int y)
@@ -185,16 +210,4 @@ void StressTestClient::MoveCursor(int x, int y)
 	cursor.X = x + m_initCursor.X;
 	cursor.Y = y + m_initCursor.Y;
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursor);
-}
-
-void StressTestClient::Tester()
-{
-	set<shared_ptr<IocpSession>>& sessions = m_client->GetSessions();
-	set<shared_ptr<IocpSession>>::iterator iter;
-
-	for (iter = sessions.begin(); iter != sessions.end(); iter++)
-	{
-		shared_ptr<ClientSession> cliSession = static_pointer_cast<ClientSession>(*iter);
-		cout << cliSession->m_bStartLogin << " " << cliSession->m_bLogin << " " << iter->use_count() << endl;
-	}
 }

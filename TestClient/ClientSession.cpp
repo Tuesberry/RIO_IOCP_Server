@@ -4,6 +4,7 @@
 #include "Utils/BufferHelper.h"
 #include "Network/IocpService.h"
 #include "Network/IocpClient.h"
+#include "StressTestClient.h"
 
 atomic<int> gSessionID = 0;
 
@@ -31,6 +32,9 @@ void ClientSession::OnConnected()
 	// connect OK
 	m_bConnect = true;
 
+	// stress test
+	gTestSessionMgr.AddSession(static_pointer_cast<ClientSession>(shared_from_this()));
+	
 	//SendLogin();
 }
 

@@ -92,6 +92,7 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 	// - update delay using delayManager
 	gDelayMgr.m_avgProcessDelay.UpdateAvgDelay(processingTime);
 	gDelayMgr.m_avgSendingDelay.UpdateAvgDelay(moveTime);
+	gDelayMgr.m_recvCnt.fetch_add(1);
 
 	return true;
 }

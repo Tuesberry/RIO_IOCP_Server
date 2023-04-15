@@ -182,6 +182,8 @@
     <ClInclude Include="Network\SockAddress.h" />
     <ClInclude Include="Network\SocketCore.h" />
     <ClInclude Include="Common.h" />
+    <ClInclude Include="Thread\RWLock.h" />
+    <ClInclude Include="Thread\ThreadManager.h" />
     <ClInclude Include="Utils\BufferHelper.h" />
     <ClInclude Include="Utils\ConsoleOutputManager.h" />
   </ItemGroup>
@@ -209,6 +211,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Thread\RWLock.cpp" />
+    <ClCompile Include="Thread\ThreadManager.cpp" />
     <ClCompile Include="Utils\BufferHelper.cpp" />
     <ClCompile Include="Utils\ConsoleOutputManager.cpp" />
   </ItemGroup>

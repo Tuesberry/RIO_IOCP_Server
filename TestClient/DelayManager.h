@@ -46,6 +46,9 @@ public:
 	DelayChecker m_avgSendingDelay;
 	DelayChecker m_avgProcessDelay;
 	DelayChecker m_avgLoginDelay;
+
+	atomic<int> m_sendCnt = 0;
+	atomic<int> m_recvCnt = 0;
 };
 
 extern DelayManager gDelayMgr;

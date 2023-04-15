@@ -31,6 +31,12 @@
     <Filter Include="Source Files\Utils">
       <UniqueIdentifier>{da022053-f8a1-49bd-b454-267ad40d63e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Thread">
+      <UniqueIdentifier>{8ce02b9b-6c16-4a98-ae4e-604096334575}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Thread">
+      <UniqueIdentifier>{f4d7d278-c55f-4a7c-8614-98de2f0627dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreCommon.h">
@@ -96,6 +102,12 @@
     <ClInclude Include="Network\RioBuffer.h">
       <Filter>Header Files\Network\RIO</Filter>
     </ClInclude>
+    <ClInclude Include="Thread\RWLock.h">
+      <Filter>Header Files\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread\ThreadManager.h">
+      <Filter>Header Files\Thread</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -157,6 +169,12 @@
     </ClCompile>
     <ClCompile Include="Network\RioBuffer.cpp">
       <Filter>Source Files\Network\RIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Thread\RWLock.cpp">
+      <Filter>Source Files\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="Thread\ThreadManager.cpp">
+      <Filter>Source Files\Thread</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

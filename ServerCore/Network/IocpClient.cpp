@@ -42,9 +42,6 @@ void IocpClient::StopClient()
 	// Disconnect all sessions
 	DisconnectAllSession();
 
-	// join threads
-	JoinWorkerThreads();
-
 	// stop client
 	m_bStart = false;
 }

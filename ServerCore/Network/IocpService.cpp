@@ -19,7 +19,6 @@ IocpService::IocpService(
 	, m_iocpCore(iocpCore)
 	, m_address(address)
 	, m_bStart(false)
-	, m_workerThreads()
 	, m_threadCnt(0)
 {
 	// check number of cpus
@@ -72,22 +71,12 @@ void IocpService::CreateWorkerThreads()
 {
 	for (int i = 0; i < m_threadCnt; i++)
 	{
-		m_workerThreads.push_back(thread([=]()
+		gThreadMgr.CreateThread([=]()
 			{
 				while (true)
 				{
 					m_iocpCore->Dispatch();
 				}
-			}));
-	}
-}
-
-void IocpService::JoinWorkerThreads()
-{
-	// join thread
-	for (thread& thread : m_workerThreads)
-	{
-		if (thread.joinable() == true)
-			thread.join();
+			});
 	}
 }

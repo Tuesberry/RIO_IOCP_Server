@@ -6,7 +6,7 @@
 #include "StressTestClient.h"
 #include "ClientSession.h"
 
-#define CLIENT_NUM 10
+#define CLIENT_NUM 300
 
 int main()
 {

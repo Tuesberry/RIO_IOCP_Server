@@ -3,10 +3,47 @@
 #include "CoreCommon.h"
 
 #include "Network/IocpClient.h"
+#include "ClientPacketHandler.h"
+#include "Thread/RWLock.h"
+
+/* --------------------------------------------------------
+*	class:		TestSessionManager
+*	Summary:	session manager for stress test
+-------------------------------------------------------- */
+
+class TestSessionManager
+{
+public:
+	TestSessionManager();
+	TestSessionManager(const TestSessionManager& other) = delete;
+	TestSessionManager(TestSessionManager&& other) = delete;
+	TestSessionManager& operator=(const TestSessionManager& other) = delete;
+	TestSessionManager& operator=(TestSessionManager&& other) = delete;
+	~TestSessionManager() = default;
+
+	bool SendLogin(int idx);
+	bool SendMove(int idx);
+	bool SendPacket(int idx);
+
+	void AddSession(weak_ptr<ClientSession> session);
+	void DeleteSession(int idx);
+
+private:
+	RWLock m_rwLock;
+	vector<weak_ptr<ClientSession>> m_sessions;
+	int m_size;
+};
+
+extern TestSessionManager gTestSessionMgr;
+
+/* --------------------------------------------------------
+*	class:		StressTestClient
+*	Summary:	client for stress test
+-------------------------------------------------------- */
 
 class StressTestClient
 {
-	enum
+	enum : int
 	{
 		PACKET_SEND_DURATION = 1000,
 	};
@@ -24,15 +61,15 @@ public:
 	void RunServer();
 
 private:
-	void UpdateSessions(int idx);
-	void SendPacketToServer(int idx, int duration);
-	void ConnectToServer(int idx, int duration);
+	void ConnectToServer();
+	void SendToServer(int idx);
+	void ResetSendTime();
 
 	void InitOutput();
 	void UpdateOutput();
 
 	void MoveCursor(int x, int y);
-	void Tester();
+
 private:
 	shared_ptr<IocpClient> m_client;
 
@@ -42,6 +79,5 @@ private:
 	int m_clientNum;
 	int m_coreCnt;
 	int m_jobCnt;
-	vector<thread> m_threads;
-	bool m_bConnect;
+	vector<double> m_sendTime;
 };

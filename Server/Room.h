@@ -7,10 +7,10 @@ class Room
 {
 public:
 	enum {
-		VIEW_DISTANCE = 40,
+		VIEW_DISTANCE = 16,
 		WAITING_TIME_LIMIT = 5,
-		MAP_WIDTH = 800,
-		MAP_HEIGHT = 600
+		MAP_WIDTH = 400,
+		MAP_HEIGHT = 400
 	};
 
 public:

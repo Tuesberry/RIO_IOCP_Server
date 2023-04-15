@@ -25,9 +25,11 @@ using namespace chrono;
 #include <thread>
 #include <mutex>
 
+#include "Thread/ThreadManager.h"
+
 #define BUFSIZE 1000
 #define len(arr) static_cast<int>(sizeof(arr)/sizeof(arr[0]))
 
 void HandleError(const char* cause);
 
-extern class ConsoleOutputManager GCoutMgr;
+extern class ThreadManager gThreadMgr;
