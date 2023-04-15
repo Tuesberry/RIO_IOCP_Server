@@ -18,7 +18,7 @@ public:
 	~DelayChecker() = default;
 
 	void UpdateAvgDelay(IN int delay);
-	long double GetAvgDelay() { return m_avgDelay; }
+	long double GetAvgDelay();
 
 private:
 	mutex m_updateLock;

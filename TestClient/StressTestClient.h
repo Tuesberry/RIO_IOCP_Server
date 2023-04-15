@@ -1,5 +1,7 @@
 #pragma once
+
 #include "CoreCommon.h"
+
 #include "Network/IocpClient.h"
 
 class StressTestClient

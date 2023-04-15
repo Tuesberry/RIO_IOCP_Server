@@ -1,4 +1,3 @@
-#pragma once
 #include "ClientSession.h"
 #include "ClientPacketHandler.h"
 #include "Utils/ConsoleOutputManager.h"

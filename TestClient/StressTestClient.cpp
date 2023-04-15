@@ -1,4 +1,3 @@
-#pragma once
 #include "StressTestClient.h"
 #include "ClientSession.h"
 #include "DelayManager.h"
@@ -8,7 +7,8 @@ StressTestClient::StressTestClient(shared_ptr<IocpClient> client, int clientNum)
 	: m_client(client)
 	, m_initCursor()
 	, m_clientNum(clientNum)
-	, m_coreCnt(thread::hardware_concurrency())
+	//, m_coreCnt(thread::hardware_concurrency())
+	, m_coreCnt(2)
 	, m_jobCnt(ceil(static_cast<double>(clientNum) / m_coreCnt))
 	, m_threads()
 	, m_bConnect(false)
@@ -48,8 +48,9 @@ void StressTestClient::RunServer()
 		
 		processTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - startTime;
 
-		if (processTime > 0)
+		if (PACKET_SEND_DURATION - processTime > 0)
 		{
+			cout << PACKET_SEND_DURATION - processTime << endl;
 			this_thread::sleep_for(::milliseconds(PACKET_SEND_DURATION - processTime));
 		}
 		else
@@ -166,9 +167,6 @@ void StressTestClient::InitOutput()
 	cout << "Current Client-Server Packet Send-Recv Delay \n = \n";
 	cout << "Current Login Delay \n = \n";
 	cout << "Current Server Processing Delay \n = \n\n";
-
-	cout.precision(4);
-	cout << fixed;
 }
 
 void StressTestClient::UpdateOutput()
