@@ -131,6 +131,8 @@ StressTestClient::StressTestClient(shared_ptr<IocpClient> client, int clientNum,
 	: m_client(client)
 	, m_initCursor()
 	, m_clientNum(clientNum)
+	, m_runClient(false)
+	, m_startTime(0)
 	, m_threadCnt(threadCnt)
 	, m_jobCnt(ceil(static_cast<double>(clientNum) / m_threadCnt))
 {
@@ -158,7 +160,11 @@ void StressTestClient::RunClient()
 
 	// run client
 	m_client->RunClient();
-	
+
+	// start check
+	m_runClient = true;
+	m_startTime = duration_cast<seconds>(high_resolution_clock::now().time_since_epoch()).count();
+
 	// init output
 	InitOutput();
 
@@ -176,16 +182,25 @@ void StressTestClient::RunClient()
 			{
 				while (true)
 				{
-					SendToServer(i);
+					if (SendToServer(i) == false)
+						break;
 				}
 			});
 	}
-
+	
 	while (true)
 	{
+		// check time
+		if ((duration_cast<seconds>(high_resolution_clock::now().time_since_epoch()).count() - m_startTime) > STRESS_TEST_TIME_SEC && m_runClient == true)
+		{
+			m_runClient = false;
+		}
+		// update output
 		UpdateOutput();
-		this_thread::sleep_for(1s);
+		// sleep thread
+		this_thread::sleep_for(100ms);
 	}
+	
 }
 
 /* --------------------------------------------------------
@@ -212,8 +227,11 @@ void StressTestClient::ConnectToServer()
 *	Args:		int idx
 *					execute thread index
 ------------------------------------------------------- */
-void StressTestClient::SendToServer(int idx)
+bool StressTestClient::SendToServer(int idx)
 {
+	if (m_runClient == false)
+		return false;
+
 	int sIdx = 0;
 	
 	for (int i = 0; i < m_jobCnt; i++)
@@ -230,6 +248,7 @@ void StressTestClient::SendToServer(int idx)
 		gTestSessionMgr.SendPacket(sIdx);
 	}
 	this_thread::yield();
+	return true;
 }
 
 /* --------------------------------------------------------

@@ -46,6 +46,7 @@ class StressTestClient
 	enum : int
 	{
 		PACKET_SEND_DURATION = 1000,
+		STRESS_TEST_TIME_SEC = 60,
 	};
 
 public:
@@ -62,7 +63,7 @@ public:
 
 private:
 	void ConnectToServer();
-	void SendToServer(int idx);
+	bool SendToServer(int idx);
 	void ResetSendTime();
 
 	void InitOutput();
@@ -78,8 +79,11 @@ private:
 	COORD m_initCursor;
 
 	// stress test
+	bool m_runClient;
+	int m_startTime;
+
 	int m_clientNum;
 	int m_threadCnt;
 	int m_jobCnt;
-	vector<double> m_sendTime;
+	vector<int> m_sendTime;
 };

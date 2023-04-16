@@ -5,7 +5,7 @@
 #include "StressTestClient.h"
 #include "ClientSession.h"
 
-#define CLIENT_NUM 300
+#define CLIENT_NUM 100
 #define STRESS_TEST_THREAD_CNT 2
 
 int main()
@@ -14,13 +14,13 @@ int main()
 
 	StressTestClient stressTestClient(std::make_shared<IocpClient>(
 		std::make_shared<IocpCore>(),
-		std::make_shared<ClientSession>, 
+		std::make_shared<ClientSession>,
 		SockAddress(L"127.0.0.1", 7777),
 		500,
 		1)
-		,CLIENT_NUM
-		,STRESS_TEST_THREAD_CNT
+		, CLIENT_NUM
+		, STRESS_TEST_THREAD_CNT
 	);
-	
+
 	stressTestClient.RunClient();
 }
