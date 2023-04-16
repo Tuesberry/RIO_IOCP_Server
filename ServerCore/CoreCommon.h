@@ -27,7 +27,7 @@ using namespace chrono;
 
 #include "Thread/ThreadManager.h"
 
-#define BUFSIZE 1000
+#define BUFSIZE 2000
 #define len(arr) static_cast<int>(sizeof(arr)/sizeof(arr[0]))
 
 void HandleError(const char* cause);

@@ -9,8 +9,8 @@ public:
 	enum {
 		VIEW_DISTANCE = 16,
 		WAITING_TIME_LIMIT = 5,
-		MAP_WIDTH = 400,
-		MAP_HEIGHT = 400
+		MAP_WIDTH = 800,
+		MAP_HEIGHT = 600
 	};
 
 public:

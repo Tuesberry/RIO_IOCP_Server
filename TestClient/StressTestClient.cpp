@@ -5,12 +5,23 @@
 
 TestSessionManager gTestSessionMgr;
 
+/* --------------------------------------------------------
+*	Method:		TestSessionManager::TestSessionManager
+*	Summary:	Constructor
+-------------------------------------------------------- */
 TestSessionManager::TestSessionManager()
 	: m_sessions()
 	, m_size(0)
 {
 }
 
+/* --------------------------------------------------------
+*	Method:		TestSessionManager::SendLogin
+*	Summary:	send login packet 
+*				from idx'th client session to server
+*	Args:		int idx
+*					client session index
+------------------------------------------------------- */
 bool TestSessionManager::SendLogin(int idx)
 {
 	if (m_size <= idx)
@@ -26,6 +37,13 @@ bool TestSessionManager::SendLogin(int idx)
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		TestSessionManager::SendMove
+*	Summary:	send move packet
+*				from idx'th client session to server
+*	Args:		int idx
+*					client session index
+------------------------------------------------------- */
 bool TestSessionManager::SendMove(int idx)
 {
 	if (m_size <= idx)
@@ -41,12 +59,21 @@ bool TestSessionManager::SendMove(int idx)
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		TestSessionManager::SendPacket
+*	Summary:	send move or login packet
+*				from idx'th client session to server
+*	Args:		int idx
+*					client session index
+------------------------------------------------------- */
 bool TestSessionManager::SendPacket(int idx)
 {
 	if (m_size <= idx)
 		return false;
 
 	ReadLockGuard lock(m_rwLock);
+
+	// get session
 	shared_ptr<ClientSession> session = m_sessions[idx].lock();
 	if (session)
 	{
@@ -54,7 +81,7 @@ bool TestSessionManager::SendPacket(int idx)
 		{
 			session->SendMove();
 		}
-		else if (session->m_bStartLogin == false)
+		else if (session->m_bConnect && session->m_bStartLogin == false)
 		{
 			session->SendLogin();
 		}
@@ -64,6 +91,12 @@ bool TestSessionManager::SendPacket(int idx)
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		TestSessionManager::AddSession
+*	Summary:	add session to session manager
+*	Args:		weak_ptr<ClientSession> session
+*					session to be added
+------------------------------------------------------- */
 void TestSessionManager::AddSession(weak_ptr<ClientSession> session)
 {
 	WriteLockGuard lock(m_rwLock);
@@ -71,6 +104,12 @@ void TestSessionManager::AddSession(weak_ptr<ClientSession> session)
 	m_size++;
 }
 
+/* --------------------------------------------------------
+*	Method:		TestSessionManager::DeleteSession
+*	Summary:	delete session from session manager
+*	Args:		int idx
+*					session to be deleted
+------------------------------------------------------- */
 void TestSessionManager::DeleteSession(int idx)
 {
 	WriteLockGuard lock(m_rwLock);
@@ -78,24 +117,41 @@ void TestSessionManager::DeleteSession(int idx)
 	m_size--;
 }
 
-
-StressTestClient::StressTestClient(shared_ptr<IocpClient> client, int clientNum)
+/* --------------------------------------------------------
+*	Method:		StressTestClient::StressTestClient
+*	Summary:	Constructor
+*	Args:		shared_ptr<IocpClient> client
+*					iocp client
+*				int clientNum
+*					number of clients
+*				int threadCnt
+*					number of threads used for stress test
+------------------------------------------------------- */
+StressTestClient::StressTestClient(shared_ptr<IocpClient> client, int clientNum, int threadCnt)
 	: m_client(client)
 	, m_initCursor()
 	, m_clientNum(clientNum)
-	//, m_coreCnt(thread::hardware_concurrency())
-	, m_coreCnt(2)
-	, m_jobCnt(ceil(static_cast<double>(clientNum) / m_coreCnt))
+	, m_threadCnt(threadCnt)
+	, m_jobCnt(ceil(static_cast<double>(clientNum) / m_threadCnt))
 {
+	// resize send time
 	m_sendTime.resize(clientNum);
 }
 
+/* --------------------------------------------------------
+*	Method:		StressTestClient::~StressTestClient
+*	Summary:	Destructor
+------------------------------------------------------- */
 StressTestClient::~StressTestClient()
 {
 	m_client->StopClient();
 }
 
-void StressTestClient::RunServer()
+/* --------------------------------------------------------
+*	Method:		StressTestClient::RunClient
+*	Summary:	run stress test client
+------------------------------------------------------- */
+void StressTestClient::RunClient()
 {
 	if (m_client->StartClient() == false)
 		return;
@@ -114,7 +170,7 @@ void StressTestClient::RunServer()
 		
 	// create threads
 	// these threads send packets to server
-	for (int i = 0; i < m_coreCnt; i++)
+	for (int i = 0; i < m_threadCnt; i++)
 	{
 		gThreadMgr.CreateThread([=]() 
 			{
@@ -132,6 +188,11 @@ void StressTestClient::RunServer()
 	}
 }
 
+/* --------------------------------------------------------
+*	Method:		StressTestClient::ConnectToServer
+*	Summary:	connect clients to server 
+*				as the specified number of clients
+------------------------------------------------------- */
 void StressTestClient::ConnectToServer()
 {
 	for (int i = 0; i < m_clientNum; i++)
@@ -145,13 +206,19 @@ void StressTestClient::ConnectToServer()
 	}
 }
 
+/* --------------------------------------------------------
+*	Method:		StressTestClient::SendToServer
+*	Summary:	send packet to server from idx'th thread
+*	Args:		int idx
+*					execute thread index
+------------------------------------------------------- */
 void StressTestClient::SendToServer(int idx)
 {
 	int sIdx = 0;
 	
 	for (int i = 0; i < m_jobCnt; i++)
 	{
-		sIdx = i * m_coreCnt + idx;
+		sIdx = i * m_threadCnt + idx;
 		if (sIdx >= m_clientNum)
 			break;
 
@@ -165,6 +232,12 @@ void StressTestClient::SendToServer(int idx)
 	this_thread::yield();
 }
 
+/* --------------------------------------------------------
+*	Method:		StressTestClient::ResetSendTime
+*	Summary:	reset send time for stress test
+*				after this, session's send time distributes
+*				with constant time delay
+------------------------------------------------------- */
 void StressTestClient::ResetSendTime()
 {
 	int startTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
@@ -175,6 +248,10 @@ void StressTestClient::ResetSendTime()
 	}
 }
 
+/* --------------------------------------------------------
+*	Method:		StressTestClient::InitOutput
+*	Summary:	get init cursor and init console output
+------------------------------------------------------- */
 void StressTestClient::InitOutput()
 {
 	CONSOLE_SCREEN_BUFFER_INFO presentCur;
@@ -190,6 +267,10 @@ void StressTestClient::InitOutput()
 	cout << "Current Send Packet Count \n = \n";
 }
 
+/* --------------------------------------------------------
+*	Method:		StressTestClient::UpdateOutput
+*	Summary:	update console output
+------------------------------------------------------- */
 void StressTestClient::UpdateOutput()
 {
 	MoveCursor(3, 1);
@@ -204,6 +285,14 @@ void StressTestClient::UpdateOutput()
 	cout << gDelayMgr.m_sendCnt.load() << "    \n";
 }
 
+/* --------------------------------------------------------
+*	Method:		StressTestClient::MoveCursor
+*	Summary:	move console cursor
+*	Args:		int x
+*					position x
+*				int y
+*					position y
+------------------------------------------------------- */
 void StressTestClient::MoveCursor(int x, int y)
 {
 	COORD cursor;

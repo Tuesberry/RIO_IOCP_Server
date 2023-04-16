@@ -1,7 +1,6 @@
 #pragma once
 
-#include "pch.h"
-#include "CoreCommon.h"
+#include "Common.h"
 
 class ClientSession;
 

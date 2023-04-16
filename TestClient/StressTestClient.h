@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CoreCommon.h"
+#include "Common.h"
 
 #include "Network/IocpClient.h"
 #include "ClientPacketHandler.h"
@@ -49,16 +49,16 @@ class StressTestClient
 	};
 
 public:
-	StressTestClient() = delete;
-	StressTestClient(shared_ptr<IocpClient> client, int clientNum);
+	StressTestClient(shared_ptr<IocpClient> client, int clientNum, int threadCnt = thread::hardware_concurrency());
 
+	StressTestClient() = delete;
 	StressTestClient(const StressTestClient& other) = delete;
 	StressTestClient(StressTestClient&& other) = delete;
 	StressTestClient& operator=(const StressTestClient& other) = delete;
 	StressTestClient& operator=(StressTestClient&& other) = delete;
 	~StressTestClient();
 
-	void RunServer();
+	void RunClient();
 
 private:
 	void ConnectToServer();
@@ -71,13 +71,15 @@ private:
 	void MoveCursor(int x, int y);
 
 private:
+	// iocp client
 	shared_ptr<IocpClient> m_client;
 
+	// draw output
 	COORD m_initCursor;
 
 	// stress test
 	int m_clientNum;
-	int m_coreCnt;
+	int m_threadCnt;
 	int m_jobCnt;
 	vector<double> m_sendTime;
 };

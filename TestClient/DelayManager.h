@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CoreCommon.h"
+#include "Common.h"
 
 /* --------------------------------------------------------
 *	class:		DelayChecker

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "pch.h"
-#include "CoreCommon.h"
+#include "Common.h"
 
 #include "StressTestClient.h"
 #include "ClientSession.h"
 
 #define CLIENT_NUM 300
+#define STRESS_TEST_THREAD_CNT 2
 
 int main()
 {
@@ -19,7 +19,8 @@ int main()
 		500,
 		1)
 		,CLIENT_NUM
+		,STRESS_TEST_THREAD_CNT
 	);
 	
-	stressTestClient.RunServer();
+	stressTestClient.RunClient();
 }
