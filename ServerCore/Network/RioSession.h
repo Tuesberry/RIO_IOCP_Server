@@ -62,6 +62,8 @@ public:
 public:
 	virtual void OnConnected() {}
 	virtual int OnRecv(char* buffer, int len) abstract;
+	//virtual int OnRecv(char* buffer, int len) final;
+	//virtual void OnRecvPacket(char* buffer, int len) abstract;
 	virtual void OnSend(int len) {}
 	virtual void OnDisconnected() {}
 

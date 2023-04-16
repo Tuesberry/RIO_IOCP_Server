@@ -59,7 +59,7 @@ void RioSession::RegisterRecv()
 	m_recvEvent.m_owner = shared_from_this();
 	
 	m_recvEvent.BufferId = m_recvBufId;
-	m_recvEvent.Length = 0;	//TODO
+	m_recvEvent.Length = m_recvBuffer->GetBufferSize();	//TODO
 	m_recvEvent.Offset = 0; //TODO
 
 	DWORD recvbytes = 0;
@@ -68,6 +68,7 @@ void RioSession::RegisterRecv()
 	if (SocketCore::RIO.RIOReceive(m_requestQueue, (PRIO_BUF)&m_recvEvent, RECV_BUFF_COUNT, flags, &m_recvEvent) == false)
 	{
 		m_recvEvent.m_owner = nullptr;
+		HandleError("RioReceive");
 		Disconnect();
 	}
 }
@@ -97,6 +98,10 @@ void RioSession::ProcessConnect()
 {
 	m_bConnected.store(true);
 
+	// make socket non-blocking
+	u_long arg = 1;
+	ioctlsocket(m_socket, FIONBIO, &arg);
+
 	// init session
 	InitSession();
 
@@ -110,6 +115,13 @@ void RioSession::ProcessConnect()
 void RioSession::ProcessRecv(int bytesTransferred)
 {
 	m_recvEvent.m_owner = nullptr;
+
+	if (bytesTransferred == 0)
+	{
+		HandleError("bytesTransferred == 0");
+		Disconnect();
+		return;
+	}
 
 	int processLen = OnRecv(m_recvBuffer->GetBuffer(), bytesTransferred);
 	memset(m_recvBuffer->GetBuffer(), 0, m_recvBuffer->GetBufferSize());
@@ -161,6 +173,7 @@ bool RioSession::AllocBuffer()
 bool RioSession::CreateRequestQueue()
 {
 	shared_ptr<RioCore> rioCore = m_rioCore.lock();
+	
 	if (rioCore == nullptr)
 		return false;
 

@@ -30,7 +30,7 @@ bool RioServer::InitServer()
 	// Init Core
 	if (InitCore() == false)
 		return false;
-
+	  
 	return true;
 }
 
@@ -47,19 +47,13 @@ bool RioServer::StartServer()
 	if (StartCoreWork() == false)
 		return false;
 
-	// join threads
-	for (thread& rioThread : m_threads)
-	{
-		rioThread.join();
-	}
-
 	return true;
 }
 
 bool RioServer::InitListener()
 {
 	// create socket
-	m_listener = SocketCore::Socket();
+	m_listener = SocketCore::RioSocket();
 	if (m_listener == INVALID_SOCKET)
 		return false;
 
@@ -83,14 +77,14 @@ bool RioServer::StartListener()
 		return false;
 
 	// accept loop
-	m_threads.push_back(::thread([=]()
+	gThreadMgr.CreateThread([=]()
 		{
 			while (true)
 			{
 				if (Accept() == false)
 					break;
 			}
-		}));
+		});
 
 	return true;
 }
@@ -130,7 +124,8 @@ bool RioServer::InitCore()
 {
 	// determine core count
 	// = cpu core count x 2
-	m_coreCnt = thread::hardware_concurrency() * 2;
+	//m_coreCnt = thread::hardware_concurrency() * 2;
+	m_coreCnt = 2;
 
 	// allocate & init core
 	for (int i = 0; i < m_coreCnt; i++)
@@ -155,13 +150,13 @@ bool RioServer::StartCoreWork()
 	// create thread & dispatch 
 	for (int i = 0; i < m_coreCnt; i++)
 	{
-		m_threads.push_back(::thread([=]() 
+		gThreadMgr.CreateThread([=]() 
 			{
 				while (true)
 				{
 					m_rioCores[i]->Dispatch();
 				}
-			}));
+			});
 	}
 
 	return true;

@@ -21,9 +21,13 @@ public:
 	TestSessionManager& operator=(TestSessionManager&& other) = delete;
 	~TestSessionManager() = default;
 
+	bool IsEmpty() { return m_connectCnt == 0; }
+
 	bool SendLogin(int idx);
 	bool SendMove(int idx);
 	bool SendPacket(int idx);
+
+	void Disconnect(int idx);
 
 	void AddSession(weak_ptr<ClientSession> session);
 	void DeleteSession(int idx);
@@ -32,6 +36,7 @@ private:
 	RWLock m_rwLock;
 	vector<weak_ptr<ClientSession>> m_sessions;
 	int m_size;
+	int m_connectCnt;
 };
 
 extern TestSessionManager gTestSessionMgr;
@@ -46,7 +51,7 @@ class StressTestClient
 	enum : int
 	{
 		PACKET_SEND_DURATION = 1000,
-		STRESS_TEST_TIME_SEC = 60,
+		STRESS_TEST_TIME_SEC = 5,
 	};
 
 public:
@@ -63,11 +68,13 @@ public:
 
 private:
 	void ConnectToServer();
+	void DisconnectFromServer(int idx);
 	bool SendToServer(int idx);
 	void ResetSendTime();
 
 	void InitOutput();
 	void UpdateOutput();
+	void TestStopOutput();
 
 	void MoveCursor(int x, int y);
 

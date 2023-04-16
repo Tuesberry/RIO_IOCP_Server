@@ -18,7 +18,10 @@ public:
 
 	static bool Init();
 	static bool Clear();
+
 	static SOCKET Socket();
+	static SOCKET RioSocket();
+
 	static bool Close(SOCKET& socket);
 
 	// server
@@ -45,7 +48,7 @@ public:
 private:
 	static SOCKET CreateSocket();
 	static bool BindWindowsFunction(SOCKET socket, GUID guid, LPVOID* fn);
-	static bool BindWindowsFunctionTable(SOCKET socket, GUID guid, LPVOID* fn);
+	static bool BindRioFunctionTable(SOCKET socket, GUID guid, RIO_EXTENSION_FUNCTION_TABLE& fnTable);
 
 	template<typename T>
 	inline static bool SetSockOpt(SOCKET socket, int level, int optName, T optVal);

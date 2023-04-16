@@ -10,7 +10,9 @@ TestSessionManager gTestSessionMgr;
 *	Summary:	Constructor
 -------------------------------------------------------- */
 TestSessionManager::TestSessionManager()
-	: m_sessions()
+	: m_rwLock()
+	, m_sessions()
+	, m_connectCnt(0)
 	, m_size(0)
 {
 }
@@ -92,6 +94,31 @@ bool TestSessionManager::SendPacket(int idx)
 }
 
 /* --------------------------------------------------------
+*	Method:		TestSessionManager::Disconnect
+*	Summary:	disconnect session
+*	Args:		int idx
+*					client session index
+------------------------------------------------------- */
+void TestSessionManager::Disconnect(int idx)
+{
+	if (m_size <= idx)
+		return;
+
+	ReadLockGuard lock(m_rwLock);
+
+	// get session
+	shared_ptr<ClientSession> session = m_sessions[idx].lock();
+	if (session)
+	{
+		if (session->IsConnected())
+		{
+			session->Disconnect();
+			m_connectCnt--;
+		}
+	}
+}
+
+/* --------------------------------------------------------
 *	Method:		TestSessionManager::AddSession
 *	Summary:	add session to session manager
 *	Args:		weak_ptr<ClientSession> session
@@ -102,6 +129,7 @@ void TestSessionManager::AddSession(weak_ptr<ClientSession> session)
 	WriteLockGuard lock(m_rwLock);
 	m_sessions.push_back(session);
 	m_size++;
+	m_connectCnt++;
 }
 
 /* --------------------------------------------------------
@@ -182,25 +210,34 @@ void StressTestClient::RunClient()
 			{
 				while (true)
 				{
-					if (SendToServer(i) == false)
-						break;
+					if (m_runClient)
+					{
+						SendToServer(i);
+					}
 				}
 			});
 	}
 	
 	while (true)
 	{
-		// check time
-		if ((duration_cast<seconds>(high_resolution_clock::now().time_since_epoch()).count() - m_startTime) > STRESS_TEST_TIME_SEC && m_runClient == true)
-		{
-			m_runClient = false;
-		}
 		// update output
 		UpdateOutput();
+		// check time
+		if (m_runClient)
+		{
+			int workingTime = duration_cast<seconds>(high_resolution_clock::now().time_since_epoch()).count() - m_startTime;
+			if (workingTime > STRESS_TEST_TIME_SEC)
+			{
+				m_runClient = false;
+			}
+		}
+		else
+		{
+			TestStopOutput();
+		}
 		// sleep thread
 		this_thread::sleep_for(100ms);
 	}
-	
 }
 
 /* --------------------------------------------------------
@@ -218,6 +255,31 @@ void StressTestClient::ConnectToServer()
 			return;
 		}
 		this_thread::yield();
+	}
+}
+
+/* --------------------------------------------------------
+*	Method:		StressTestClient::DisconnectFromServer
+*	Summary:	disconnect from server
+*	Args:		int idx
+*					execute thread index
+------------------------------------------------------- */
+void StressTestClient::DisconnectFromServer(int idx)
+{
+	int sIdx = 0;
+
+	for (int i = 0; i < m_jobCnt; i++)
+	{
+		sIdx = i * m_threadCnt + idx;
+		if (sIdx >= m_clientNum)
+			break;
+
+		if ((duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - m_sendTime[sIdx]) < PACKET_SEND_DURATION)
+			continue;
+
+		//cout << duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - m_sendTime[sIdx] << endl;
+		m_sendTime[sIdx] = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
+		gTestSessionMgr.Disconnect(sIdx);
 	}
 }
 
@@ -302,6 +364,16 @@ void StressTestClient::UpdateOutput()
 	cout << gDelayMgr.m_recvCnt.load() << "    ";
 	MoveCursor(3, 9);
 	cout << gDelayMgr.m_sendCnt.load() << "    \n";
+}
+
+/* --------------------------------------------------------
+*	Method:		StressTestClient::TestStopOutput
+*	Summary:	execute when stress test stop
+------------------------------------------------------- */
+void StressTestClient::TestStopOutput()
+{
+	MoveCursor(0, 11);
+	cout << "STOP STRESS TEST!!" << endl;
 }
 
 /* --------------------------------------------------------

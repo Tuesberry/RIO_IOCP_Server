@@ -204,6 +204,7 @@ bool ClientPacketHandler::Handle_LOGIN_RESULT(shared_ptr<ClientSession> session,
 
 	int loginDelay = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - loginTryTime;
 	gDelayMgr.m_avgLoginDelay.UpdateAvgDelay(loginDelay);
+	gDelayMgr.m_recvCnt.fetch_add(1);
 
 	return true;
 }

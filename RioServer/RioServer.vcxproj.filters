@@ -11,12 +11,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="RioServer.cpp">
+    <ClCompile Include="RioServerMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RioServerSession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RioServerSession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -28,7 +28,7 @@ bool SocketCore::Init()
 		return false;
 	if (BindWindowsFunction(tempSocket, WSAID_ACCEPTEX, reinterpret_cast<LPVOID*>(&AcceptEx)) == false)
 		return false;
-	if (BindWindowsFunctionTable(tempSocket, WSAID_MULTIPLE_RIO, reinterpret_cast<LPVOID*>(&RIO)) == false)
+	if (BindRioFunctionTable(tempSocket, WSAID_MULTIPLE_RIO, RIO) == false)
 		return false;
 
 	return true;
@@ -45,6 +45,11 @@ bool SocketCore::Clear()
 SOCKET SocketCore::Socket()
 {
 	return CreateSocket();
+}
+
+SOCKET SocketCore::RioSocket()
+{
+	return ::WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_REGISTERED_IO);
 }
 
 bool SocketCore::Close(SOCKET& socket)
@@ -163,10 +168,10 @@ bool SocketCore::BindWindowsFunction(SOCKET socket, GUID guid, LPVOID* fn)
 	return SOCKET_ERROR != ::WSAIoctl(socket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), fn, sizeof(*fn), OUT & bytes, NULL, NULL);
 }
 
-bool SocketCore::BindWindowsFunctionTable(SOCKET socket, GUID guid, LPVOID* fn)
+bool SocketCore::BindRioFunctionTable(SOCKET socket, GUID guid, RIO_EXTENSION_FUNCTION_TABLE& fnTable)
 {
 	DWORD bytes = 0;
-	return SOCKET_ERROR != ::WSAIoctl(socket, SIO_GET_MULTIPLE_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), fn, sizeof(*fn), &bytes, NULL, NULL);
+	return SOCKET_ERROR != ::WSAIoctl(socket, SIO_GET_MULTIPLE_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), (void**)&fnTable, sizeof(fnTable), &bytes, NULL, NULL);
 }
 
 template<typename T>

@@ -18,7 +18,10 @@ bool RioCore::InitRioCore()
 	// completion queue
 	m_rioCompletionQueue = SocketCore::RIO.RIOCreateCompletionQueue(MAX_CQ_SIZE, 0);
 	if (m_rioCompletionQueue == RIO_INVALID_CQ)
+	{
+		HandleError("RIOCreateCompletionQueue");
 		return false;
+	}
 	
 	return true;
 }
