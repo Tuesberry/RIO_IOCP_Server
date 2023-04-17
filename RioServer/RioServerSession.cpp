@@ -2,6 +2,7 @@
 
 RioServerSession::RioServerSession()
 {
+    cout << "RioSession" << endl;
 }
 
 void RioServerSession::OnConnected()
@@ -9,11 +10,11 @@ void RioServerSession::OnConnected()
     cout << "Connect!" << endl; 
 }
 
-int RioServerSession::OnRecv(char* buffer, int len)
+void RioServerSession::OnRecvPacket(char* buffer, int len)
 {
-    cout << "On Recv : " << buffer;
-    cout << ", len : " << len << endl;
-    return len;
+    cout << buffer << " " << len << endl;
+
+    Send(buffer, len);
 }
 
 void RioServerSession::OnSend(int len)

@@ -8,7 +8,7 @@
 //debug
 #include "Network/SocketCore.h"
 
-#define CLIENT_NUM 100
+#define CLIENT_NUM 1
 #define STRESS_TEST_THREAD_CNT 2
 
 int main()
@@ -52,6 +52,15 @@ int main()
 
 		cout << "Send Data! Len = " << sizeof(buf) << endl;
 
+		result = SocketCore::Recv(clientSocket, buf, sizeof(buf));
+		if (result == SOCKET_ERROR)
+		{
+			HandleError("Recv");
+		}
+
+		cout << "Recv Data! Len = " << sizeof(buf) << endl;
+
 		this_thread::sleep_for(1s);
 	}
+	
 }

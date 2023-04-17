@@ -1,10 +1,10 @@
 #pragma once
 #include "Common.h"
 
-/* ----------------------------
-*		RioBuffer
----------------------------- */
-
+/* --------------------------------------------------------
+*	class:		RioBuffer
+*	Summary:	buffer used in rio server
+-------------------------------------------------------- */
 class RioBuffer
 {
 public:
@@ -19,12 +19,19 @@ public:
 
 	char* GetBuffer() { return m_buffer; }
 	int GetBufferSize() { return m_bufSize; }
+	int GetFreeSize() { return m_bufSize - m_writePos; }
+	int GetDataSize() { return m_writePos - m_readPos; }
 
-	char* GetWritePos() { return &m_buffer[m_writePos]; }
-	char* GetReadPos() { return &m_buffer[m_readPos]; }
+	int GetWritePos() { return m_writePos; }
+	int GetReadPos() { return m_readPos; }
+
+	char* GetWriteBuf() { return &m_buffer[m_writePos]; }
+	char* GetReadBuf() { return &m_buffer[m_readPos]; }
 
 	bool OnWriteBuffer(int writeSize);
 	bool OnReadBuffer(int readSize);
+
+	void AdjustPos();
 
 private:
 	void AllocateBuffer();

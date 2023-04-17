@@ -49,7 +49,7 @@ SOCKET SocketCore::Socket()
 
 SOCKET SocketCore::RioSocket()
 {
-	return ::WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_REGISTERED_IO);
+	return ::WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_REGISTERED_IO | WSA_FLAG_OVERLAPPED);
 }
 
 bool SocketCore::Close(SOCKET& socket)

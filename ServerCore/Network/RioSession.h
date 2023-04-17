@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Common.h"
+
 #include "SockAddress.h"
 #include "RecvBuffer.h"
 #include "SendBuffer.h"
@@ -8,10 +10,10 @@
 class RioBuffer;
 class RioCore;
 
-/* ----------------------------
-*		RioSession
----------------------------- */
-
+/* --------------------------------------------------------
+*	class:		RioSession
+*	Summary:	registered io session
+-------------------------------------------------------- */
 class RioSession : public enable_shared_from_this<RioSession>
 {
 	enum
@@ -46,7 +48,7 @@ public:
 	// networking
 	bool Connect();
 	void Disconnect();
-	void Send();
+	void Send(char* buf, int len);
 
 	// dispatch
 	void Dispatch(RioEvent* rioEvent, int bytesTransferred = 0);
@@ -61,9 +63,9 @@ public:
 
 public:
 	virtual void OnConnected() {}
-	virtual int OnRecv(char* buffer, int len) abstract;
-	//virtual int OnRecv(char* buffer, int len) final;
-	//virtual void OnRecvPacket(char* buffer, int len) abstract;
+	//virtual int OnRecv(char* buffer, int len) abstract;
+	virtual int OnRecv(char* buffer, int len) final;
+	virtual void OnRecvPacket(char* buffer, int len) abstract;
 	virtual void OnSend(int len) {}
 	virtual void OnDisconnected() {}
 
@@ -94,4 +96,6 @@ private:
 
 	shared_ptr<RioBuffer> m_recvBuffer;
 	shared_ptr<RioBuffer> m_sendBuffer;
+
+	mutex m_lock;
 };

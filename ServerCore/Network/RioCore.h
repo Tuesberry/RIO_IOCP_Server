@@ -40,6 +40,9 @@ private:
 	RIO_CQ m_rioCompletionQueue;
 	RIORESULT m_results[MAX_RIO_RESULT];
 
+	// TODO : Request Queue
+	RIO_RQ m_rioRequestQueue;
+
 	// session
 	mutex m_sessionLock;
 	set<shared_ptr<RioSession>> m_sessions;

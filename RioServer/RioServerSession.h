@@ -16,7 +16,7 @@ public:
 
 public:
 	virtual void OnConnected() override;
-	virtual int OnRecv(char* buffer, int len) override;
+	virtual void OnRecvPacket(char* buffer, int len) override;
 	virtual void OnSend(int len) override;
 	virtual void OnDisconnected() override;
 };
