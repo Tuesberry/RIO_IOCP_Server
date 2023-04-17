@@ -1,18 +1,21 @@
 #pragma once
+
 #include "Common.h"
 
 class RioCore;
 class RioSession;
 
-/* ----------------------------
-*		RioServer
----------------------------- */
-using SessionFactory = function<shared_ptr<RioSession>(void)>;
+// rio session
+using RIOSessionFactory = function<shared_ptr<RioSession>(void)>;
 
+/* --------------------------------------------------------
+*	class:		RioServer
+*	Summary:	registered i/o server
+-------------------------------------------------------- */
 class RioServer
 {
 public:
-	RioServer(SessionFactory sessionFactory);
+	RioServer(RIOSessionFactory sessionFactory);
 
 	RioServer() = delete;
 	RioServer(const RioServer& other) = delete;
@@ -21,6 +24,7 @@ public:
 	RioServer& operator=(RioServer&& other) = delete;
 	~RioServer();
 
+	// server running
 	bool InitServer();
 	bool StartServer();
 
@@ -36,14 +40,11 @@ private:
 
 private:
 	// session
-	SessionFactory m_sessionFactory;
+	RIOSessionFactory m_sessionFactory;
 
 	// listener
 	SOCKET m_listener;
 	bool m_bInitListener;
-
-	// thread
-	vector<thread> m_threads;
 
 	// RioCore
 	vector<shared_ptr<RioCore>> m_rioCores;

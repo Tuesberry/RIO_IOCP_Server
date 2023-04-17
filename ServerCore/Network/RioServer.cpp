@@ -4,11 +4,14 @@
 #include "RioCore.h"
 #include "SockAddress.h"
 
-RioServer::RioServer(SessionFactory sessionFactory)
+/* --------------------------------------------------------
+*	Method:		RioServer::RioServer
+*	Summary:	Constructor
+-------------------------------------------------------- */
+RioServer::RioServer(RIOSessionFactory sessionFactory)
 	: m_sessionFactory(sessionFactory)
 	, m_listener(INVALID_SOCKET)
 	, m_bInitListener(false)
-	, m_threads()
 	, m_rioCores()
 	, m_bInitCore(false)
 	, m_coreCnt(0)
@@ -16,11 +19,20 @@ RioServer::RioServer(SessionFactory sessionFactory)
 {
 }
 
+/* --------------------------------------------------------
+*	Method:		RioServer::~RioServer
+*	Summary:	Destructor
+-------------------------------------------------------- */
 RioServer::~RioServer()
 {
 	SocketCore::Close(m_listener);
 }
 
+/* --------------------------------------------------------
+*	Method:		RioServer::InitServer
+*	Summary:	initializing server
+*				create and set listener and RioCore
+-------------------------------------------------------- */
 bool RioServer::InitServer()
 {
 	// init listener
@@ -34,6 +46,10 @@ bool RioServer::InitServer()
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		RioServer::StartServer
+*	Summary:	Run server
+-------------------------------------------------------- */
 bool RioServer::StartServer()
 {
 	if (m_bInitListener == false && m_bInitCore == false)
@@ -50,6 +66,12 @@ bool RioServer::StartServer()
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		RioServer::InitListener
+*	Summary:	initalizing listener
+*				it creates listen socket, sets reuse address,
+*				and binds address
+-------------------------------------------------------- */
 bool RioServer::InitListener()
 {
 	// create socket
@@ -70,6 +92,10 @@ bool RioServer::InitListener()
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		RioServer::StartListener
+*	Summary:	Starting listener
+-------------------------------------------------------- */
 bool RioServer::StartListener()
 {
 	// listen
@@ -89,6 +115,11 @@ bool RioServer::StartListener()
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		RioServer::Accept
+*	Summary:	accept client, create new session, and
+*				allocate this sesion to specific RioCore
+-------------------------------------------------------- */
 bool RioServer::Accept()
 {
 	// create new session
@@ -110,7 +141,7 @@ bool RioServer::Accept()
 	// set core
 	session->SetCore(m_rioCores[m_currAllocCoreNum]);
 
-	// allocate session to core
+	// allocate session in core
 	m_rioCores[m_currAllocCoreNum]->AddSession(session);
 	m_currAllocCoreNum = (m_currAllocCoreNum + 1) % m_coreCnt;
 
@@ -120,6 +151,10 @@ bool RioServer::Accept()
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		RioServer::InitCore
+*	Summary:	create and initialize RioCores
+-------------------------------------------------------- */
 bool RioServer::InitCore()
 {
 	// determine core count
@@ -145,6 +180,10 @@ bool RioServer::InitCore()
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		RioServer::StartCoreWork
+*	Summary:	create threads and start dispatch for work
+-------------------------------------------------------- */
 bool RioServer::StartCoreWork()
 {
 	// create thread & dispatch 
