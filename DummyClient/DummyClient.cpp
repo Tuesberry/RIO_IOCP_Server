@@ -8,24 +8,25 @@
 //debug
 #include "Network/SocketCore.h"
 
-#define CLIENT_NUM 1
+#define CLIENT_NUM 80
 #define STRESS_TEST_THREAD_CNT 2
 
 int main()
 {
 	this_thread::sleep_for(1s);
 
-	StressTestClient stressTestClient(std::make_shared<IocpClient>(
+	shared_ptr<IocpClient> iocpClient = std::make_shared<IocpClient>(
 		std::make_shared<IocpCore>(),
 		std::make_shared<ClientSession>,
 		SockAddress(L"127.0.0.1", 7777),
 		500,
-		1)
-		, CLIENT_NUM
-		, STRESS_TEST_THREAD_CNT
-	);
+		1);
+
+	StressTestClient stressTestClient(iocpClient, CLIENT_NUM, STRESS_TEST_THREAD_CNT);
 
 	stressTestClient.RunClient();
+
+	gThreadMgr.JoinThreads();
 	/*
 	this_thread::sleep_for(1s);
 
