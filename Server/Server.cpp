@@ -1,19 +1,37 @@
 #pragma once
-#include "pch.h"
-#include "CoreCommon.h"
+
+#include "Common.h"
+
+#if IOCP
 #include "Network/IocpServer.h"
-#include "ServerSession.h"
+#include "IocpServerSession.h"
+#else RIO
+#include "Network/RioServer.h"
+#include "RioServerSession.h"
+#endif
+
 #include "StressTestServer.h"
 
 int main()
 {
-    StressTestServer stressTestServer(std::make_shared<IocpServer>(
+#if IOCP
+    shared_ptr<IocpServer> server = std::make_shared<IocpServer>(
         std::make_shared<IocpCore>(),
-        std::make_shared<ServerSession>,
+        std::make_shared<IocpServerSession>,
         SockAddress(L"127.0.0.1", 7777),
         50,
-        2));
+        2);
+#else RIO
+    shared_ptr<RioServer> server = std::make_shared<RioServer>(
+        std::make_shared<RioServerSession>,
+        SockAddress(L"127.0.0.1", 7777)
+        );
+#endif
 
+    // create server
+    StressTestServer stressTestServer(server);
+
+    // run server
     stressTestServer.RunServer();
 
     return 0;

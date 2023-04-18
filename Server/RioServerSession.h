@@ -1,15 +1,24 @@
 #pragma once
-#include "pch.h"
-#include "CoreCommon.h"
-#include "Network/IocpSession.h"
 
-class ServerSession : public IocpSession
+#include "Common.h"
+
+#if IOCP
+#else RIO
+
+#include "Network/RioSession.h"
+
+/* --------------------------------------------------------
+*	class:		RioServerSession
+*	Summary:	server session used for RIO
+-------------------------------------------------------- */
+
+class RioServerSession : public RioSession
 {
 public:
-    ServerSession();
-    ~ServerSession();
+    RioServerSession();
+    ~RioServerSession();
 
-    virtual void OnRecvPacket(BYTE* buffer, int len) override;
+    virtual void OnRecvPacket(char* buffer, int len) override;
     virtual void OnSend(int len) override;
     virtual void OnDisconnected() override;
 
@@ -24,3 +33,4 @@ public:
     int m_loginTime;
     int m_serverProcessTime;
 };
+#endif // RIO

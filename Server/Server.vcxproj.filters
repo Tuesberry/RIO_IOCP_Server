@@ -7,15 +7,21 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{90dbfde5-d2f4-44d0-aa5f-30d2bb3ef0cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Network">
+      <UniqueIdentifier>{575e2d02-dc39-4d57-8488-b837308780c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network">
+      <UniqueIdentifier>{0ea3acea-9318-4c4a-8e04-0cda6a777508}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Contents">
+      <UniqueIdentifier>{ea9afd33-c5b2-48d3-85a6-e31ddb00c7f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Contents">
+      <UniqueIdentifier>{aad9a708-5c50-42da-940f-02c9b8fd1093}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Server.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ServerSession.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ServerPacketHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StressTestServer.cpp">
@@ -27,15 +33,18 @@
     <ClCompile Include="Room.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IocpServerSession.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="RioServerSession.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerPacketHandler.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ServerSession.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ServerPacketHandler.h">
+    <ClInclude Include="Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StressTestServer.h">
@@ -46,6 +55,15 @@
     </ClInclude>
     <ClInclude Include="Room.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IocpServerSession.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="RioServerSession.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerPacketHandler.h">
+      <Filter>Header Files\Network</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

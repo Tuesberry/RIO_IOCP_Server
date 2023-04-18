@@ -160,19 +160,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="IocpServerSession.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="RioServerSession.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="ServerPacketHandler.cpp" />
-    <ClCompile Include="ServerSession.cpp" />
     <ClCompile Include="StressTestServer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h" />
+    <ClInclude Include="Common.h" />
+    <ClInclude Include="IocpServerSession.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="RioServerSession.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="ServerPacketHandler.h" />
-    <ClInclude Include="ServerSession.h" />
     <ClInclude Include="StressTestServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

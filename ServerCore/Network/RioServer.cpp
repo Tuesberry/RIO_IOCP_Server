@@ -2,15 +2,15 @@
 #include "SocketCore.h"
 #include "RioSession.h"
 #include "RioCore.h"
-#include "SockAddress.h"
 
 /* --------------------------------------------------------
 *	Method:		RioServer::RioServer
 *	Summary:	Constructor
 -------------------------------------------------------- */
-RioServer::RioServer(RIOSessionFactory sessionFactory)
+RioServer::RioServer(RIOSessionFactory sessionFactory, SockAddress address)
 	: m_sessionFactory(sessionFactory)
 	, m_listener(INVALID_SOCKET)
+	, m_address(address)
 	, m_bInitListener(false)
 	, m_rioCores()
 	, m_bInitCore(false)
@@ -26,6 +26,11 @@ RioServer::RioServer(RIOSessionFactory sessionFactory)
 RioServer::~RioServer()
 {
 	SocketCore::Close(m_listener);
+}
+
+void RioServer::StopServer()
+{
+	
 }
 
 /* --------------------------------------------------------
@@ -47,10 +52,10 @@ bool RioServer::InitServer()
 }
 
 /* --------------------------------------------------------
-*	Method:		RioServer::StartServer
+*	Method:		RioServer::RunServer
 *	Summary:	Run server
 -------------------------------------------------------- */
-bool RioServer::StartServer()
+bool RioServer::RunServer()
 {
 	if (m_bInitListener == false && m_bInitCore == false)
 		return false;
@@ -84,7 +89,7 @@ bool RioServer::InitListener()
 		return false;
 
 	// bind
-	if (SocketCore::BindAddrAny(m_listener, 8000) == false)
+	if (SocketCore::Bind(m_listener, m_address) == false)
 		return false;
 
 	m_bInitListener = true;
@@ -145,6 +150,9 @@ bool RioServer::Accept()
 	m_rioCores[m_currAllocCoreNum]->AddSession(session);
 	m_currAllocCoreNum = (m_currAllocCoreNum + 1) % m_coreCnt;
 
+	// session count
+	m_sessionCnt.fetch_add(1);
+
 	// process Connect
 	session->ProcessConnect();
 
@@ -159,8 +167,8 @@ bool RioServer::InitCore()
 {
 	// determine core count
 	// = cpu core count x 2
-	//m_coreCnt = thread::hardware_concurrency() * 2;
-	m_coreCnt = 2;
+	m_coreCnt = thread::hardware_concurrency() * 2;
+	//m_coreCnt = 2;
 
 	// allocate & init core
 	for (int i = 0; i < m_coreCnt; i++)

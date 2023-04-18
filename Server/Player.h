@@ -1,7 +1,12 @@
 #pragma once
-#include "pch.h"
-#include "CoreCommon.h"
-#include "ServerSession.h"
+
+#include "Common.h"
+
+#if IOCP
+#include "IocpServerSession.h"
+#else RIO
+#include "RioServerSession.h"
+#endif 
 
 enum class State : unsigned short
 {
@@ -12,9 +17,16 @@ enum class State : unsigned short
 class Player
 {
 public:
-	Player() = delete;
-	Player(int id, shared_ptr<ServerSession> session);
+#if IOCP
+	Player(int id, shared_ptr<IocpServerSession> session);
+	shared_ptr<IocpServerSession> m_ownerSession;
+#else RIO
+	Player(int id, shared_ptr<RioServerSession> session);
+	shared_ptr<RioServerSession> m_ownerSession;
+#endif
 
+public:
+	Player() = delete;
 	Player(const Player& other) = delete;
 	Player(Player&& other) = delete;
 	Player& operator=(const Player& other) = delete;
@@ -31,5 +43,4 @@ public:
 	unordered_set<int> m_viewList;
 
 	State m_playerState;
-	shared_ptr<ServerSession> m_ownerSession;
 };

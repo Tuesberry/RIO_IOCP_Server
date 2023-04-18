@@ -1,6 +1,7 @@
 #pragma once
-#include "pch.h"
-#include "CoreCommon.h"
+
+#include "Common.h"
+
 #include "Player.h"
 
 class Room

@@ -19,7 +19,7 @@ IocpServer::~IocpServer()
 	StopServer();
 }
 
-bool IocpServer::StartServer()
+bool IocpServer::InitServer()
 {
 	if (CanStart() == false)
 		return false;

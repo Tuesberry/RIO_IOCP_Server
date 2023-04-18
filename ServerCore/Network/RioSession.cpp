@@ -63,6 +63,16 @@ void RioSession::Send(char* buf, int len)
 	RegisterSend();
 }
 
+void RioSession::Send(shared_ptr<SendBuffer> sendBuffer)
+{
+	lock_guard<mutex> lock(m_lock);
+
+	char* writeBuf = m_sendBuffer->GetWriteBuf();
+	memcpy(writeBuf, sendBuffer->GetData(), sendBuffer->GetDataSize());
+	m_sendBuffer->OnWriteBuffer(sendBuffer->GetDataSize());
+
+	RegisterSend();
+}
 /* --------------------------------------------------------
 *	Method:		RioSession::Dispatch
 *	Summary:	process rioEvent
@@ -94,8 +104,8 @@ void RioSession::RegisterRecv()
 	m_recvEvent.m_owner = shared_from_this();
 	
 	m_recvEvent.BufferId = m_recvBufId;
-	m_recvEvent.Length = m_recvBuffer->GetFreeSize();	//TODO
-	m_recvEvent.Offset = m_recvBuffer->GetWritePos(); //TODO
+	m_recvEvent.Length = m_recvBuffer->GetFreeSize();	
+	m_recvEvent.Offset = m_recvBuffer->GetWritePos(); 
 
 	DWORD recvbytes = 0;
 	DWORD flags = 0;
@@ -120,8 +130,8 @@ void RioSession::RegisterSend()
 	m_sendEvent.m_owner = shared_from_this();
 
 	m_sendEvent.BufferId = m_sendBufId;
-	m_sendEvent.Length = m_sendBuffer->GetDataSize(); //TODO
-	m_sendEvent.Offset = m_sendBuffer->GetReadPos(); //TODO
+	m_sendEvent.Length = m_sendBuffer->GetDataSize(); 
+	m_sendEvent.Offset = m_sendBuffer->GetReadPos();
 
 	DWORD bytesTransferred = 0;
 	DWORD flags = 0;
@@ -213,9 +223,6 @@ void RioSession::ProcessSend(int bytesTransferred)
 
 int RioSession::OnRecv(char* buffer, int len)
 {
-	OnRecvPacket(buffer, len);
-	return len;
-	/*
 	int processLen = 0;
 
 	while (true)
@@ -241,7 +248,6 @@ int RioSession::OnRecv(char* buffer, int len)
 	}
 
 	return processLen;
-	*/
 }
 
 bool RioSession::InitSession()

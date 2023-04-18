@@ -13,7 +13,6 @@
 
 int main()
 {
-	/*
 	this_thread::sleep_for(1s);
 
 	StressTestClient stressTestClient(std::make_shared<IocpClient>(
@@ -27,7 +26,7 @@ int main()
 	);
 
 	stressTestClient.RunClient();
-	*/
+	/*
 	this_thread::sleep_for(1s);
 
 	char buf[100] = "Hello World!";
@@ -62,5 +61,5 @@ int main()
 
 		this_thread::sleep_for(1s);
 	}
-	
+	*/
 }

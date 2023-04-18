@@ -36,7 +36,7 @@ public:
      ~IocpServer();
 
 	// server
-	bool StartServer();
+	bool InitServer();
 	void RunServer();
 	void StopServer();
 

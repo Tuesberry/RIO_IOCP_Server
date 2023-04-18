@@ -2,6 +2,8 @@
 
 #include "Common.h"
 
+#include "SockAddress.h"
+
 class RioCore;
 class RioSession;
 
@@ -15,7 +17,7 @@ using RIOSessionFactory = function<shared_ptr<RioSession>(void)>;
 class RioServer
 {
 public:
-	RioServer(RIOSessionFactory sessionFactory);
+	RioServer(RIOSessionFactory sessionFactory, SockAddress address);
 
 	RioServer() = delete;
 	RioServer(const RioServer& other) = delete;
@@ -26,7 +28,11 @@ public:
 
 	// server running
 	bool InitServer();
-	bool StartServer();
+	bool RunServer();
+	void StopServer();
+
+	// get
+	int GetConnectCnt() { return m_sessionCnt; }
 
 private:
 	// listener
@@ -44,7 +50,9 @@ private:
 
 	// listener
 	SOCKET m_listener;
+	SockAddress m_address;
 	bool m_bInitListener;
+	atomic<int> m_sessionCnt;
 
 	// RioCore
 	vector<shared_ptr<RioCore>> m_rioCores;

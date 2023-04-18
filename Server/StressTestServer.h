@@ -1,13 +1,24 @@
 #pragma once
-#include "CoreCommon.h"
+
+#include "Common.h"
+
+#if IOCP
 #include "Network/IocpServer.h"
+#else RIO
+#include "Network/RioServer.h"
+#endif // IOCP
 
 class StressTestServer
 {
 public:
-	StressTestServer() = delete;
+#if IOCP
 	StressTestServer(shared_ptr<IocpServer> server);
+#else RIO
+	StressTestServer(shared_ptr<RioServer> server);
+#endif
 
+public:
+	StressTestServer() = delete;
 	StressTestServer(const StressTestServer& other) = delete;
 	StressTestServer(StressTestServer&& other) = delete;
 	StressTestServer& operator=(const StressTestServer& other) = delete;
@@ -30,6 +41,9 @@ private:
 	void MoveCursor(int x, int y);
 
 private:
+#if IOCP
 	shared_ptr<IocpServer> m_server;
-
+#else RIO
+	shared_ptr<RioServer> m_server;
+#endif
 };

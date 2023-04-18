@@ -9,3 +9,6 @@
 #endif // _DEBUG
 
 #include "CoreCommon.h"
+
+#define IOCP false
+#define RIO true

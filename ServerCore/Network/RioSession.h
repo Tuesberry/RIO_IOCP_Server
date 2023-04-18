@@ -49,6 +49,7 @@ public:
 	bool Connect();
 	void Disconnect();
 	void Send(char* buf, int len);
+	void Send(shared_ptr<SendBuffer> sendBuffer);
 
 	// dispatch
 	void Dispatch(RioEvent* rioEvent, int bytesTransferred = 0);

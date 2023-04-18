@@ -1,11 +1,17 @@
-#pragma once
 #include "StressTestServer.h"
 #include "Room.h"
 
+#if IOCP
 StressTestServer::StressTestServer(shared_ptr<IocpServer> server)
 	:m_server(server)
 {
 }
+#else RIO
+StressTestServer::StressTestServer(shared_ptr<RioServer> server)
+	: m_server(server)
+{
+}
+#endif
 
 StressTestServer::~StressTestServer()
 {
@@ -14,7 +20,7 @@ StressTestServer::~StressTestServer()
 
 void StressTestServer::RunServer()
 {
-	if (m_server->StartServer() == false)
+	if (m_server->InitServer() == false)
 	{
 		return;
 	}
