@@ -53,7 +53,8 @@ bool ServerPacketHandler::Handle_LOGIN(shared_ptr<IocpServerSession>session, BYT
 	shared_ptr<Player> player = make_shared<Player>(session->m_connectClientId, session);
 	session->m_ownPlayer = player;
 	// login
-	gRoom->DoAsync(&Room::Login, player);
+	//gRoom->DoAsync(&Room::Login, player);
+	gRoom.Login(player);
 
 	return true;
 }
@@ -80,7 +81,8 @@ bool ServerPacketHandler::Handle_C2S_MOVE(shared_ptr<IocpServerSession>session, 
 	br >> direction >> session->m_moveTime;
 
 	// move player
-	gRoom->DoAsync(&Room::MovePlayer, session->m_ownPlayer, direction);
+	//gRoom->DoAsync(&Room::MovePlayer, session->m_ownPlayer, direction);
+	gRoom.MovePlayer(session->m_ownPlayer, direction);
 
 	return true;
 }
@@ -149,7 +151,7 @@ bool ServerPacketHandler::Handle_LOGIN(shared_ptr<RioServerSession>session, BYTE
 	shared_ptr<Player> player = make_shared<Player>(session->m_connectClientId, session);
 	session->m_ownPlayer = player;
 	// login
-	gRoom->DoAsync(&Room::Login, player);
+	gRoom.Login(player);
 
 	return true;
 }
@@ -176,7 +178,8 @@ bool ServerPacketHandler::Handle_C2S_MOVE(shared_ptr<RioServerSession>session, B
 	br >> direction >> session->m_moveTime;
 
 	// move player
-	gRoom->DoAsync(&Room::MovePlayer, session->m_ownPlayer, direction);
+	//gRoom->DoAsync(&Room::MovePlayer, session->m_ownPlayer, direction);
+	gRoom.MovePlayer(session->m_ownPlayer, direction);
 
 	return true;
 }

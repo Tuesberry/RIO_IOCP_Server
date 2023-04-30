@@ -346,7 +346,9 @@ void StressTestClient::InitOutput()
 	cout << "Current Server Processing Delay \n = \n";
 	cout << "Current Recv Packet Count \n = \n";
 	cout << "Current Send Packet Count \n = \n";
+	cout << "Current Connection Cnt \n = \n";
 }
+
 
 /* --------------------------------------------------------
 *	Method:		StressTestClient::UpdateOutput

@@ -3,9 +3,11 @@
 #include "Common.h"
 
 #include "Player.h"
-#include "JobQueue.h"
+#include "Utils/LockUnorderedSet.h"
 
-class Room : public JobQueue
+using LockSetPlayerRef = shared_ptr<LockUnorderedSet<shared_ptr<Player>>>;
+
+class Room 
 {
 public:
 	enum {
@@ -33,7 +35,7 @@ public:
 	// Move Player & Synchronization
 	void MovePlayer(std::shared_ptr<Player> player, unsigned short direction);
 
-	int GetLoginCnt() { return m_players.size(); }
+	int GetLoginCnt() { return m_loginCnt; }
 	int GetUpdateMoveCnt() { return m_moveCnt; }
 
 private:
@@ -46,17 +48,11 @@ private:
 
 	void UpdatePlayerPosition(shared_ptr<Player> player, int direction);
 
-public:
-	long long int m_updateCnt;
-
 private:
 	atomic<int> m_moveCnt; 
-	atomic<bool> m_bUpdate;
+	atomic<int> m_loginCnt;
 
-	mutex m_playerLock;
-	map<unsigned int, std::shared_ptr<Player>> m_players;
-
-	vector<vector<unordered_set<shared_ptr<Player>>>> m_zones;
+	vector<vector<LockSetPlayerRef>> m_zones;
 };
 
-extern shared_ptr<Room> gRoom;
+extern Room gRoom;

@@ -30,8 +30,7 @@ void StressTestServer::RunServer()
 	InitDraw();
 	while (true)
 	{
-		gRoom->Execute();
-		//Draw();
+		Draw();
 	}
 }
 
@@ -43,7 +42,7 @@ void StressTestServer::Draw()
 	cout << currCnt << endl;
 
 	MoveCursor(25, 1);
-	cout << gRoom->GetLoginCnt() << endl;
+	cout << gRoom.GetLoginCnt() << endl;
 }
 
 void StressTestServer::InitDraw()

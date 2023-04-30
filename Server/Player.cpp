@@ -28,6 +28,6 @@ Player::Player(int id, shared_ptr<RioServerSession> session)
 void Player::SetPlayerInitPos()
 {
 	srand(time(NULL));
-	m_posX = rand() % gRoom->MAP_WIDTH;
-	m_posY = rand() % gRoom->MAP_HEIGHT;
+	m_posX = rand() % gRoom.MAP_WIDTH;
+	m_posY = rand() % gRoom.MAP_HEIGHT;
 }

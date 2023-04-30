@@ -186,6 +186,8 @@
     <ClInclude Include="Thread\ThreadManager.h" />
     <ClInclude Include="Utils\BufferHelper.h" />
     <ClInclude Include="Utils\ConsoleOutputManager.h" />
+    <ClInclude Include="Utils\LockUnorderedSet.h" />
+    <ClInclude Include="Utils\Logger.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreCommon.cpp" />
@@ -215,6 +217,7 @@
     <ClCompile Include="Thread\ThreadManager.cpp" />
     <ClCompile Include="Utils\BufferHelper.cpp" />
     <ClCompile Include="Utils\ConsoleOutputManager.cpp" />
+    <ClCompile Include="Utils\Logger.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

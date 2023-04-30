@@ -1,23 +1,32 @@
 #include "Room.h"
 #include "Network/Packet.h"
 
-shared_ptr<Room> gRoom = make_shared<Room>();
+Room gRoom;
 
 Room::Room()
 	: m_moveCnt(0)
-	, m_playerLock()
-	, m_players()
-	, m_updateCnt(0)
-	, m_zones(MAP_WIDTH/ZONE_WIDTH, vector<unordered_set<shared_ptr<Player>>>(MAP_HEIGHT / ZONE_HEIGHT))
+	, m_loginCnt(0)
+	, m_zones()
 {
-
+	vector<LockSetPlayerRef> vec;
+	for (int i = 0; i < MAP_WIDTH / ZONE_WIDTH; i++)
+	{
+		for (int j = 0; j < MAP_HEIGHT / ZONE_HEIGHT; j++)
+		{
+			vec.push_back(make_shared<LockUnorderedSet<shared_ptr<Player>>>());
+		}
+		m_zones.push_back(vec);
+		vec.clear();
+	}
 }
 
 void Room::Login(std::shared_ptr<Player> player)
 {
 	// insert player
 	auto pos = GetPlayerZoneIdx(player);
-	m_zones[std::get<0>(pos)][std::get<1>(pos)].insert(player);
+	m_zones[std::get<0>(pos)][std::get<1>(pos)]->Insert(player);
+
+	m_loginCnt.fetch_add(1);
 
 	// set player state
 	player->m_playerState = State::Connected;
@@ -30,7 +39,9 @@ void Room::Logout(std::shared_ptr<Player> player)
 {
 	// erase player
 	auto pos = GetPlayerZoneIdx(player);
-	m_zones[std::get<0>(pos)][std::get<1>(pos)].erase(player);
+	m_zones[std::get<0>(pos)][std::get<1>(pos)]->Erase(player);
+
+	m_loginCnt.fetch_sub(1);
 }
 
 void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
@@ -56,8 +67,8 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 	if (beforeX != newX || beforeY != newY)
 	{
 		// update zone
-		m_zones[newX][newY].insert(player);
-		m_zones[beforeX][beforeY].erase(player);
+		m_zones[newX][newY]->Insert(player);
+		m_zones[beforeX][beforeY]->Erase(player);
 	}
 	
 	// new view list
@@ -76,7 +87,8 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 				continue;
 			}
 			// iterate
-			for (auto iter = m_zones[zoneX][zoneY].begin(); iter != m_zones[zoneX][zoneY].end(); iter++)
+			m_zones[zoneX][zoneY]->ReadLock();
+			for (auto iter = m_zones[zoneX][zoneY]->m_set.begin(); iter != m_zones[zoneX][zoneY]->m_set.end(); iter++)
 			{
 				// check invalid
 				if (IsValidPlayer(*iter) == false)
@@ -98,7 +110,6 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 				else
 				{
 					// 새로 추가된 것
-					(*iter)->m_viewList.insert(player->m_playerId);
 					SendEnterMsg(*iter, player);
 				}
 				// check player viewlist
@@ -112,6 +123,7 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 					SendEnterMsg(player, *iter);
 				}
 			}
+			m_zones[zoneX][zoneY]->ReadUnlock();
 		}
 	}
 
