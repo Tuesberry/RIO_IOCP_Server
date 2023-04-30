@@ -1,7 +1,9 @@
 #include "IOCPServerSession.h"
+
 #include "Utils/BufferHelper.h"
 #include "ServerPacketHandler.h"
 #include "Room.h"
+#include "Player.h"
 
 #if IOCP
 
@@ -14,6 +16,7 @@ IocpServerSession::IocpServerSession()
     , m_moveTime(0)
     , m_loginTime(0)
     , m_serverProcessTime(0)
+    , m_ownPlayer()
 {
 }
 
@@ -24,6 +27,11 @@ IocpServerSession::IocpServerSession()
 IocpServerSession::~IocpServerSession()
 {
     //cout << "~ServerSession" << endl;
+    if (m_ownPlayer->m_playerState == State::Connected)
+    {
+        m_ownPlayer->m_playerState = State::Disconnected;
+        gRoom->DoAsync(&Room::Logout, m_ownPlayer);
+    }
 }
 
 /* --------------------------------------------------------
@@ -57,7 +65,11 @@ void IocpServerSession::OnSend(int len)
 -------------------------------------------------------- */
 void IocpServerSession::OnDisconnected()
 {
-    gRoom.Logout(m_connectClientId);
+    if (m_ownPlayer->m_playerState == State::Connected)
+    {
+        m_ownPlayer->m_playerState = State::Disconnected;
+        gRoom->DoAsync(&Room::Logout, m_ownPlayer);
+    }
 }
 
 /* --------------------------------------------------------
@@ -90,7 +102,7 @@ void IocpServerSession::SendMoveMsg(int targetId, unsigned short x, unsigned sho
         // 자기 자신의 move message인 경우
         pktMove.moveTime = m_moveTime;
         pktMove.processTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - m_serverProcessTime;
-        gRoom.m_updateCnt++;
+        gRoom->m_updateCnt++;
     }
 
     bw.Write(&pktMove, sizeof(PKT_S2C_MOVE));

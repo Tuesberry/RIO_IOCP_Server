@@ -3,15 +3,18 @@
 #include "Common.h"
 
 #include "Player.h"
+#include "JobQueue.h"
 
-class Room
+class Room : public JobQueue
 {
 public:
 	enum {
 		VIEW_DISTANCE = 16,
 		WAITING_TIME_LIMIT = 5,
 		MAP_WIDTH = 800,
-		MAP_HEIGHT = 600
+		MAP_HEIGHT = 600,
+		ZONE_WIDTH = 10,
+		ZONE_HEIGHT = 10
 	};
 
 public:
@@ -23,33 +26,25 @@ public:
 	~Room() = default;
 
 public:
+	// Room Login & Logout
 	void Login(std::shared_ptr<Player> player);
 	void Logout(std::shared_ptr<Player> player);
-	void Logout(unsigned int userId);
-	void MovePlayer(unsigned int userId, unsigned short direction);
+
+	// Move Player & Synchronization
+	void MovePlayer(std::shared_ptr<Player> player, unsigned short direction);
 
 	int GetLoginCnt() { return m_players.size(); }
 	int GetUpdateMoveCnt() { return m_moveCnt; }
 
 private:
-	bool IsNear(unsigned int userId1, unsigned int userId2);
-	bool IsNear(
-		unsigned short posX1, 
-		unsigned short posY1, 
-		unsigned short posX2, 
-		unsigned short posY2
-	);
+	bool IsValidPlayer(shared_ptr<Player> player);
+	tuple<int, int> GetPlayerZoneIdx(shared_ptr<Player> player);
 
-	void SendMoveMsg(unsigned int userId, unsigned int targetId);
-	void SendEnterMsg(unsigned int userId, unsigned int targetId);
-	void SendLeaveMsg(unsigned int userId, unsigned int targetId);
+	void SendMoveMsg(std::shared_ptr<Player> player, std::shared_ptr<Player> targetPlayer);
+	void SendEnterMsg(std::shared_ptr<Player> player, std::shared_ptr<Player> targetPlayer);
+	void SendLeaveMsg(std::shared_ptr<Player> player, std::shared_ptr<Player> targetPlayer);
 
-	void UpdatePlayers();
-	void UpdatePlayerPosition(int direction, shared_ptr<Player> player);
-
-	void FindNearPlayer(unordered_set<int>& viewList, shared_ptr<Player> player);
-
-	bool IsValidPlayer(unsigned int userId);
+	void UpdatePlayerPosition(shared_ptr<Player> player, int direction);
 
 public:
 	long long int m_updateCnt;
@@ -61,11 +56,7 @@ private:
 	mutex m_playerLock;
 	map<unsigned int, std::shared_ptr<Player>> m_players;
 
-	// Room 접속 대기
-	vector<unsigned int> m_disconnectId;
-	map<unsigned int, std::shared_ptr<Player>> m_connectId;
-
-	high_resolution_clock::time_point m_lastUpdateTime;
+	vector<vector<unordered_set<shared_ptr<Player>>>> m_zones;
 };
 
-extern Room gRoom;
+extern shared_ptr<Room> gRoom;
