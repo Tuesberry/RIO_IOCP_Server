@@ -6,8 +6,6 @@
 
 #include "Network/IocpSession.h"
 
-class Player;
-
 /* --------------------------------------------------------
 *	class:		IocpServerSession
 *	Summary:	server session used for IOCP
@@ -33,7 +31,5 @@ public:
     int m_moveTime;
     int m_loginTime;
     int m_serverProcessTime;
-
-    shared_ptr<Player> m_ownPlayer;
 };
 #endif // IOCP

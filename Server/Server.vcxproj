@@ -171,8 +171,6 @@
   <ItemGroup>
     <ClInclude Include="Common.h" />
     <ClInclude Include="IocpServerSession.h" />
-    <ClInclude Include="Job.h" />
-    <ClInclude Include="JobQueue.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="RioServerSession.h" />
     <ClInclude Include="Room.h" />

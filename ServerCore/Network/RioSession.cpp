@@ -70,8 +70,6 @@ void RioSession::Send(shared_ptr<SendBuffer> sendBuffer)
 	char* writeBuf = m_sendBuffer->GetWriteBuf();
 	memcpy(writeBuf, sendBuffer->GetData(), sendBuffer->GetDataSize());
 	m_sendBuffer->OnWriteBuffer(sendBuffer->GetDataSize());
-	
-	cout << ThreadId << " | Send Buffer " << sendBuffer->GetDataSize() << endl;
 
 	RegisterSend();
 }
@@ -141,11 +139,8 @@ void RioSession::RegisterSend()
 	if (SocketCore::RIO.RIOSend(m_requestQueue, (PRIO_BUF)&m_sendEvent, SEND_BUFF_COUNT, flags, &m_sendEvent) == false)
 	{
 		m_sendEvent.m_owner = nullptr;
-		cout << ThreadId << " | RioSend Error" << endl;
 		Disconnect();
 	}
-	cout << ThreadId << " | RioSend Complete" << endl;
-
 }
 
 /* --------------------------------------------------------
@@ -206,8 +201,6 @@ void RioSession::ProcessRecv(int bytesTransferred)
 
 void RioSession::ProcessSend(int bytesTransferred)
 {
-	cout << ThreadId << " | ProcessSend : " << bytesTransferred << endl;
-
 	m_sendEvent.m_owner = nullptr;
 
 	if (bytesTransferred == 0)

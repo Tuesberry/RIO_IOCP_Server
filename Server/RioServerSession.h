@@ -7,8 +7,6 @@
 
 #include "Network/RioSession.h"
 
-class Player;
-
 /* --------------------------------------------------------
 *	class:		RioServerSession
 *	Summary:	server session used for RIO
@@ -34,7 +32,5 @@ public:
     int m_moveTime;
     int m_loginTime;
     int m_serverProcessTime;
-
-    shared_ptr<Player> m_ownPlayer;
 };
 #endif // RIO

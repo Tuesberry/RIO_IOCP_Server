@@ -2,7 +2,6 @@
 #include "Utils/BufferHelper.h"
 #include "ServerPacketHandler.h"
 #include "Room.h"
-#include "Player.h"
 
 #if IOCP
 #else RIO
@@ -25,11 +24,6 @@ RioServerSession::RioServerSession()
 -------------------------------------------------------- */
 RioServerSession::~RioServerSession()
 {
-    if (m_ownPlayer->m_playerState == State::Connected)
-    {
-        m_ownPlayer->m_playerState = State::Disconnected;
-        gRoom->DoAsync(&Room::Logout, m_ownPlayer);
-    }
 }
 
 /* --------------------------------------------------------
@@ -62,11 +56,7 @@ void RioServerSession::OnSend(int len)
 -------------------------------------------------------- */
 void RioServerSession::OnDisconnected()
 {
-    if (m_ownPlayer->m_playerState == State::Connected)
-    {
-        m_ownPlayer->m_playerState = State::Disconnected;
-        gRoom->DoAsync(&Room::Logout, m_ownPlayer);
-    }
+    gRoom.Logout(m_connectClientId);
 }
 
 /* --------------------------------------------------------
@@ -100,7 +90,7 @@ void RioServerSession::SendMoveMsg(int targetId, unsigned short x, unsigned shor
         // 자기 자신의 move message인 경우
         pktMove.moveTime = m_moveTime;
         pktMove.processTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - m_serverProcessTime;
-        gRoom->m_updateCnt++;
+        gRoom.m_updateCnt++;
     }
 
     bw.Write(&pktMove, sizeof(PKT_S2C_MOVE));
@@ -188,7 +178,6 @@ void RioServerSession::SendLoginResult(bool result, unsigned short x, unsigned s
     bw.Write(&pktResult, sizeof(PKT_S2C_LOGIN_RESULT));
 
     sendBuffer->OnWrite(sizeof(PKT_S2C_LOGIN_RESULT));
-
     Send(sendBuffer);
 }
 

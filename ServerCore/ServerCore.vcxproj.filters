@@ -93,6 +93,9 @@
     <ClInclude Include="Network\RioServer.h">
       <Filter>Header Files\Network\RIO</Filter>
     </ClInclude>
+    <ClInclude Include="Network\RioSession.h">
+      <Filter>Header Files\Network\RIO</Filter>
+    </ClInclude>
     <ClInclude Include="Network\RioEvent.h">
       <Filter>Header Files\Network\RIO</Filter>
     </ClInclude>
@@ -104,9 +107,6 @@
     </ClInclude>
     <ClInclude Include="Thread\ThreadManager.h">
       <Filter>Header Files\Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\RioSession.h">
-      <Filter>Header Files\Network\RIO</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
