@@ -27,9 +27,13 @@ public:
 	// get
 	RIO_CQ& GetCompletionQueue() { return m_rioCompletionQueue; }
 
-	// core work
+	// InitRioCore
 	bool InitRioCore();
+
+	// CQ : Dequeue Completion
 	bool Dispatch();
+	// RQ : Deferred Send
+	void DeferredSend();
 	
 	// session
 	void AddSession(shared_ptr<RioSession> session);

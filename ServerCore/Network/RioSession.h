@@ -3,7 +3,7 @@
 #include "Common.h"
 
 #include "SockAddress.h"
-#include "RecvBuffer.h"
+//#include "RecvBuffer.h"
 #include "SendBuffer.h"
 #include "RioEvent.h"
 
@@ -42,21 +42,25 @@ public:
 	void SetAddr(SockAddress sockAddr) { m_address = sockAddr; }
 	void SetCore(shared_ptr<RioCore> core) { m_rioCore = core; }
 
-	// connect check
+	// state check
 	bool IsConnected() { return m_bConnected; }
-
+	bool IsEmptySendQueue() { return m_sendBufQueue.empty(); }
+	
 	// networking
 	bool Connect();
 	void Disconnect();
-	void Send(char* buf, int len);
 	void Send(shared_ptr<SendBuffer> sendBuffer);
 
 	// dispatch
 	void Dispatch(RioEvent* rioEvent, int bytesTransferred = 0);
 
+	// DeferredSend & Commit
+	bool SendDeferred();
+	void SendCommit();
+
 public:
 	void RegisterRecv();
-	void RegisterSend();
+	void RegisterSend(int dataLength, int dataOffset);
 
 	void ProcessConnect();
 	void ProcessRecv(int bytesTransferred);
@@ -87,10 +91,15 @@ private:
 	// request queue
 	RIO_RQ m_requestQueue;
 
-	// RioEvent
+	// RioReceive
 	RioRecvEvent m_recvEvent;
-	RioSendEvent m_sendEvent;
 
+	// Rio Send
+	queue<shared_ptr<SendBuffer>> m_sendBufQueue;
+	mutex m_sendQueueLock;
+	RioSendEvent m_sendEvent;
+	atomic<bool> m_bSendRegistered;
+	
 	// rio Buffer
 	RIO_BUFFERID m_recvBufId;
 	RIO_BUFFERID m_sendBufId;

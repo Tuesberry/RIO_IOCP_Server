@@ -26,6 +26,8 @@ void Room::Login(std::shared_ptr<Player> player)
 	auto pos = GetPlayerZoneIdx(player);
 	m_zones[std::get<0>(pos)][std::get<1>(pos)]->Insert(player);
 
+	cout << "login " << player->m_playerId << endl;
+
 	m_loginCnt.fetch_add(1);
 
 	// set player state

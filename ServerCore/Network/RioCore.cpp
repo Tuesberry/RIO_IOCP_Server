@@ -69,6 +69,20 @@ bool RioCore::Dispatch()
 	return true;
 }
 
+void RioCore::DeferredSend()
+{
+	lock_guard<mutex> lock(m_sessionLock);
+	for (auto sIter = m_sessions.begin(); sIter != m_sessions.end(); sIter++)
+	{
+		while (true)
+		{
+			if ((*sIter)->SendDeferred() == false)
+				break;
+			cout << "SendComplete" << endl;
+		}
+	}
+}
+
 void RioCore::AddSession(shared_ptr<RioSession> session)
 {
 	lock_guard<mutex> lock(m_sessionLock);
