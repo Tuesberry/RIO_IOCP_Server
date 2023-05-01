@@ -9,6 +9,7 @@ Player::Player(int id, shared_ptr<IocpServerSession> session)
 	, m_viewList()
 	, m_playerState(State::Disconnected)
 	, m_ownerSession(session)
+	, m_lock()
 {
 	SetPlayerInitPos();
 }
@@ -24,6 +25,18 @@ Player::Player(int id, shared_ptr<RioServerSession> session)
 	SetPlayerInitPos();
 }
 #endif 
+
+bool Player::IsExistInViewList(int playerId)
+{
+	ReadLockGuard lock(m_lock);
+	return m_viewList.count(playerId);
+}
+
+void Player::SetViewList(unordered_set<int>& viewList)
+{
+	WriteLockGuard lock(m_lock);
+	m_viewList = viewList;
+}
 
 void Player::SetPlayerInitPos()
 {

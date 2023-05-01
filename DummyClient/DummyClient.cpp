@@ -8,7 +8,7 @@
 //debug
 #include "Network/SocketCore.h"
 
-#define CLIENT_NUM 50
+#define CLIENT_NUM 500
 #define STRESS_TEST_THREAD_CNT 2
 
 int main()

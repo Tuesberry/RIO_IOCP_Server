@@ -33,7 +33,6 @@ public:
 
 private:
 	atomic<unsigned __int32> m_lockFlag;
-	atomic<int> m_writeLockCnt;
 };
 
 /* --------------------------------------------------------
@@ -65,8 +64,8 @@ private:
 class WriteLockGuard final
 {
 public:
-	WriteLockGuard(RWLock& writeLock) :m_writeLock(writeLock) { m_writeLock.ReadLock(); }
-	~WriteLockGuard() { m_writeLock.ReadUnlock(); }
+	WriteLockGuard(RWLock& writeLock) :m_writeLock(writeLock) { m_writeLock.WriteLock(); }
+	~WriteLockGuard() { m_writeLock.WriteUnlock(); }
 
 	WriteLockGuard() = delete;
 	WriteLockGuard(const WriteLockGuard& other) = delete;

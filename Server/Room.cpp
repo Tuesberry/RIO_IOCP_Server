@@ -26,7 +26,7 @@ void Room::Login(std::shared_ptr<Player> player)
 	auto pos = GetPlayerZoneIdx(player);
 	m_zones[std::get<0>(pos)][std::get<1>(pos)]->Insert(player);
 
-	cout << "login " << player->m_playerId << endl;
+	//cout << std::get<0>(pos) << " " << std::get<1>(pos) << endl;
 
 	m_loginCnt.fetch_add(1);
 
@@ -104,7 +104,7 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 
 				// send move packet
 				// check target viewlist
-				if ((*iter)->m_viewList.count(player->m_playerId))
+				if ((*iter)->IsExistInViewList(player->m_playerId))
 				{
 					// 기존에 존재하던 것
 					SendMoveMsg(*iter, player);
@@ -115,7 +115,7 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 					SendEnterMsg(*iter, player);
 				}
 				// check player viewlist
-				if (player->m_viewList.count((*iter)->m_playerId))
+				if (player->IsExistInViewList((*iter)->m_playerId))
 				{
 					// 기존에 존재하던 것
 					SendMoveMsg(player, *iter);
@@ -130,7 +130,7 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 	}
 
 	// update player view list
-	player->m_viewList = newViewList;
+	player->SetViewList(newViewList);
 
 	// send player move
 	SendMoveMsg(player, player);

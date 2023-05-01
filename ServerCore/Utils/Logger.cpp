@@ -13,7 +13,8 @@ Logger::~Logger()
 void Logger::Log(string msg)
 {
 	lock_guard<mutex> lock(m_lock);
-	m_queue.push(msg);
+	//m_queue.push(msg);
+	m_logFile << msg << endl;
 }
 
 void Logger::WriteLog()
