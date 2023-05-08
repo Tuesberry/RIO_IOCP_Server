@@ -342,6 +342,8 @@ void StressTestClient::InitOutput()
 	m_initCursor.Y = presentCur.dwCursorPosition.Y;
 
 	cout << "Current Client-Server Packet Send-Recv Delay \n = \n";
+	cout << "Current Send Delay \n = \n";
+	cout << "Current Recv Delay \n = \n";
 	cout << "Current Login Delay \n = \n";
 	cout << "Current Server Processing Delay \n = \n";
 	cout << "Current Recv Packet Count \n = \n";
@@ -357,14 +359,18 @@ void StressTestClient::InitOutput()
 void StressTestClient::UpdateOutput()
 {
 	MoveCursor(3, 1);
-	cout << gDelayMgr.m_avgSendingDelay.GetAvgDelay() / 1000 << " milliseconds     ";
+	cout << gDelayMgr.m_avgSendRecvDelay.GetAvgDelay() / 1000 << " milliseconds     ";
 	MoveCursor(3, 3);
-	cout << gDelayMgr.m_avgLoginDelay.GetAvgDelay() / 1000 << " milliseconds     ";
+	cout << gDelayMgr.m_avgSendingDelay.GetAvgDelay() / 1000 << " milliseconds     ";
 	MoveCursor(3, 5);
-	cout << gDelayMgr.m_avgProcessDelay.GetAvgDelay() / 1000 << " milliseconds     ";
+	cout << gDelayMgr.m_avgReceivingDelay.GetAvgDelay() / 1000 << " milliseconds     ";
 	MoveCursor(3, 7);
-	cout << gDelayMgr.m_recvCnt.load() << "    ";
+	cout << gDelayMgr.m_avgLoginDelay.GetAvgDelay() / 1000 << " milliseconds     ";
 	MoveCursor(3, 9);
+	cout << gDelayMgr.m_avgProcessDelay.GetAvgDelay() / 1000 << " milliseconds     ";
+	MoveCursor(3, 11);
+	cout << gDelayMgr.m_recvCnt.load() << "    ";
+	MoveCursor(3, 13);
 	cout << gDelayMgr.m_sendCnt.load() << "    \n";
 }
 

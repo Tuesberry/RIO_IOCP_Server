@@ -43,9 +43,11 @@ public:
 	~DelayManager() = default;
 
 public:
-	DelayChecker m_avgSendingDelay;
 	DelayChecker m_avgProcessDelay;
 	DelayChecker m_avgLoginDelay;
+	DelayChecker m_avgReceivingDelay;
+	DelayChecker m_avgSendingDelay;
+	DelayChecker m_avgSendRecvDelay;
 
 	atomic<int> m_sendCnt = 0;
 	atomic<int> m_recvCnt = 0;

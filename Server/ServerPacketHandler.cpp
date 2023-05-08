@@ -80,6 +80,9 @@ bool ServerPacketHandler::Handle_C2S_MOVE(shared_ptr<IocpServerSession>session, 
 	unsigned short direction;
 	br >> direction >> session->m_moveTime;
 
+	// send time 
+	session->m_sendTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - session->m_moveTime;
+
 	// move player
 	//gRoom->DoAsync(&Room::MovePlayer, session->m_ownPlayer, direction);
 	gRoom.MovePlayer(session->m_ownPlayer, direction);
@@ -176,6 +179,9 @@ bool ServerPacketHandler::Handle_C2S_MOVE(shared_ptr<RioServerSession>session, B
 	// get information
 	unsigned short direction;
 	br >> direction >> session->m_moveTime;
+
+	// send time 
+	session->m_sendTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - session->m_moveTime;
 
 	// move player
 	//gRoom->DoAsync(&Room::MovePlayer, session->m_ownPlayer, direction);

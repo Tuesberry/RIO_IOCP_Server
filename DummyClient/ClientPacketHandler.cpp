@@ -84,14 +84,20 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 	// - read delay data
 	int moveStartTime = 0;
 	int processingTime = 0;
+	int sendTime = 0;
+	int recvStartTime = 0;
 
-	br >> moveStartTime >> processingTime;
+	br >> moveStartTime >> processingTime >> sendTime >> recvStartTime;
 
 	int moveTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - moveStartTime;
-
+	int recvTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - recvStartTime;
+	
 	// - update delay using delayManager
 	gDelayMgr.m_avgProcessDelay.UpdateAvgDelay(processingTime);
-	gDelayMgr.m_avgSendingDelay.UpdateAvgDelay(moveTime);
+	gDelayMgr.m_avgSendRecvDelay.UpdateAvgDelay(moveTime);
+	gDelayMgr.m_avgSendingDelay.UpdateAvgDelay(sendTime);
+	gDelayMgr.m_avgReceivingDelay.UpdateAvgDelay(recvTime);
+
 	gDelayMgr.m_recvCnt.fetch_add(1);
 
 	return true;

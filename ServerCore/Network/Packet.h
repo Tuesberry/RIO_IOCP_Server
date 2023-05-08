@@ -80,6 +80,8 @@ struct PKT_S2C_MOVE
 	unsigned short y;
 	int moveTime; // delay 계산 용도
 	int processTime; // process time 계산
+	int sendTime; // send delay 계산
+	int recvTime; // recv delay 계산
 };
 
 /* ----------------------------

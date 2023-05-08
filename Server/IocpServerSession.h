@@ -34,6 +34,8 @@ public:
     int m_loginTime;
     int m_serverProcessTime;
 
+    int m_sendTime;
+
     shared_ptr<Player> m_ownPlayer;
 };
 #endif // IOCP
