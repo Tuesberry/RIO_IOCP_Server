@@ -15,8 +15,8 @@ public:
 		WAITING_TIME_LIMIT = 5,
 		MAP_WIDTH = 800,
 		MAP_HEIGHT = 600,
-		ZONE_WIDTH = 10,
-		ZONE_HEIGHT = 10
+		ZONE_WIDTH = 20,
+		ZONE_HEIGHT = 20
 	};
 
 public:

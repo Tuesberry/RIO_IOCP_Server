@@ -3,7 +3,6 @@
 #include "Network/SocketCore.h"
 
 ThreadManager gThreadMgr;
-Logger gLogger("test.txt");
 
 void HandleError(const char* cause)
 {

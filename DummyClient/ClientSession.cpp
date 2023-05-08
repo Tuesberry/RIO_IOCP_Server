@@ -28,7 +28,7 @@ ClientSession::ClientSession()
 -------------------------------------------------------- */
 ClientSession::~ClientSession()
 {
-	//cout << m_sessionID << " | Delete Session " << endl;
+	cout << Logger::GetCurrentTimeStr() << m_sessionID << " | Delete Session " << endl;
 }
 
 /* --------------------------------------------------------
@@ -62,7 +62,10 @@ void ClientSession::OnRecvPacket(BYTE* buffer, int len)
 		static_pointer_cast<ClientSession>(shared_from_this()), buffer, len);
 
 	if (result == false)
+	{
+		HandleError("ClientSession::OnRecvPacket");
 		Disconnect();
+	}
 }
 
 /* --------------------------------------------------------
@@ -80,7 +83,7 @@ void ClientSession::OnSend(int len)
 -------------------------------------------------------- */
 void ClientSession::OnDisconnected()
 {
-	//cout << "Disconnected | session = " << m_sessionID << endl;
+	cout << Logger::GetCurrentTimeStr() << "Disconnected | session = " << m_sessionID << endl;
 }
 
 /* --------------------------------------------------------

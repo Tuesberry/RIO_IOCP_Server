@@ -113,7 +113,7 @@ bool RioSession::SendDeferred()
 	memcpy(writeBuf, sendBuf->GetData(), size);
 	m_sendBuffer->OnWriteBuffer(size);
 
-	cout << ThreadId << " | Send Buffer, size: " << size << ", offset: " << offset << endl;
+	//cout << ThreadId << " | Send Buffer, size: " << size << ", offset: " << offset << endl;
 
 	m_bSendRegistered.store(true);
 
@@ -173,13 +173,13 @@ void RioSession::RegisterSend(int dataLength, int dataOffset)
 
 	if (SocketCore::RIO.RIOSend(m_requestQueue, (PRIO_BUF)&m_sendEvent, SEND_BUFF_COUNT, flags, &m_sendEvent) == false)
 	{
-		cout << ThreadId << " | RioSend Error" << endl;
+		//cout << ThreadId << " | RioSend Error" << endl;
 		HandleError("RioSend");
 		
 		Disconnect();
 	}
 
-	cout << ThreadId << " | RioSend Complete" << endl;
+	//cout << ThreadId << " | RioSend Complete" << endl;
 }
 
 /* --------------------------------------------------------
@@ -240,7 +240,7 @@ void RioSession::ProcessRecv(int bytesTransferred)
 
 void RioSession::ProcessSend(int bytesTransferred)
 {
-	cout << ThreadId << " | ProcessSend : " << bytesTransferred << endl;
+	//cout << ThreadId << " | ProcessSend : " << bytesTransferred << endl;
 
 	m_sendEvent.m_owner = nullptr;
 

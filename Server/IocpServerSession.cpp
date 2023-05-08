@@ -26,7 +26,8 @@ IocpServerSession::IocpServerSession()
 -------------------------------------------------------- */
 IocpServerSession::~IocpServerSession()
 {
-    //cout << "~ServerSession" << endl;
+    cout << Logger::GetCurrentTimeStr() << m_connectClientId << " | Delete Session " << endl;
+
     if (m_ownPlayer->m_playerState == State::Connected)
     {
         m_ownPlayer->m_playerState = State::Disconnected;
@@ -66,6 +67,8 @@ void IocpServerSession::OnSend(int len)
 -------------------------------------------------------- */
 void IocpServerSession::OnDisconnected()
 {
+    cout << Logger::GetCurrentTimeStr() << "Disconnected | session = " << m_connectClientId << endl;
+
     if (m_ownPlayer->m_playerState == State::Connected)
     {
         m_ownPlayer->m_playerState = State::Disconnected;

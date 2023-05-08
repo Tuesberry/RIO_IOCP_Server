@@ -2,33 +2,52 @@
 
 #include "Common.h"
 
-#include <fstream>
+#include <cstdio>
+#pragma warning(disable : 4996)
 
-enum class LogLevel
-{
-	EXCEPTION,
-	WARN,
-	LOG
-};
-
+/* --------------------------------------------------------
+*	class:		Logger
+*	Summary:	Logger for multithread
+-------------------------------------------------------- */
 class Logger
 {
 public:
-	Logger(string fileName);
+	enum class LogProvider
+	{
+		Console,
+		File,
+	};
 
-	Logger() = delete;
+	static void Log(string log);
+
+	static bool SetFileLog(string path);
+	static void SetConsoleLog();
+
+	static string GetCurrentTimeStr();
+
+private:
+	static Logger& GetInstance()
+	{
+		static Logger instance;
+		return instance;
+	}
+
+	Logger();
 	Logger(const Logger& other) = delete;
 	Logger(Logger&& other) = delete;
 	Logger& operator=(const Logger& other) = delete;
 	Logger& operator=(Logger&& other) = delete;
 	~Logger();
 
-	void Log(string msg);
-	void WriteLog();
+	bool OpenFile();
+	void CloseFile();
 
+	void WriteLog(string log);
+
+	
 private:
+	LogProvider m_logProvider;
 	mutex m_lock;
-	queue<string> m_queue;
-
-	ofstream m_logFile;
+	string m_filePath;
+	FILE* m_file;
 };

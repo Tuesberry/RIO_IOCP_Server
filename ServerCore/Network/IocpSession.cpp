@@ -33,11 +33,12 @@ bool IocpSession::Connect()
 
 void IocpSession::Disconnect()
 {
+	cout << "Disconnect Called" << endl;
+
 	if (m_bConnected.exchange(false) == false)
 	{
 		return;
 	}
-
 	RegisterDisconnect();
 }
 
@@ -153,6 +154,11 @@ void IocpSession::RegisterRecv()
 	m_recvEvent.m_owner = shared_from_this();
 
 	// set wsaBuf
+
+	// log
+	if (m_recvBuffer.GetFreeSize() == 0)
+		cout << "Recv Buffer Free Size == 0" << endl;
+
 	WSABUF wsaBuf;
 	wsaBuf.buf = reinterpret_cast<CHAR*>(m_recvBuffer.GetWritePos());
 	wsaBuf.len = m_recvBuffer.GetFreeSize();
@@ -241,6 +247,7 @@ void IocpSession::ProcessDisconnect()
 	m_disconnectEvent.m_owner = nullptr;
 
 	OnDisconnected();
+
 	m_iocpService->ReleaseSession(static_pointer_cast<IocpSession>(shared_from_this()));
 }
 
@@ -250,27 +257,45 @@ void IocpSession::ProcessRecv(int bytesTransferred)
 
 	if (bytesTransferred == 0)
 	{
+		if (::WSAGetLastError() == ERROR_IO_PENDING)
+		{
+			cout << "IO PENDING" << endl;
+			return;
+		}
+		HandleError("ProcessRecv::ByteTransferred Error");
 		Disconnect();
 		return;
 	}
 
 	if (m_recvBuffer.OnWrite(bytesTransferred) == false)
 	{
+		HandleError("ProcessRecv::OnWrite Error");
 		Disconnect();
 		return;
 	}
 
 	// on recv
 	int dataSize = m_recvBuffer.GetDataSize();
-	int processLen = OnRecv(m_recvBuffer.GetReadPos(), bytesTransferred);
+	int processLen = OnRecv(m_recvBuffer.GetReadPos(), dataSize);
 	if (processLen < 0 || dataSize < processLen || m_recvBuffer.OnRead(processLen) == false)
 	{
+		HandleError("ProcessRecv::OnRecv Error");
 		Disconnect();
 		return;
 	}
 
 	// adjust cursor
 	m_recvBuffer.AdjustPos();
+
+	if (dataSize != processLen && m_recvBuffer.GetFreeSize() < BUFSIZE)
+	{
+		cout << "dataSize = " << m_recvBuffer.GetDataSize() 
+			<< " processLen = " << processLen 
+			<< " FreeSize=" << m_recvBuffer.GetFreeSize() 
+			<< " BytesTransferred = " << bytesTransferred
+			<< endl;
+	}
+
 
 	// register recv
 	RegisterRecv();
@@ -283,6 +308,7 @@ void IocpSession::ProcessSend(int bytesTransferred)
 
 	if (bytesTransferred == 0)
 	{
+		HandleError("ProcessSend::BytesTransferred Error");
 		Disconnect();
 		return;
 	}
@@ -311,14 +337,27 @@ int IocpSession::OnRecv(BYTE* buffer, int len)
 
 		// packet header parsing possible?
 		if (dataSize < sizeof(PacketHeader))
+		{
+			if (dataSize > BUFSIZE)
+			{
+				cout << "OnRecv Data Size = " << dataSize << endl;
+			}
 			break;
+		}	
 
 		// packet header parsing
 		PacketHeader header = *(reinterpret_cast<PacketHeader*>(&buffer[processLen]));
 
 		// packet enable?
 		if (dataSize < header.size)
+		{
+			if (dataSize > BUFSIZE)
+			{
+				cout << "OnRecv Data Size = " << dataSize << " Header Size = " << header.size << endl;
+			}
+			//cout << "OnRecv Data Size = " << dataSize << " Header Size = " << header.size << endl;
 			break;
+		}
 
 		// packet enable
 		OnRecvPacket(&buffer[processLen], header.size);

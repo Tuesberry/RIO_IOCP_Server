@@ -13,7 +13,10 @@ RecvBuffer::RecvBuffer(int bufferSize)
 bool RecvBuffer::OnRead(int numOfBytes)
 {
 	if (numOfBytes > GetDataSize())
+	{
+		HandleError("RecvBuffer::OnRead");
 		return false;
+	}
 
 	m_readPos += numOfBytes;
 	return true;
@@ -22,7 +25,10 @@ bool RecvBuffer::OnRead(int numOfBytes)
 bool RecvBuffer::OnWrite(int numOfBytes)
 {
 	if (numOfBytes > GetFreeSize())
+	{
+		HandleError("RecvBuffer::OnWrite");
 		return false;
+	}
 
 	m_writePos += numOfBytes;
 	return true;

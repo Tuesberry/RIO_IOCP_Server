@@ -8,11 +8,14 @@
 //debug
 #include "Network/SocketCore.h"
 
-#define CLIENT_NUM 500
+#define CLIENT_NUM 1000
 #define STRESS_TEST_THREAD_CNT 2
 
 int main()
 {
+	// set logger
+	// Logger::SetFileLog("Clientlog.txt");
+
 	this_thread::sleep_for(1s);
 
 	shared_ptr<IocpClient> iocpClient = std::make_shared<IocpClient>(
@@ -27,40 +30,4 @@ int main()
 	stressTestClient.RunClient();
 
 	gThreadMgr.JoinThreads();
-	/*
-	this_thread::sleep_for(1s);
-
-	char buf[100] = "Hello World!";
-
-	SOCKET clientSocket = SocketCore::Socket();
-	
-	SockAddress serverAddress(L"127.0.0.1", 8000);
-	if (SocketCore::Connect(clientSocket, serverAddress) == false)
-	{
-		return 0;
-	}
-
-	cout << "Connect To Server" << endl;
-
-	while (true)
-	{
-		int result = SocketCore::Send(clientSocket, buf, sizeof(buf));
-		if (result == SOCKET_ERROR)
-		{
-			HandleError("Send");
-		}
-
-		cout << "Send Data! Len = " << sizeof(buf) << endl;
-
-		result = SocketCore::Recv(clientSocket, buf, sizeof(buf));
-		if (result == SOCKET_ERROR)
-		{
-			HandleError("Recv");
-		}
-
-		cout << "Recv Data! Len = " << sizeof(buf) << endl;
-
-		this_thread::sleep_for(1s);
-	}
-	*/
 }

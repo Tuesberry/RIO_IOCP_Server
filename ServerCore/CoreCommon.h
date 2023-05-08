@@ -25,13 +25,15 @@ using namespace chrono;
 #include <thread>
 #include <mutex>
 
+#include <time.h>
+#include <iostream>
+
 #include "Thread/ThreadManager.h"
 #include "Utils/Logger.h"
 
-#define BUFSIZE 2000
+#define BUFSIZE 1000
 #define len(arr) static_cast<int>(sizeof(arr)/sizeof(arr[0]))
 
 void HandleError(const char* cause);
 
 extern class ThreadManager gThreadMgr;
-extern class Logger gLogger;

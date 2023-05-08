@@ -14,6 +14,10 @@
 
 int main()
 {
+    // set logger
+    // Logger::SetFileLog("Serverlog.txt");
+
+    // server init
 #if IOCP
     shared_ptr<IocpServer> server = std::make_shared<IocpServer>(
         std::make_shared<IocpCore>(),

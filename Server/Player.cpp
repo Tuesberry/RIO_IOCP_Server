@@ -41,6 +41,6 @@ void Player::SetViewList(unordered_set<int>& viewList)
 void Player::SetPlayerInitPos()
 {
 	srand(time(NULL));
-	m_posX = rand() % gRoom.MAP_WIDTH;
-	m_posY = rand() % gRoom.MAP_HEIGHT;
+	m_posX = rand() % 50;//gRoom.MAP_WIDTH;
+	m_posY = rand() % 50;//gRoom.MAP_HEIGHT;
 }

@@ -54,6 +54,8 @@ void IocpServer::RunServer()
 
 void IocpServer::StopServer()
 {
+	cout << "StopServer " << endl;
+
 	// close listener socket
 	m_iocpListener->CloseSocket();
 
