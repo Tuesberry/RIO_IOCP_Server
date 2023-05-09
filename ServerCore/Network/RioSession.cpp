@@ -26,16 +26,6 @@ RioSession::RioSession()
 }
 
 /* --------------------------------------------------------
-*	Method:		RioSession::Connect
-*	Summary:	connect
--------------------------------------------------------- */
-bool RioSession::Connect()
-{
-	// TODO : connect
-	return true;
-}
-
-/* --------------------------------------------------------
 *	Method:		RioSession::Disconnect
 *	Summary:	disconnect session
 -------------------------------------------------------- */
@@ -57,17 +47,11 @@ void RioSession::Disconnect()
 -------------------------------------------------------- */
 void RioSession::Send(shared_ptr<SendBuffer> sendBuffer)
 {
+	if (IsConnected() == false)
+		return;
+
 	lock_guard<mutex> lock(m_sendQueueLock);
 	m_sendBufQueue.push(sendBuffer);
-	/*
-	char* writeBuf = m_sendBuffer->GetWriteBuf();
-	memcpy(writeBuf, sendBuffer->GetData(), sendBuffer->GetDataSize());
-	m_sendBuffer->OnWriteBuffer(sendBuffer->GetDataSize());
-	
-	cout << ThreadId << " | Send Buffer " << sendBuffer->GetDataSize() << endl;
-
-	RegisterSend();
-	*/
 }
 
 /* --------------------------------------------------------
@@ -89,11 +73,12 @@ void RioSession::Dispatch(RioEvent* rioEvent, int bytesTransferred)
 	}
 }
 
+/* --------------------------------------------------------
+*	Method:		RioSession::SendDeferred
+*	Summary:	deferred send
+-------------------------------------------------------- */
 bool RioSession::SendDeferred()
 {
-	if (m_bSendRegistered.load())
-		return false;
-
 	shared_ptr<SendBuffer> sendBuf;
 	{
 		lock_guard<mutex> lock(m_sendQueueLock);
@@ -105,20 +90,32 @@ bool RioSession::SendDeferred()
 		m_sendBufQueue.pop();
 	}
 
-	// send setting
-	int offset = m_sendBuffer->GetWritePos();
-	int size = sendBuf->GetDataSize();
-
-	char* writeBuf = m_sendBuffer->GetWriteBuf();
-	memcpy(writeBuf, sendBuf->GetData(), size);
-	m_sendBuffer->OnWriteBuffer(size);
-
-	//cout << ThreadId << " | Send Buffer, size: " << size << ", offset: " << offset << endl;
-
-	m_bSendRegistered.store(true);
+	// send buffer에 데이터 넣기
+	if (m_sendBuffer->WriteBuffer((char*)sendBuf->GetData(), sendBuf->GetDataSize()) == false)
+	{
+		HandleError("WriteBuffer Overflow");
+		return false;
+	}
 
 	// register send
-	RegisterSend(size, offset);
+	while (m_sendBuffer->GetChunkSendSize() > 0)
+	{
+		int size = m_sendBuffer->GetChunkSendSize();
+
+		if (RegisterSend(size, m_sendBuffer->GetSendOffset()) == false)
+		{
+			HandleError("RegisterSend Error");
+			Disconnect();
+			return false;
+		}
+
+		if (m_sendBuffer->OnSendBuffer(size) == false)
+		{
+			HandleError("OnSendBuffer Error");
+			Disconnect();
+			return false;
+		}
+	}
 
 	return true;
 }
@@ -157,29 +154,37 @@ void RioSession::RegisterRecv()
 *	Method:		RioSession::RegisterSend
 *	Summary:	RIOSend
 -------------------------------------------------------- */
-void RioSession::RegisterSend(int dataLength, int dataOffset)
+bool RioSession::RegisterSend(int dataLength, int dataOffset)
 {
 	if (IsConnected() == false)
-		return;
+		return false;
 
+	RioSendEvent* sendEvent = new RioSendEvent();
+
+	sendEvent->m_owner = shared_from_this();
+	sendEvent->BufferId = m_sendBufId;
+	sendEvent->Length = dataLength;
+	sendEvent->Offset = dataOffset;
+	/*
 	m_sendEvent.m_owner = shared_from_this();
 
 	m_sendEvent.BufferId = m_sendBufId;
 	m_sendEvent.Length = dataLength;
 	m_sendEvent.Offset = dataOffset;
-
+	*/
 	DWORD bytesTransferred = 0;
 	DWORD flags = 0;
 
-	if (SocketCore::RIO.RIOSend(m_requestQueue, (PRIO_BUF)&m_sendEvent, SEND_BUFF_COUNT, flags, &m_sendEvent) == false)
+	if (SocketCore::RIO.RIOSend(m_requestQueue, (PRIO_BUF)sendEvent, SEND_BUFF_COUNT, flags, sendEvent) == false)
 	{
 		//cout << ThreadId << " | RioSend Error" << endl;
 		HandleError("RioSend");
-		
 		Disconnect();
+		return false;
 	}
 
-	//cout << ThreadId << " | RioSend Complete" << endl;
+	cout << ThreadId << " | RioSend Complete" << endl;
+	return true;
 }
 
 /* --------------------------------------------------------
@@ -240,9 +245,7 @@ void RioSession::ProcessRecv(int bytesTransferred)
 
 void RioSession::ProcessSend(int bytesTransferred)
 {
-	//cout << ThreadId << " | ProcessSend : " << bytesTransferred << endl;
-
-	m_sendEvent.m_owner = nullptr;
+	cout << ThreadId << " | ProcessSend : " << bytesTransferred << endl;
 
 	if (bytesTransferred == 0)
 	{
@@ -260,12 +263,6 @@ void RioSession::ProcessSend(int bytesTransferred)
 		Disconnect();
 		return;
 	}
-
-	// adjust position
-	m_sendBuffer->AdjustPos();
-
-	// set false
-	m_bSendRegistered.store(false);
 }
 
 int RioSession::OnRecv(char* buffer, int len)
@@ -311,7 +308,7 @@ bool RioSession::InitSession()
 bool RioSession::AllocBuffer()
 {
 	m_recvBuffer = make_shared<RioBuffer>(BUFFER_SIZE);
-	m_sendBuffer = make_shared<RioBuffer>(BUFFER_SIZE);
+	m_sendBuffer = make_shared<RioSendBuffer>(BUFFER_SIZE);
 
 	m_recvBufId = SocketCore::RIO.RIORegisterBuffer(m_recvBuffer->GetBuffer(), BUFFER_SIZE);
 	if (m_recvBufId == RIO_INVALID_BUFFERID)

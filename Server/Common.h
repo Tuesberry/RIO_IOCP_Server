@@ -10,5 +10,5 @@
 
 #include "CoreCommon.h"
 
-#define IOCP true
-#define RIO false
+#define IOCP false
+#define RIO true

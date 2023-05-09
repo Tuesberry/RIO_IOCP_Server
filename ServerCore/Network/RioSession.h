@@ -7,6 +7,8 @@
 #include "SendBuffer.h"
 #include "RioEvent.h"
 
+#include "RioSendBuffer.h"
+
 class RioBuffer;
 class RioCore;
 
@@ -47,7 +49,6 @@ public:
 	bool IsEmptySendQueue() { return m_sendBufQueue.empty(); }
 	
 	// networking
-	bool Connect();
 	void Disconnect();
 	void Send(shared_ptr<SendBuffer> sendBuffer);
 
@@ -60,7 +61,7 @@ public:
 
 public:
 	void RegisterRecv();
-	void RegisterSend(int dataLength, int dataOffset);
+	bool RegisterSend(int dataLength, int dataOffset);
 
 	void ProcessConnect();
 	void ProcessRecv(int bytesTransferred);
@@ -68,7 +69,6 @@ public:
 
 public:
 	virtual void OnConnected() {}
-	//virtual int OnRecv(char* buffer, int len) abstract;
 	virtual int OnRecv(char* buffer, int len) final;
 	virtual void OnRecvPacket(char* buffer, int len) abstract;
 	virtual void OnSend(int len) {}
@@ -104,8 +104,12 @@ private:
 	RIO_BUFFERID m_recvBufId;
 	RIO_BUFFERID m_sendBufId;
 
+	// recv Buffer
 	shared_ptr<RioBuffer> m_recvBuffer;
-	shared_ptr<RioBuffer> m_sendBuffer;
+
+	// send Buffer
+	//shared_ptr<RioBuffer> m_sendBuffer;
+	shared_ptr<RioSendBuffer> m_sendBuffer;
 
 	mutex m_lock;
 };

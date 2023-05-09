@@ -173,9 +173,11 @@
     <ClInclude Include="Network\IocpSession.h" />
     <ClInclude Include="Network\Packet.h" />
     <ClInclude Include="Network\RecvBuffer.h" />
+    <ClInclude Include="Network\RingBuffer.h" />
     <ClInclude Include="Network\RioBuffer.h" />
     <ClInclude Include="Network\RioCore.h" />
     <ClInclude Include="Network\RioEvent.h" />
+    <ClInclude Include="Network\RioSendBuffer.h" />
     <ClInclude Include="Network\RioServer.h" />
     <ClInclude Include="Network\RioSession.h" />
     <ClInclude Include="Network\SendBuffer.h" />
@@ -199,9 +201,11 @@
     <ClCompile Include="Network\IocpService.cpp" />
     <ClCompile Include="Network\IocpSession.cpp" />
     <ClCompile Include="Network\RecvBuffer.cpp" />
+    <ClCompile Include="Network\RingBuffer.cpp" />
     <ClCompile Include="Network\RioBuffer.cpp" />
     <ClCompile Include="Network\RioCore.cpp" />
     <ClCompile Include="Network\RioEvent.cpp" />
+    <ClCompile Include="Network\RioSendBuffer.cpp" />
     <ClCompile Include="Network\RioServer.cpp" />
     <ClCompile Include="Network\RioSession.cpp" />
     <ClCompile Include="Network\SendBuffer.cpp" />

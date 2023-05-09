@@ -153,12 +153,11 @@ void IocpSession::RegisterRecv()
 	m_recvEvent.Init();
 	m_recvEvent.m_owner = shared_from_this();
 
-	// set wsaBuf
-
 	// log
 	if (m_recvBuffer.GetFreeSize() == 0)
 		cout << "Recv Buffer Free Size == 0" << endl;
 
+	// set wsaBuf
 	WSABUF wsaBuf;
 	wsaBuf.buf = reinterpret_cast<CHAR*>(m_recvBuffer.GetWritePos());
 	wsaBuf.len = m_recvBuffer.GetFreeSize();

@@ -8,14 +8,16 @@
 //debug
 #include "Network/SocketCore.h"
 
-#define CLIENT_NUM 1000
+#define CLIENT_NUM 10
 #define STRESS_TEST_THREAD_CNT 2
+
+#include "Network/RingBuffer.h"
 
 int main()
 {
 	// set logger
 	// Logger::SetFileLog("Clientlog.txt");
-
+	
 	this_thread::sleep_for(1s);
 
 	shared_ptr<IocpClient> iocpClient = std::make_shared<IocpClient>(
