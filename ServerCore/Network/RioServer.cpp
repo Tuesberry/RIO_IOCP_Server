@@ -201,7 +201,7 @@ bool RioServer::StartCoreWork()
 			{
 				while (true)
 				{
-					m_rioCores[i]->DeferredSend();
+					//m_rioCores[i]->DeferredSend();
 					m_rioCores[i]->Dispatch();
 				}
 			});

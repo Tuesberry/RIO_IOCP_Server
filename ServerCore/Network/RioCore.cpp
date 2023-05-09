@@ -37,7 +37,8 @@ bool RioCore::Dispatch()
 	// check numResults
 	if (numResults == 0)
 	{
-		this_thread::sleep_for(1s);
+		//this_thread::sleep_for(1ms);
+		this_thread::yield();
 		return true;
 	}
 	else if (numResults == RIO_CORRUPT_CQ)

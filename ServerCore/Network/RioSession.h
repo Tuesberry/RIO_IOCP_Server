@@ -65,7 +65,7 @@ public:
 
 	void ProcessConnect();
 	void ProcessRecv(int bytesTransferred);
-	void ProcessSend(int bytesTransferred);
+	void ProcessSend(int bytesTransferred, RioSendEvent* sendEvent);
 
 public:
 	virtual void OnConnected() {}
@@ -97,7 +97,6 @@ private:
 	// Rio Send
 	queue<shared_ptr<SendBuffer>> m_sendBufQueue;
 	mutex m_sendQueueLock;
-	RioSendEvent m_sendEvent;
 	atomic<bool> m_bSendRegistered;
 	
 	// rio Buffer
@@ -108,8 +107,5 @@ private:
 	shared_ptr<RioBuffer> m_recvBuffer;
 
 	// send Buffer
-	//shared_ptr<RioBuffer> m_sendBuffer;
 	shared_ptr<RioSendBuffer> m_sendBuffer;
-
-	mutex m_lock;
 };
