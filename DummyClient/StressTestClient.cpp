@@ -194,7 +194,7 @@ void StressTestClient::RunClient()
 	m_startTime = duration_cast<seconds>(high_resolution_clock::now().time_since_epoch()).count();
 
 	// init output
-	InitOutput();
+	//InitOutput();
 
 	// connect sessions
 	ConnectToServer();
@@ -221,7 +221,7 @@ void StressTestClient::RunClient()
 	while (true)
 	{
 		// update output
-		UpdateOutput();
+		//UpdateOutput();
 		// check time
 		if (m_runClient)
 		{
