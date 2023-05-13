@@ -27,6 +27,11 @@ public:
 
 	bool OnSendBuffer(int sendSize);
 
+	void SaveDebug(string main)
+	{
+		lock_guard<mutex> lock(m_debugLock);
+		m_debug.push_back(ThreadId + " | Method = " + main + " HeadPos = " + to_string(m_headPos) + " SendPos = " + to_string(m_sendPos) + " TailPos = " + to_string(m_tailPos));
+	}
 private:
 	void AllocateBuffer();
 

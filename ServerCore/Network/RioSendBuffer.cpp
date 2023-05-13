@@ -67,6 +67,8 @@ bool RioSendBuffer::OnSendBuffer(int sendSize)
 
 	m_sendPos = (m_sendPos + sendSize) % m_capacity;
 
+	//SaveDebug("OnSendBuffer");
+
 	return true;
 }
 

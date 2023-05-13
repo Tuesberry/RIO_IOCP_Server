@@ -91,8 +91,9 @@ private:
 	// request queue
 	RIO_RQ m_requestQueue;
 
-	// RioReceive
+	// RioEvent
 	RioRecvEvent m_recvEvent;
+	RioSendEvent m_sendEvent;
 
 	// Rio Send
 	queue<shared_ptr<SendBuffer>> m_sendBufQueue;
@@ -103,9 +104,13 @@ private:
 	RIO_BUFFERID m_recvBufId;
 	RIO_BUFFERID m_sendBufId;
 
-	// recv Buffer
+	// Data Buffer
 	shared_ptr<RioBuffer> m_recvBuffer;
-
-	// send Buffer
 	shared_ptr<RioSendBuffer> m_sendBuffer;
+
+public:
+	// debugging
+	// send count
+	atomic<int> m_sendCnt;
+	atomic<int> m_sendCompleteCnt;
 };

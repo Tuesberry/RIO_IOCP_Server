@@ -25,6 +25,8 @@ RioServerSession::RioServerSession()
 -------------------------------------------------------- */
 RioServerSession::~RioServerSession()
 {
+    cout << m_connectClientId << " | Delete Session " << endl;
+
     if (m_ownPlayer->m_playerState == State::Connected)
     {
         m_ownPlayer->m_playerState = State::Disconnected;
@@ -63,6 +65,11 @@ void RioServerSession::OnSend(int len)
 -------------------------------------------------------- */
 void RioServerSession::OnDisconnected()
 {
+    cout << "Disconnected | session = " << m_connectClientId << endl;
+    cout << this->shared_from_this().use_count() << endl;
+    cout << m_sendCnt << endl;
+    cout << m_sendCompleteCnt << endl;
+
     if (m_ownPlayer->m_playerState == State::Connected)
     {
         m_ownPlayer->m_playerState = State::Disconnected;

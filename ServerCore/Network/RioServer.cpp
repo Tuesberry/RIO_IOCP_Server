@@ -28,6 +28,10 @@ RioServer::~RioServer()
 	SocketCore::Close(m_listener);
 }
 
+/* --------------------------------------------------------
+*	Method:		RioServer::StopServer
+*	Summary:	stop server
+-------------------------------------------------------- */
 void RioServer::StopServer()
 {
 	
