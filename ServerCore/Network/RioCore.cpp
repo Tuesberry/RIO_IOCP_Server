@@ -94,7 +94,6 @@ void RioCore::DeferredSend()
 		{
 			if ((*sIter)->SendDeferred() == false)
 				break;
-			//cout << "SendComplete" << endl;
 		}
 	}
 }

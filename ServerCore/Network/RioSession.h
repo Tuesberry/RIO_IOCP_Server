@@ -61,7 +61,7 @@ public:
 
 public:
 	void RegisterRecv();
-	bool RegisterSend(int dataLength, int dataOffset);
+	bool RegisterSend();
 
 	void ProcessConnect();
 	void ProcessRecv(int bytesTransferred);

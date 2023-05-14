@@ -96,8 +96,6 @@ bool RingBuffer::WriteBuffer(char* data, int writeSize)
 		}
 	}
 
-	SaveDebug("WriteBuffer");
-
 	return true;
 }
 
@@ -143,8 +141,6 @@ bool RingBuffer::ReadBuffer(char* destData, int readSize)
 		}
 	}
 
-	SaveDebug("ReadBuffer");
-
 	return true;
 }
 
@@ -161,8 +157,6 @@ bool RingBuffer::OnWriteBuffer(int writeSize)
 
 	m_headPos = (m_headPos + writeSize)& m_capacity;
 
-	SaveDebug("OnWriteBuffer");
-
 	return true;
 }
 
@@ -178,8 +172,6 @@ bool RingBuffer::OnReadBuffer(int readSize)
 		return false;
 
 	m_tailPos = (m_tailPos + readSize) % m_capacity;
-
-	SaveDebug("OnReadBuffer");
 
 	return true;
 }
