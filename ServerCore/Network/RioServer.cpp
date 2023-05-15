@@ -137,7 +137,10 @@ bool RioServer::Accept()
 	// accept
 	session->GetSocket() = SocketCore::Accept(m_listener);
 	if (session->GetSocket() == INVALID_SOCKET)
+	{
+		HandleError("AcceptSocket");
 		return false;
+	}
 
 	// get accept socket info
 	SOCKADDR_IN sessionAddr;
@@ -205,7 +208,7 @@ bool RioServer::StartCoreWork()
 			{
 				while (true)
 				{
-					//m_rioCores[i]->DeferredSend();
+					m_rioCores[i]->DeferredSend();
 					m_rioCores[i]->Dispatch();
 				}
 			});

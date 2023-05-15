@@ -47,7 +47,8 @@ public:
 	// state check
 	bool IsConnected() { return m_bConnected; }
 	bool IsEmptySendQueue() { return m_sendBufQueue.empty(); }
-	
+	bool IsAllocated() { return m_bAllocated; }
+
 	// networking
 	void Disconnect();
 	void Send(shared_ptr<SendBuffer> sendBuffer);
@@ -61,7 +62,7 @@ public:
 
 public:
 	void RegisterRecv();
-	bool RegisterSend();
+	bool RegisterSend(int dataLength, int dataOffset);
 
 	void ProcessConnect();
 	void ProcessRecv(int bytesTransferred);
@@ -84,6 +85,7 @@ private:
 	SOCKET m_socket;
 	SockAddress m_address;
 	atomic<bool> m_bConnected;
+	atomic<bool> m_bAllocated;
 
 	// rio core
 	weak_ptr<RioCore> m_rioCore;
@@ -106,6 +108,8 @@ private:
 
 	// Data Buffer
 	shared_ptr<RioBuffer> m_recvBuffer;
+
+	mutex m_sendBufferLock;
 	shared_ptr<RioSendBuffer> m_sendBuffer;
 
 public:

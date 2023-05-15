@@ -63,7 +63,7 @@ bool RioCore::Dispatch()
 	for (ULONG i = 0; i < numResults; i++)
 	{
 		ULONG bytesTransferred = m_results[i].BytesTransferred;
-
+		
 		RioEvent* rioEvent = reinterpret_cast<RioEvent*>(m_results[i].RequestContext);
 		shared_ptr<RioSession> session = rioEvent->m_owner;
 
@@ -90,11 +90,7 @@ void RioCore::DeferredSend()
 	lock_guard<mutex> lock(m_sessionLock);
 	for (auto sIter = m_sessions.begin(); sIter != m_sessions.end(); sIter++)
 	{
-		while (true)
-		{
-			if ((*sIter)->SendDeferred() == false)
-				break;
-		}
+		(*sIter)->SendDeferred();
 	}
 }
 
