@@ -49,7 +49,7 @@ bool RioCore::Dispatch()
 	// check numResults
 	if (numResults == 0)
 	{
-		// this_thread::sleep_for(1ms);
+		// this_thread::sleep_for(1ms); // for low cpu-usage
 		this_thread::yield();
 		return true;
 	}
@@ -58,6 +58,9 @@ bool RioCore::Dispatch()
 		HandleError("RIO_CORRUPT_CQ");
 		return false;
 	}
+
+	// notify
+
 
 	// handle results
 	for (ULONG i = 0; i < numResults; i++)
