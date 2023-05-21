@@ -2,6 +2,25 @@
 #include "Common.h"
 
 class RioSession;
+class RioCore;
+
+/* ----------------------------
+*		RioCQEvent
+---------------------------- */
+
+class RioCQEvent : public OVERLAPPED
+{
+public:
+	RioCQEvent() = default;
+	RioCQEvent(const RioCQEvent& other) = delete;
+	RioCQEvent(RioCQEvent&& other) = delete;
+	RioCQEvent& operator=(const RioCQEvent& other) = delete;
+	RioCQEvent& operator=(RioCQEvent&& other) = delete;
+	~RioCQEvent() = default;
+
+public:
+	shared_ptr<RioCore> m_ownerCore;
+};
 
 /* ----------------------------
 *		RIO_IO_TYPE

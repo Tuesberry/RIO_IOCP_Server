@@ -44,19 +44,26 @@ private:
 	bool InitCore();
 	bool StartCoreWork();
 
-private:
-	// session
-	RIOSessionFactory m_sessionFactory;
+	// iocp
+	bool Dispatch();
+	bool CreateIocpHandle();
 
-	// listener
+private:
+	// Session 
+	RIOSessionFactory m_sessionFactory;
+	atomic<int> m_sessionCnt;
+
+	// Listener
 	SOCKET m_listener;
 	SockAddress m_address;
 	bool m_bInitListener;
-	atomic<int> m_sessionCnt;
 
-	// RioCore
+	// RIO CORE
 	vector<shared_ptr<RioCore>> m_rioCores;
 	bool m_bInitCore;
 	int m_coreCnt;
 	int m_currAllocCoreNum;
+
+	// IOCP
+	HANDLE m_iocpHandle;
 };

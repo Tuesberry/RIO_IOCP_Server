@@ -8,7 +8,7 @@
 //debug
 #include "Network/SocketCore.h"
 
-#define CLIENT_NUM 900
+#define CLIENT_NUM 100
 #define STRESS_TEST_THREAD_CNT 3
 
 #include "Network/RingBuffer.h"

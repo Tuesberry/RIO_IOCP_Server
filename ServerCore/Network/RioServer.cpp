@@ -16,6 +16,7 @@ RioServer::RioServer(RIOSessionFactory sessionFactory, SockAddress address)
 	, m_bInitCore(false)
 	, m_coreCnt(0)
 	, m_currAllocCoreNum(0)
+	, m_iocpHandle(nullptr)
 {
 }
 
@@ -25,6 +26,10 @@ RioServer::RioServer(RIOSessionFactory sessionFactory, SockAddress address)
 -------------------------------------------------------- */
 RioServer::~RioServer()
 {
+	// iocp handle close
+	::CloseHandle(m_iocpHandle);
+
+	// socket close
 	SocketCore::Close(m_listener);
 }
 
@@ -44,11 +49,12 @@ void RioServer::StopServer()
 -------------------------------------------------------- */
 bool RioServer::InitServer()
 {
-	// init listener
 	if (InitListener() == false)
 		return false;
 
-	// Init Core
+	if (CreateIocpHandle() == false)
+		return false;
+
 	if (InitCore() == false)
 		return false;
 	  
@@ -182,9 +188,9 @@ bool RioServer::InitCore()
 	{
 		m_rioCores.push_back(make_shared<RioCore>());
 
-		if (m_rioCores[i]->InitRioCore() == false)
+		if (m_rioCores[i]->InitRioCore(m_iocpHandle) == false)
 		{
-			// TODO : Error handle
+			HandleError("InitRioCore");
 			return false;
 		}
 	}
@@ -208,11 +214,70 @@ bool RioServer::StartCoreWork()
 			{
 				while (true)
 				{
-					m_rioCores[i]->DeferredSend();
-					m_rioCores[i]->Dispatch();
+					Dispatch();
 				}
 			});
 	}
 
+	// set RioNotify
+	for (auto core : m_rioCores)
+	{
+		core->SetRioNotify();
+	}
+
+	return true;
+}
+
+/* --------------------------------------------------------
+*	Method:		RioServer::Dispatch
+*	Summary:	
+-------------------------------------------------------- */
+bool RioServer::Dispatch()
+{
+	DWORD bytesTransferred = 0;
+	ULONG_PTR key = 0;
+	RioCQEvent* rioCQEvent = nullptr;
+
+	BOOL retVal = ::GetQueuedCompletionStatus(m_iocpHandle, &bytesTransferred, &key, reinterpret_cast<LPOVERLAPPED*>(&rioCQEvent), INFINITE);
+
+	if (retVal == TRUE)
+	{
+		shared_ptr<RioCore> rioCore = rioCQEvent->m_ownerCore;
+		rioCore->Dispatch();
+		rioCore->DeferredSend();
+	}
+	else
+	{
+		int errCode = ::WSAGetLastError();
+		switch (errCode)
+		{
+		case WAIT_TIMEOUT:
+			HandleError("WAIT_TIMEOUT");
+			return false;
+		default:
+			shared_ptr<RioCore> rioCore = rioCQEvent->m_ownerCore;
+			rioCore->Dispatch();
+			rioCore->DeferredSend();
+			break;
+		}
+	}
+
+	return true;
+}
+
+/* --------------------------------------------------------
+*	Method:		RioServer::CreateIocpHandle
+*	Summary:	create I/O Completion Port
+-------------------------------------------------------- */
+bool RioServer::CreateIocpHandle()
+{
+	m_iocpHandle = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
+	
+	if (m_iocpHandle == nullptr)
+	{
+		HandleError("CreateIocpHandle");
+		return false;
+	}
+	
 	return true;
 }

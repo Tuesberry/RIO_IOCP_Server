@@ -8,7 +8,8 @@
 *	Summary:	constructor
 -------------------------------------------------------- */
 RioCore::RioCore()
-	: m_rioCompletionQueue()
+	: m_rioCQEvent()
+	, m_rioCompletionQueue()
 	, m_results()
 	, m_sessionLock()
 	, m_sessions()
@@ -21,10 +22,19 @@ RioCore::RioCore()
 *	Method:		RioCore::InitRioCore
 *	Summary:	Create and initialize completion queue
 -------------------------------------------------------- */
-bool RioCore::InitRioCore()
-{
+bool RioCore::InitRioCore(HANDLE iocpHandle)
+{	
+	m_rioCQEvent.m_ownerCore = shared_from_this();
+
+	RIO_NOTIFICATION_COMPLETION completionType;
+
+	completionType.Type = RIO_IOCP_COMPLETION;
+	completionType.Iocp.IocpHandle = iocpHandle;
+	completionType.Iocp.CompletionKey = (void*)1;
+	completionType.Iocp.Overlapped = &m_rioCQEvent;
+
 	// create completion queue
-	m_rioCompletionQueue = SocketCore::RIO.RIOCreateCompletionQueue(MAX_CQ_SIZE, 0);
+	m_rioCompletionQueue = SocketCore::RIO.RIOCreateCompletionQueue(MAX_CQ_SIZE, &completionType);
 	if (m_rioCompletionQueue == RIO_INVALID_CQ)
 	{
 		HandleError("RIOCreateCompletionQueue");
@@ -47,20 +57,11 @@ bool RioCore::Dispatch()
 	ULONG numResults = SocketCore::RIO.RIODequeueCompletion(m_rioCompletionQueue, m_results, MAX_RIO_RESULT);
 
 	// check numResults
-	if (numResults == 0)
-	{
-		// this_thread::sleep_for(1ms); // for low cpu-usage
-		this_thread::yield();
-		return true;
-	}
-	else if (numResults == RIO_CORRUPT_CQ)
+	if (numResults == 0 || numResults == RIO_CORRUPT_CQ)
 	{
 		HandleError("RIO_CORRUPT_CQ");
 		return false;
 	}
-
-	// notify
-
 
 	// handle results
 	for (ULONG i = 0; i < numResults; i++)
@@ -78,6 +79,24 @@ bool RioCore::Dispatch()
 		{
 			session->Dispatch(rioEvent, bytesTransferred);
 		}
+	}
+
+	// notify
+	return SetRioNotify();
+}
+
+/* --------------------------------------------------------
+*	Method:		RioCore::SetRioNotify
+*	Summary:	set completion queue notify
+-------------------------------------------------------- */
+bool RioCore::SetRioNotify()
+{
+	int notifyResult = SocketCore::RIO.RIONotify(m_rioCompletionQueue);
+
+	if (notifyResult != ERROR_SUCCESS)
+	{
+		HandleError("SetRioNotify");
+		return false;
 	}
 
 	return true;

@@ -1,13 +1,15 @@
 #pragma once
 #include "Common.h"
 
+#include "RioEvent.h"
+
 class RioSession;
 
 /* --------------------------------------------------------
 *	class:		RioCore
 *	Summary:	Handle Completion Queue
 -------------------------------------------------------- */
-class RioCore
+class RioCore : public enable_shared_from_this<RioCore>
 {
 public:
 	static enum
@@ -28,10 +30,12 @@ public:
 	RIO_CQ& GetCompletionQueue() { return m_rioCompletionQueue; }
 
 	// InitRioCore
-	bool InitRioCore();
+	bool InitRioCore(HANDLE iocpHandle);
 
-	// CQ : Dequeue Completion
+	// Rio Completion Queue
 	bool Dispatch();
+	bool SetRioNotify();
+
 	// RQ : Deferred Send
 	void DeferredSend();
 	
@@ -41,6 +45,7 @@ public:
 
 private:
 	// CompletionQueue
+	RioCQEvent m_rioCQEvent;
 	RIO_CQ m_rioCompletionQueue;
 	RIORESULT m_results[MAX_RIO_RESULT];
 
@@ -49,6 +54,5 @@ private:
 	set<shared_ptr<RioSession>> m_sessions;
 	int m_sessionCnt;
 
-	// general
 	bool m_bInit;
 };
