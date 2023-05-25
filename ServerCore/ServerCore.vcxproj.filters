@@ -37,6 +37,12 @@
     <Filter Include="Source Files\Thread">
       <UniqueIdentifier>{f4d7d278-c55f-4a7c-8614-98de2f0627dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Memory">
+      <UniqueIdentifier>{13c3d166-63e3-47a0-8c2a-dedd4cee12d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Memory">
+      <UniqueIdentifier>{a2bf0775-b269-4705-8de7-017a58b623cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreCommon.h">
@@ -120,6 +126,12 @@
     <ClInclude Include="Network\RioSendBuffer.h">
       <Filter>Header Files\Network\RIO</Filter>
     </ClInclude>
+    <ClInclude Include="Memory\ObjectPool.h">
+      <Filter>Header Files\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\MemoryPool.h">
+      <Filter>Header Files\Memory</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -196,6 +208,9 @@
     </ClCompile>
     <ClCompile Include="Network\RioSendBuffer.cpp">
       <Filter>Source Files\Network\RIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory\MemoryPool.cpp">
+      <Filter>Source Files\Memory</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

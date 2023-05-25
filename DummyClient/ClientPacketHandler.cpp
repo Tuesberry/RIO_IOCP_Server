@@ -86,8 +86,10 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 	int processingTime = 0;
 	int sendTime = 0;
 	int recvStartTime = 0;
+	int updatePosTime = 0;
+	int synchronizeMoveTime = 0;
 
-	br >> moveStartTime >> processingTime >> sendTime >> recvStartTime;
+	br >> moveStartTime >> processingTime >> sendTime >> recvStartTime >> updatePosTime >> synchronizeMoveTime;
 
 	int moveTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - moveStartTime;
 	int recvTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - recvStartTime;
@@ -97,6 +99,8 @@ bool ClientPacketHandler::Handle_S2C_MOVE(shared_ptr<ClientSession> session, BYT
 	gDelayMgr.m_avgSendRecvDelay.UpdateAvgDelay(moveTime);
 	gDelayMgr.m_avgSendingDelay.UpdateAvgDelay(sendTime);
 	gDelayMgr.m_avgReceivingDelay.UpdateAvgDelay(recvTime);
+	gDelayMgr.m_avgUpdatePosDelay.UpdateAvgDelay(updatePosTime);
+	gDelayMgr.m_avgSynchronizeMoveDelay.UpdateAvgDelay(synchronizeMoveTime);
 
 	gDelayMgr.m_recvCnt.fetch_add(1);
 

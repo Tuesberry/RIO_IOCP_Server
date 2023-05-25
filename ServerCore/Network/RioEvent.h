@@ -1,5 +1,8 @@
 #pragma once
+
 #include "Common.h"
+
+#include "Memory/ObjectPool.h"
 
 class RioSession;
 class RioCore;
@@ -36,7 +39,7 @@ enum class RIO_IO_TYPE
 *		RioEvent
 ---------------------------- */
 
-class RioEvent : public RIO_BUF
+class RioEvent : public Poolable<RioEvent>, public RIO_BUF
 {
 public:
 	RioEvent(RIO_IO_TYPE ioType);

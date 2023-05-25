@@ -164,6 +164,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CoreCommon.h" />
+    <ClInclude Include="Memory\MemoryPool.h" />
+    <ClInclude Include="Memory\ObjectPool.h" />
     <ClInclude Include="Network\IocpClient.h" />
     <ClInclude Include="Network\IocpCore.h" />
     <ClInclude Include="Network\IocpEvent.h" />
@@ -193,6 +195,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreCommon.cpp" />
+    <ClCompile Include="Memory\MemoryPool.cpp" />
     <ClCompile Include="Network\IocpClient.cpp" />
     <ClCompile Include="Network\IocpCore.cpp" />
     <ClCompile Include="Network\IocpEvent.cpp" />

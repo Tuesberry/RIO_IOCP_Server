@@ -36,6 +36,9 @@ public:
 
     int m_sendTime;
 
+    int m_updatePosTime;
+    int m_synchronizePosTime;
+
     shared_ptr<Player> m_ownPlayer;
 };
 #endif // IOCP

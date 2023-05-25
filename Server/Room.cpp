@@ -65,6 +65,9 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 	int newX = std::get<0>(newPos);
 	int newY = std::get<1>(newPos);
 
+	// update time check
+	int checkTime1 = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
+
 	// check same zone
 	if (beforeX != newX || beforeY != newY)
 	{
@@ -73,6 +76,10 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 		m_zones[beforeX][beforeY]->Erase(player);
 	}
 	
+	// update check
+	int checkTime2 = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
+	player->m_ownerSession->m_updatePosTime = checkTime2 - checkTime1;
+
 	// new view list
 	unordered_set<int> newViewList;
 
@@ -128,6 +135,8 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 			m_zones[zoneX][zoneY]->ReadUnlock();
 		}
 	}
+
+	player->m_ownerSession->m_synchronizePosTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - checkTime2;
 
 	// update player view list
 	player->SetViewList(newViewList);

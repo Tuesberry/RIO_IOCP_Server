@@ -82,6 +82,8 @@ struct PKT_S2C_MOVE
 	int processTime; // process time 계산
 	int sendTime; // send delay 계산
 	int recvTime; // recv delay 계산
+	int updatePosTime;
+	int synchronizePosTime;
 };
 
 /* ----------------------------

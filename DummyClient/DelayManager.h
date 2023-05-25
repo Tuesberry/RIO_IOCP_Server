@@ -48,6 +48,8 @@ public:
 	DelayChecker m_avgReceivingDelay;
 	DelayChecker m_avgSendingDelay;
 	DelayChecker m_avgSendRecvDelay;
+	DelayChecker m_avgUpdatePosDelay;
+	DelayChecker m_avgSynchronizeMoveDelay;
 
 	atomic<int> m_sendCnt = 0;
 	atomic<int> m_recvCnt = 0;

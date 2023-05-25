@@ -25,6 +25,8 @@ using namespace chrono;
 #include <thread>
 #include <mutex>
 
+#include <malloc.h>
+
 #include <time.h>
 #include <iostream>
 

@@ -110,6 +110,8 @@ void RioServerSession::SendMoveMsg(int targetId, unsigned short x, unsigned shor
         pktMove.processTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - m_serverProcessTime;
         pktMove.sendTime = m_sendTime;
         pktMove.recvTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
+        pktMove.updatePosTime = m_updatePosTime;
+        pktMove.synchronizePosTime = m_synchronizePosTime;
     }
 
     bw.Write(&pktMove, sizeof(PKT_S2C_MOVE));

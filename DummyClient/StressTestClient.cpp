@@ -346,7 +346,8 @@ void StressTestClient::InitOutput()
 	cout << "Current Recv Delay \n = \n";
 	cout << "Current Login Delay \n = \n";
 	cout << "Current Server Processing Delay \n = \n";
-	cout << "Current Recv Packet Count \n = \n";
+	cout << "Current Server Processing | Move Player Delay \n = \n";
+	cout << "Current Server Processing | Synchronize Player Count \n = \n";
 	cout << "Current Send Packet Count \n = \n";
 	cout << "Current Connection Cnt \n = \n";
 }
@@ -369,8 +370,12 @@ void StressTestClient::UpdateOutput()
 	MoveCursor(3, 9);
 	cout << gDelayMgr.m_avgProcessDelay.GetAvgDelay() / 1000 << " milliseconds     ";
 	MoveCursor(3, 11);
-	cout << gDelayMgr.m_recvCnt.load() << "    ";
+	cout << gDelayMgr.m_avgUpdatePosDelay.GetAvgDelay() / 1000 << " milliseconds     ";
 	MoveCursor(3, 13);
+	cout << gDelayMgr.m_avgSynchronizeMoveDelay.GetAvgDelay() / 1000 << " milliseconds     ";
+	MoveCursor(3, 15);
+	cout << gDelayMgr.m_recvCnt.load() << "    ";
+	MoveCursor(3, 17);
 	cout << gDelayMgr.m_sendCnt.load() << "    \n";
 }
 
@@ -380,7 +385,7 @@ void StressTestClient::UpdateOutput()
 ------------------------------------------------------- */
 void StressTestClient::TestStopOutput()
 {
-	MoveCursor(0, 11);
+	MoveCursor(0, 19);
 	cout << "STOP STRESS TEST!!" << endl;
 }
 
