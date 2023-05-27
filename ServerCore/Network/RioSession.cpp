@@ -134,6 +134,7 @@ bool RioSession::SendDeferred()
 			}
 
 			m_sendBufQueue.pop();
+
 		}
 
 		while (m_sendBuffer->GetSendDataSize() > 0)
@@ -191,45 +192,6 @@ bool RioSession::RegisterSend(int dataLength, int dataOffset)
 {
 	if (IsConnected() == false )
 		return false;
-	/*
-	m_sendCnt.fetch_add(1);
-
-	shared_ptr<SendBuffer> sendBuffer;
-	int bufferCnt = 0;
-	{
-		lock_guard<mutex> lock(m_sendQueueLock);
-
-		while (!m_sendBufQueue.empty())
-		{
-			if (bufferCnt > 100)
-			{
-				break;
-			}
-
-			sendBuffer = m_sendBufQueue.front();
-			
-			if (!m_sendBuffer->WriteBuffer((char*)sendBuffer->GetData(), sendBuffer->GetDataSize()))
-			{
-				break;
-			}
-
-			m_sendBufQueue.pop();
-			bufferCnt++;
-		}
-	}
-
-	int sendSize = m_sendBuffer->GetChunkSendSize();
-
-	RioSendEvent* sendEvent = new RioSendEvent();
-
-	sendEvent->m_owner = shared_from_this();
-	sendEvent->BufferId = m_sendBufId;
-	sendEvent->Length = sendSize;
-	sendEvent->Offset = m_sendBuffer->GetSendOffset();
-
-	DWORD bytesTransferred = 0;
-	DWORD flags = 0;
-	*/
 
 	//cout << "RegisterSend, length: " << dataLength << ", offset: " << dataOffset << endl;
 

@@ -61,8 +61,8 @@ inline TObject* ObjectPool<TObject>::Pop()
 }
 
 /* --------------------------------------------------------
-*	class:		ObjectPool
-*	Summary:	Object Pool using SList
+*	class:		Poolable
+*	Summary:	Objects that can be included in a ObjectPool
 -------------------------------------------------------- */
 template<typename TObject>
 class Poolable : public SLIST_ENTRY

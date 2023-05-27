@@ -78,6 +78,7 @@ bool RioCore::Dispatch()
 		else
 		{
 			session->Dispatch(rioEvent, bytesTransferred);
+			session->SendDeferred();
 		}
 	}
 

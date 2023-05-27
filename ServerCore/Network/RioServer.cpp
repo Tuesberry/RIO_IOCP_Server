@@ -244,7 +244,7 @@ bool RioServer::Dispatch()
 	{
 		shared_ptr<RioCore> rioCore = rioCQEvent->m_ownerCore;
 		rioCore->Dispatch();
-		rioCore->DeferredSend();
+		//rioCore->DeferredSend();
 	}
 	else
 	{
@@ -257,7 +257,7 @@ bool RioServer::Dispatch()
 		default:
 			shared_ptr<RioCore> rioCore = rioCQEvent->m_ownerCore;
 			rioCore->Dispatch();
-			rioCore->DeferredSend();
+			//rioCore->DeferredSend();
 			break;
 		}
 	}
