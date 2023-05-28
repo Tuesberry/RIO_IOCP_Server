@@ -321,7 +321,7 @@ bool StressTestClient::SendToServer(int idx)
 ------------------------------------------------------- */
 void StressTestClient::ResetSendTime()
 {
-	int startTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
+	__int64 startTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
 	double deltaTime = PACKET_SEND_DURATION / (double)m_clientNum;
 	for (int i = 0; i < m_clientNum; i++)
 	{
@@ -374,9 +374,9 @@ void StressTestClient::UpdateOutput()
 	MoveCursor(3, 13);
 	cout << gDelayMgr.m_avgSynchronizeMoveDelay.GetAvgDelay() / 1000 << " milliseconds     ";
 	MoveCursor(3, 15);
-	cout << gDelayMgr.m_recvCnt.load() << "    ";
+	cout << gDelayMgr.m_recvCnt.load() << "       ";
 	MoveCursor(3, 17);
-	cout << gDelayMgr.m_sendCnt.load() << "    \n";
+	cout << gDelayMgr.m_sendCnt.load() << "       \n";
 }
 
 /* --------------------------------------------------------

@@ -129,7 +129,6 @@ bool RioSession::SendDeferred()
 
 			if (!m_sendBuffer->WriteBuffer((char*)sendBuffer->GetData(), sendBuffer->GetDataSize()))
 			{
-				cout << "WriteBuffer Overflow" << endl;
 				break;
 			}
 

@@ -92,5 +92,5 @@ private:
 	int m_clientNum;
 	int m_threadCnt;
 	int m_jobCnt;
-	vector<int> m_sendTime;
+	vector<__int64> m_sendTime;
 };
