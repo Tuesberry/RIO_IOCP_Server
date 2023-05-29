@@ -7,6 +7,12 @@
 
 using LockSetPlayerRef = shared_ptr<LockUnorderedSet<shared_ptr<Player>>>;
 
+struct PlayerInfo
+{
+	unsigned short x;
+	unsigned short y;
+};
+
 class Room 
 {
 public:
@@ -38,6 +44,8 @@ public:
 	int GetLoginCnt() { return m_loginCnt; }
 	int GetUpdateMoveCnt() { return m_moveCnt; }
 
+	// set player pos
+	void SetPlayerInitPos(unsigned short& x, unsigned short& y);
 private:
 	bool IsValidPlayer(shared_ptr<Player> player);
 	tuple<int, int> GetPlayerZoneIdx(shared_ptr<Player> player);
@@ -53,6 +61,17 @@ private:
 	atomic<int> m_loginCnt;
 
 	vector<vector<LockSetPlayerRef>> m_zones;
+
+	::random_device m_rd;
+	::mt19937 m_mt;
+
+	::uniform_int_distribution<int> m_xDist;
+	::uniform_int_distribution<int> m_yDist;
+
+public:
+	map<int, PlayerInfo> m_playersInfo;
+
+	// for debug
 };
 
 extern Room gRoom;

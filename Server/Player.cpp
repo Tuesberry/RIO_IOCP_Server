@@ -11,6 +11,7 @@ Player::Player(int id, shared_ptr<IocpServerSession> session)
 	, m_ownerSession(session)
 	, m_lock()
 {
+	//gRoom.SetPlayerInitPos(m_posX, m_posY);
 	SetPlayerInitPos();
 }
 #else RIO

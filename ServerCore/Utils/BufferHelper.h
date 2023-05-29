@@ -51,13 +51,13 @@ inline BufferWriter& BufferWriter::operator<<(const T& src)
 	if (FreeSize() < dataLen)
 		return *this;
 
-	::memcpy(&m_buffer[m_pos], reinterpret_cast<T*>(&src), dataLen);
+	::memcpy(&m_buffer[m_pos], const_cast<T*>(&src), dataLen);
 	m_pos += dataLen;
 	return *this;
 }
 
 /* ----------------------------
-*		IocpClient
+*		BufferReader
 ---------------------------- */
 
 class BufferReader
@@ -67,7 +67,7 @@ public:
 
 	BufferReader() = delete;
 	BufferReader(const BufferReader& other) = delete;
-	BufferReader(BufferWriter&& other) = delete;
+	BufferReader(BufferReader&& other) = delete;
 	BufferReader& operator=(const BufferReader& other) = delete;
 	BufferReader& operator=(BufferReader&& other) = delete;
 	~BufferReader() = default;

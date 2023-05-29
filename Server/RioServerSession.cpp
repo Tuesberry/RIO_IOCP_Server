@@ -66,9 +66,6 @@ void RioServerSession::OnSend(int len)
 void RioServerSession::OnDisconnected()
 {
     cout << "Disconnected | session = " << m_connectClientId << endl;
-    cout << this->shared_from_this().use_count() << endl;
-    cout << m_sendCnt << endl;
-    cout << m_sendCompleteCnt << endl;
 
     if (m_ownPlayer->m_playerState == State::Connected)
     {
@@ -202,5 +199,59 @@ void RioServerSession::SendLoginResult(bool result, unsigned short x, unsigned s
 
     Send(sendBuffer);
 }
+/* --------------------------------------------------------
+*	Method:		RioServerSession::SendLoginResultAdmin
+*	Summary:	send login result to admin
+*   Args:       bool result
+*                   login result
+-------------------------------------------------------- */
+void RioServerSession::SendLoginResultAdmin(bool result)
+{
+    shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(sizeof(PKT_S2C_LOGIN_RESULT_ADMIN));
+    BufferWriter bw(sendBuffer->GetData(), sendBuffer->GetFreeSize());
 
+    PKT_S2C_LOGIN_RESULT_ADMIN pktResult;
+    pktResult.header.id = PROTO_ID::LOGIN_RESULT_ADMIN;
+    pktResult.header.size = sizeof(PKT_S2C_LOGIN_RESULT_ADMIN);
+    pktResult.result = result;
+    pktResult.id = m_connectClientId;
+
+    cout << sizeof(PKT_S2C_LOGIN_RESULT_ADMIN) << endl;
+
+    bw.Write(&pktResult, sizeof(PKT_S2C_LOGIN_RESULT_ADMIN));
+
+    sendBuffer->OnWrite(sizeof(PKT_S2C_LOGIN_RESULT_ADMIN));
+    Send(sendBuffer);
+}
+
+/* --------------------------------------------------------
+*	Method:		RioServerSession::SendPlayersInfo
+*	Summary:	send players info to admin
+*   Args:       map<int, PlayerInfo> playerInfo
+*                   players position info
+-------------------------------------------------------- */
+void RioServerSession::SendPlayersInfo(map<int, PlayerInfo> playerInfo)
+{
+    int bufSize = sizeof(PKT_S2A_PLAYER_INFO) + sizeof(PLAYER_INFO) * playerInfo.size();
+
+    shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(bufSize);
+    BufferWriter bw(sendBuffer->GetData(), sendBuffer->GetFreeSize());
+
+    PKT_S2A_PLAYER_INFO pktInfo;
+    pktInfo.header.id = PROTO_ID::S2A_PLAYER_INFO;
+    pktInfo.header.size = bufSize;
+    pktInfo.playerNum = playerInfo.size();
+
+    bw.Write(&pktInfo, sizeof(PKT_S2A_PLAYER_INFO));
+
+    for (auto player : playerInfo)
+    {
+        bw << player.first;
+        bw << player.second.x;
+        bw << player.second.y;
+    }
+
+    sendBuffer->OnWrite(bufSize);
+    Send(sendBuffer);
+}
 #endif // RIO

@@ -25,7 +25,8 @@ private:
 	static bool Handle_LOGIN(shared_ptr<IocpServerSession>session, BYTE* buffer, int len);
 	static bool Handle_C2S_MOVE(shared_ptr<IocpServerSession>session, BYTE* buffer, int len);
 	static bool Handle_LOGOUT(shared_ptr<IocpServerSession>session, BYTE* buffer, int len);
-
+	static bool Handle_LOGIN_ADMIN(shared_ptr<IocpServerSession>session, BYTE* buffer, int len);
+	static bool Handle_REQUEST_PLAYER_INFO(shared_ptr<IocpServerSession>session, BYTE* buffer, int len);
 #else RIO
 	// RIO Packet Handler
 public:
@@ -34,6 +35,8 @@ private:
 	static bool Handle_LOGIN(shared_ptr<RioServerSession>session, BYTE* buffer, int len);
 	static bool Handle_C2S_MOVE(shared_ptr<RioServerSession>session, BYTE* buffer, int len);
 	static bool Handle_LOGOUT(shared_ptr<RioServerSession>session, BYTE* buffer, int len);
+	static bool Handle_LOGIN_ADMIN(shared_ptr<RioServerSession>session, BYTE* buffer, int len);
+	static bool Handle_REQUEST_PLAYER_INFO(shared_ptr<RioServerSession>session, BYTE* buffer, int len);
 #endif
 
 };

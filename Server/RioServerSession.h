@@ -8,6 +8,7 @@
 #include "Network/RioSession.h"
 
 class Player;
+class PlayerInfo;
 
 /* --------------------------------------------------------
 *	class:		RioServerSession
@@ -28,6 +29,10 @@ public:
     void SendEnterMsg(int targetId, unsigned short x, unsigned short y);
     void SendLeaveMsg(int targetId);
     void SendLoginResult(bool result, unsigned short x, unsigned short y);
+
+    // admin
+    void SendLoginResultAdmin(bool result);
+    void SendPlayersInfo(map<int, PlayerInfo> playerInfo);
 
 public:
     int m_connectClientId;

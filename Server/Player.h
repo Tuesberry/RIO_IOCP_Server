@@ -38,7 +38,7 @@ public:
 	bool IsExistInViewList(int playerId);
 	void SetViewList(unordered_set<int>& viewList);
 
-private:
+public:
 	void SetPlayerInitPos();
 
 public:

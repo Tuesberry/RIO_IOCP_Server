@@ -286,16 +286,6 @@ void IocpSession::ProcessRecv(int bytesTransferred)
 	// adjust cursor
 	m_recvBuffer.AdjustPos();
 
-	if (dataSize != processLen && m_recvBuffer.GetFreeSize() < BUFSIZE)
-	{
-		cout << "dataSize = " << m_recvBuffer.GetDataSize() 
-			<< " processLen = " << processLen 
-			<< " FreeSize=" << m_recvBuffer.GetFreeSize() 
-			<< " BytesTransferred = " << bytesTransferred
-			<< endl;
-	}
-
-
 	// register recv
 	RegisterRecv();
 }

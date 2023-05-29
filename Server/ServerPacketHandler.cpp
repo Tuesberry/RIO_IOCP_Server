@@ -30,6 +30,12 @@ bool ServerPacketHandler::HandlePacket(shared_ptr<IocpServerSession>session, BYT
 	case PROTO_ID::LOGOUT:
 		return Handle_LOGOUT(session, buffer, len);
 		break;
+	case PROTO_ID::LOGIN_ADMIN:
+		return Handle_LOGIN_ADMIN(session, buffer, len);
+		break;
+	case PROTO_ID::A2S_REQUEST_PLAYER_INFO:
+		return Handle_REQUEST_PLAYER_INFO(session, buffer, len);
+		break;
 	default:
 		break;
 	}
@@ -112,6 +118,44 @@ bool ServerPacketHandler::Handle_LOGOUT(shared_ptr<IocpServerSession> session, B
 
 	return true;
 }
+
+bool ServerPacketHandler::Handle_LOGIN_ADMIN(shared_ptr<IocpServerSession> session, BYTE* buffer, int len)
+{
+	BufferReader br(buffer, len);
+
+	PacketHeader header;
+	br >> header;
+
+	// check packet size
+	if (header.size > len)
+		return false;
+
+	int id;
+	br >> id;
+
+	session->SendLoginResultAdmin(true);
+
+	return true;
+}
+
+bool ServerPacketHandler::Handle_REQUEST_PLAYER_INFO(shared_ptr<IocpServerSession> session, BYTE* buffer, int len)
+{
+	BufferReader br(buffer, len);
+
+	PacketHeader header;
+	br >> header;
+
+	// check packet size
+	if (header.size > len)
+		return false;
+
+	int id;
+	br >> id;
+
+	session->SendPlayersInfo(gRoom.m_playersInfo);
+
+	return true;
+}
 #else RIO
 bool ServerPacketHandler::HandlePacket(shared_ptr<RioServerSession>session, BYTE* buffer, int len)
 {
@@ -130,6 +174,12 @@ bool ServerPacketHandler::HandlePacket(shared_ptr<RioServerSession>session, BYTE
 		break;
 	case PROTO_ID::LOGOUT:
 		return Handle_LOGOUT(session, buffer, len);
+		break;
+	case PROTO_ID::LOGIN_ADMIN:
+		return Handle_LOGIN_ADMIN(session, buffer, len);
+		break;
+	case PROTO_ID::A2S_REQUEST_PLAYER_INFO:
+		return Handle_REQUEST_PLAYER_INFO(session, buffer, len);
 		break;
 	default:
 		break;
@@ -209,6 +259,44 @@ bool ServerPacketHandler::Handle_LOGOUT(shared_ptr<RioServerSession> session, BY
 
 	// logout
 	session->Disconnect();
+
+	return true;
+}
+
+bool ServerPacketHandler::Handle_LOGIN_ADMIN(shared_ptr<RioServerSession> session, BYTE* buffer, int len)
+{
+	BufferReader br(buffer, len);
+
+	PacketHeader header;
+	br >> header;
+
+	// check packet size
+	if (header.size > len)
+		return false;
+
+	int id;
+	br >> id;
+
+	session->SendLoginResultAdmin(true);
+
+	return true;
+}
+
+bool ServerPacketHandler::Handle_REQUEST_PLAYER_INFO(shared_ptr<RioServerSession> session, BYTE* buffer, int len)
+{
+	BufferReader br(buffer, len);
+
+	PacketHeader header;
+	br >> header;
+
+	// check packet size
+	if (header.size > len)
+		return false;
+
+	int id;
+	br >> id;
+
+	session->SendPlayersInfo(gRoom.m_playersInfo);
 
 	return true;
 }

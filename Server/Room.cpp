@@ -7,6 +7,9 @@ Room::Room()
 	: m_moveCnt(0)
 	, m_loginCnt(0)
 	, m_zones()
+	, m_mt(m_rd())
+	, m_xDist(0, Room::MAP_WIDTH -1)
+	, m_yDist(0, Room::MAP_HEIGHT- 1)
 {
 	vector<LockSetPlayerRef> vec;
 	for (int i = 0; i < MAP_WIDTH / ZONE_WIDTH; i++)
@@ -25,8 +28,6 @@ void Room::Login(std::shared_ptr<Player> player)
 	// insert player
 	auto pos = GetPlayerZoneIdx(player);
 	m_zones[std::get<0>(pos)][std::get<1>(pos)]->Insert(player);
-
-	//cout << std::get<0>(pos) << " " << std::get<1>(pos) << endl;
 
 	m_loginCnt.fetch_add(1);
 
@@ -65,6 +66,9 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 	int newX = std::get<0>(newPos);
 	int newY = std::get<1>(newPos);
 
+	PlayerInfo pInfo{ player->m_posX, player->m_posY };
+	m_playersInfo[player->m_playerId] = pInfo;
+
 	// update time check
 	int checkTime1 = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
 
@@ -75,6 +79,11 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 		m_zones[newX][newY]->Insert(player);
 		m_zones[beforeX][beforeY]->Erase(player);
 	}
+
+	if (player->m_playerId == 10)
+	{
+		cout << "playerId = " << player->m_playerId << ", ZoneX = " << newX << ", ZoneY = " << newY << '\n';
+	}
 	
 	// update check
 	int checkTime2 = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
@@ -83,6 +92,9 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 	// new view list
 	unordered_set<int> newViewList;
 
+	// debug
+	int syncCnt = 0, SendMoveCnt = 0, SendEnterCnt = 0;
+
 	// synchronization
 	for (int x = -1; x < 2; x++)
 	{
@@ -90,21 +102,31 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 		{
 			int zoneX = newX + x;
 			int zoneY = newY + y;
+
 			// check map
 			if (zoneX < 0 || zoneX >= MAP_WIDTH / ZONE_WIDTH || zoneY < 0 || zoneY >= MAP_HEIGHT / ZONE_HEIGHT)
 			{
+				if (player->m_playerId == 10)
+				{
+					cout << "playerId = " << player->m_playerId << ", Check : ZoneX = " << zoneX << ", ZoneY = " << zoneY << '\n';
+				}
 				continue;
 			}
 			// iterate
 			m_zones[zoneX][zoneY]->ReadLock();
 			for (auto iter = m_zones[zoneX][zoneY]->m_set.begin(); iter != m_zones[zoneX][zoneY]->m_set.end(); iter++)
 			{
+				m_zones[zoneX][zoneY]->m_set.size();
+
 				// check invalid
 				if (IsValidPlayer(*iter) == false)
 					continue;
 				// check same
 				if ((*iter)->m_playerId == player->m_playerId)
 					continue;
+
+				syncCnt++;
+				if (player->m_playerId == 10) cout << syncCnt << endl;
 
 				// add in view list
 				newViewList.insert((*iter)->m_playerId);
@@ -115,25 +137,35 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 				{
 					// 기존에 존재하던 것
 					SendMoveMsg(*iter, player);
+					SendMoveCnt++;
 				}
 				else
 				{
 					// 새로 추가된 것
 					SendEnterMsg(*iter, player);
+					SendEnterCnt++;
 				}
 				// check player viewlist
 				if (player->IsExistInViewList((*iter)->m_playerId))
 				{
 					// 기존에 존재하던 것
 					SendMoveMsg(player, *iter);
+					SendMoveCnt++;
+
 				}
 				{
 					// 새로 추가된 것
 					SendEnterMsg(player, *iter);
+					SendEnterCnt++;
 				}
 			}
 			m_zones[zoneX][zoneY]->ReadUnlock();
 		}
+	}
+	
+	if (player->m_playerId == 10)
+	{
+		cout << "playerId = " << player->m_playerId << ", SyncCnt = " << syncCnt << ", SendMoveCnt = " << SendMoveCnt << ", SendEnterCnt = " << SendEnterCnt << '\n';
 	}
 
 	player->m_ownerSession->m_synchronizePosTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - checkTime2;
@@ -143,6 +175,12 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 
 	// send player move
 	SendMoveMsg(player, player);
+}
+
+void Room::SetPlayerInitPos(unsigned short& x, unsigned short& y)
+{
+	x = m_xDist(m_mt);
+	y = m_yDist(m_mt);
 }
 
 bool Room::IsValidPlayer(shared_ptr<Player> player)
@@ -213,7 +251,7 @@ void Room::UpdatePlayerPosition(shared_ptr<Player> player, int direction)
 			player->m_posX += 1;
 		break;
 	case MOVE_DIRECTION::LEFT:
-		if (player->m_posX - 1 <= MAP_WIDTH)
+		if (player->m_posX - 1 <= 0)
 			player->m_posX = MAP_WIDTH - 1;
 		else
 			player->m_posX -= 1;

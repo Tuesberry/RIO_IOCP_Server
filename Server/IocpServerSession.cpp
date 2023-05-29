@@ -69,6 +69,9 @@ void IocpServerSession::OnDisconnected()
 {
     cout << Logger::GetCurrentTimeStr() << "Disconnected | session = " << m_connectClientId << endl;
 
+    if (m_ownPlayer == nullptr)
+        return;
+
     if (m_ownPlayer->m_playerState == State::Connected)
     {
         m_ownPlayer->m_playerState = State::Disconnected;
@@ -198,6 +201,60 @@ void IocpServerSession::SendLoginResult(bool result, unsigned short x, unsigned 
     bw.Write(&pktResult, sizeof(PKT_S2C_LOGIN_RESULT));
 
     sendBuffer->OnWrite(sizeof(PKT_S2C_LOGIN_RESULT));
+    Send(sendBuffer);
+}
+
+/* --------------------------------------------------------
+*	Method:		IocpServerSession::SendLoginResultAdmin
+*	Summary:	send login result to admin
+*   Args:       bool result
+*                   login result
+-------------------------------------------------------- */
+void IocpServerSession::SendLoginResultAdmin(bool result)
+{
+    shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(sizeof(PKT_S2C_LOGIN_RESULT_ADMIN));
+    BufferWriter bw(sendBuffer->GetData(), sendBuffer->GetFreeSize());
+
+    PKT_S2C_LOGIN_RESULT_ADMIN pktResult;
+    pktResult.header.id = PROTO_ID::LOGIN_RESULT_ADMIN;
+    pktResult.header.size = sizeof(PKT_S2C_LOGIN_RESULT_ADMIN);
+    pktResult.result = result;
+    pktResult.id = m_connectClientId;
+
+    bw.Write(&pktResult, sizeof(PKT_S2C_LOGIN_RESULT_ADMIN));
+
+    sendBuffer->OnWrite(sizeof(PKT_S2C_LOGIN_RESULT_ADMIN));
+    Send(sendBuffer);
+}
+
+/* --------------------------------------------------------
+*	Method:		IocpServerSession::SendPlayersInfo
+*	Summary:	send players info to admin
+*   Args:       map<int, PlayerInfo> playerInfo
+*                   players position info
+-------------------------------------------------------- */
+void IocpServerSession::SendPlayersInfo(map<int, PlayerInfo> playerInfo)
+{
+    int bufSize = sizeof(PKT_S2A_PLAYER_INFO) + sizeof(PLAYER_INFO) * playerInfo.size();
+
+    shared_ptr<SendBuffer> sendBuffer = make_shared<SendBuffer>(bufSize);
+    BufferWriter bw(sendBuffer->GetData(), sendBuffer->GetFreeSize());
+
+    PKT_S2A_PLAYER_INFO pktInfo;
+    pktInfo.header.id = PROTO_ID::S2A_PLAYER_INFO;
+    pktInfo.header.size = bufSize;
+    pktInfo.playerNum = playerInfo.size();
+
+    bw.Write(&pktInfo, sizeof(PKT_S2A_PLAYER_INFO));
+
+    for (auto player : playerInfo)
+    {
+        bw << player.first;
+        bw << player.second.x;
+        bw << player.second.y;
+    }
+    
+    sendBuffer->OnWrite(bufSize);
     Send(sendBuffer);
 }
 
