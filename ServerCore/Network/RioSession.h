@@ -2,8 +2,8 @@
 
 #include "Common.h"
 
+#include "RioCommon.h"
 #include "SockAddress.h"
-//#include "RecvBuffer.h"
 #include "SendBuffer.h"
 #include "RioEvent.h"
 
@@ -18,15 +18,6 @@ class RioCore;
 -------------------------------------------------------- */
 class RioSession : public enable_shared_from_this<RioSession>
 {
-	enum
-	{
-		BUFFER_SIZE = 65536,
-		MAX_RECV_RQ_SIZE = 32,
-		MAX_SEND_RQ_SIZE = 64,
-		RECV_BUFF_COUNT = 1,
-		SEND_BUFF_COUNT = 1,
-	};
-
 public:
 	RioSession();
 	RioSession(const RioSession& other) = delete;

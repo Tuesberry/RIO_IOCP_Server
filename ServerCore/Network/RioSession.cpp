@@ -109,6 +109,8 @@ bool RioSession::SendDeferred()
 
 			m_sendBufQueue.pop();
 
+			cnt++;
+
 			while (m_sendBuffer->GetSendDataSize() > 0)
 			{
 				if (!RegisterSend(m_sendBuffer->GetChunkSendSize(), m_sendBuffer->GetSendOffset()))
@@ -117,10 +119,7 @@ bool RioSession::SendDeferred()
 					return false;
 				}
 			}
-
-			cnt++;
 		}
-
 		//cout << ThreadId << " | , SendDeferred Count = " << cnt << endl;
 	}
 
@@ -380,6 +379,18 @@ bool RioSession::CreateRequestQueue()
 	if (rioCore == nullptr)
 		return false;
 
+#if SEPCQ
+	m_requestQueue = SocketCore::RIO.RIOCreateRequestQueue(
+		m_socket,
+		MAX_SEND_RQ_SIZE,
+		SEND_BUFF_COUNT,
+		MAX_RECV_RQ_SIZE,
+		RECV_BUFF_COUNT,
+		rioCore->GetRecvCompletionQueue(),
+		rioCore->GetSendCompletionQueue(),
+		NULL
+	);
+#else
 	m_requestQueue = SocketCore::RIO.RIOCreateRequestQueue(
 		m_socket, 
 		MAX_SEND_RQ_SIZE,
@@ -390,6 +401,7 @@ bool RioSession::CreateRequestQueue()
 		rioCore->GetCompletionQueue(),
 		NULL
 	);
+#endif
 	if (m_requestQueue == RIO_INVALID_RQ)
 	{
 		HandleError("RIOCreateRequestQueue");

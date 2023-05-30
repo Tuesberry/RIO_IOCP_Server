@@ -3,8 +3,8 @@
 #include "Utils/BufferHelper.h"
 #include "ServerPacketHandler.h"
 
-//#include "Room.h"
-#include "RoomOrigin.h"
+#include "Room.h"
+//#include "RoomOrigin.h"
 
 #include "Player.h"
 
@@ -35,7 +35,7 @@ IocpServerSession::~IocpServerSession()
     {
         m_ownPlayer->m_playerState = State::Disconnected;
         //gRoom->DoAsync(&Room::Logout, m_ownPlayer);
-        gRoomOrigin.Logout(m_ownPlayer);
+        gRoom.Logout(m_ownPlayer);
     }
 }
 
@@ -79,7 +79,7 @@ void IocpServerSession::OnDisconnected()
     {
         m_ownPlayer->m_playerState = State::Disconnected;
         //gRoom->DoAsync(&Room::Logout, m_ownPlayer);
-        gRoomOrigin.Logout(m_ownPlayer);
+        gRoom.Logout(m_ownPlayer);
     }
 }
 

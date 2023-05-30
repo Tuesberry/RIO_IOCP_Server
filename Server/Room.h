@@ -39,7 +39,15 @@ public:
 	int GetUpdateMoveCnt() { return m_moveCnt; }
 
 private:
+	bool IsNear(
+		unsigned short posX1,
+		unsigned short posY1,
+		unsigned short posX2,
+		unsigned short posY2
+	);
+
 	bool IsValidPlayer(shared_ptr<Player> player);
+
 	tuple<int, int> GetPlayerZoneIdx(shared_ptr<Player> player);
 
 	void SendMoveMsg(std::shared_ptr<Player> player, std::shared_ptr<Player> targetPlayer);

@@ -16,7 +16,9 @@ RioServer::RioServer(RIOSessionFactory sessionFactory, SockAddress address)
 	, m_bInitCore(false)
 	, m_coreCnt(0)
 	, m_currAllocCoreNum(0)
+#if RIOIOCP
 	, m_iocpHandle(nullptr)
+#endif
 {
 }
 
@@ -26,9 +28,10 @@ RioServer::RioServer(RIOSessionFactory sessionFactory, SockAddress address)
 -------------------------------------------------------- */
 RioServer::~RioServer()
 {
+#if RIOIOCP
 	// iocp handle close
 	::CloseHandle(m_iocpHandle);
-
+#endif
 	// socket close
 	SocketCore::Close(m_listener);
 }
@@ -51,10 +54,10 @@ bool RioServer::InitServer()
 {
 	if (InitListener() == false)
 		return false;
-
+#if RIOIOCP
 	if (CreateIocpHandle() == false)
 		return false;
-
+#endif
 	if (InitCore() == false)
 		return false;
 	  
@@ -187,12 +190,19 @@ bool RioServer::InitCore()
 	for (int i = 0; i < m_coreCnt; i++)
 	{
 		m_rioCores.push_back(make_shared<RioCore>());
-
+#if RIOIOCP
 		if (m_rioCores[i]->InitRioCore(m_iocpHandle) == false)
 		{
 			HandleError("InitRioCore");
 			return false;
 		}
+#else
+		if(m_rioCores[i]->InitRioCore() == false)
+		{
+			HandleError("InitRioCore");
+			return false;
+		}
+#endif
 	}
 
 	// set initCore true
@@ -216,13 +226,29 @@ bool RioServer::StartCoreWork()
 				{
 #if RIOIOCP
 					Dispatch();
-#else
+#elif SEPCQ
 					m_rioCores[i]->DeferredSend();
+					m_rioCores[i]->DispatchRecv();
+#else
 					m_rioCores[i]->Dispatch();
+					m_rioCores[i]->DeferredSend();
 #endif
 				}
 			});
 	}
+
+#if SEPCQ
+	for (int i = 0; i < m_coreCnt; i++)
+	{
+		gThreadMgr.CreateThread([=]()
+			{
+				while (true)
+				{
+					m_rioCores[i]->DispatchSend();
+				}
+			});
+	}
+#endif
 
 #if RIOIOCP
 	// set RioNotify
@@ -238,6 +264,7 @@ bool RioServer::StartCoreWork()
 *	Method:		RioServer::Dispatch
 *	Summary:	
 -------------------------------------------------------- */
+#if RIOIOCP
 bool RioServer::Dispatch()
 {
 	DWORD bytesTransferred = 0;
@@ -249,7 +276,11 @@ bool RioServer::Dispatch()
 	if (retVal == TRUE)
 	{
 		shared_ptr<RioCore> rioCore = rioCQEvent->m_ownerCore;
+#if SEPCQ
+		rioCore->DispatchRecv();
+#else
 		rioCore->Dispatch();
+#endif
 	}
 	else
 	{
@@ -261,7 +292,11 @@ bool RioServer::Dispatch()
 			return false;
 		default:
 			shared_ptr<RioCore> rioCore = rioCQEvent->m_ownerCore;
+#if SEPCQ
+			rioCore->DispatchRecv();
+#else
 			rioCore->Dispatch();
+#endif			
 			break;
 		}
 	}
@@ -285,3 +320,4 @@ bool RioServer::CreateIocpHandle()
 	
 	return true;
 }
+#endif

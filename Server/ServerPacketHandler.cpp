@@ -3,8 +3,8 @@
 #include "Utils/BufferHelper.h"
 #include "Network/IocpServer.h"
 
-//#include "Room.h"
-#include "RoomOrigin.h"
+#include "Room.h"
+//#include "RoomOrigin.h"
 
 #if IOCP
 #include "IocpServerSession.h"
@@ -62,7 +62,7 @@ bool ServerPacketHandler::Handle_LOGIN(shared_ptr<IocpServerSession>session, BYT
 	session->m_ownPlayer = player;
 	// login
 	//gRoom->DoAsync(&Room::Login, player);
-	gRoomOrigin.Login(player);
+	gRoom.Login(player);
 
 	return true;
 }
@@ -93,7 +93,7 @@ bool ServerPacketHandler::Handle_C2S_MOVE(shared_ptr<IocpServerSession>session, 
 
 	// move player
 	//gRoom->DoAsync(&Room::MovePlayer, session->m_ownPlayer, direction);
-	gRoomOrigin.MovePlayer(session->m_ownPlayer, direction);
+	gRoom.MovePlayer(session->m_ownPlayer, direction);
 
 	return true;
 }
@@ -154,7 +154,7 @@ bool ServerPacketHandler::Handle_REQUEST_PLAYER_INFO(shared_ptr<IocpServerSessio
 	int id;
 	br >> id;
 
-	session->SendPlayersInfo(gRoomOrigin.m_playersInfo);
+	session->SendPlayersInfo(gRoom.m_playersInfo);
 
 	return true;
 }
@@ -206,7 +206,7 @@ bool ServerPacketHandler::Handle_LOGIN(shared_ptr<RioServerSession>session, BYTE
 	shared_ptr<Player> player = make_shared<Player>(session->m_connectClientId, session);
 	session->m_ownPlayer = player;
 	// login
-	gRoomOrigin.Login(player);
+	gRoom.Login(player);
 
 	return true;
 }
@@ -237,7 +237,7 @@ bool ServerPacketHandler::Handle_C2S_MOVE(shared_ptr<RioServerSession>session, B
 
 	// move player
 	//gRoom->DoAsync(&Room::MovePlayer, session->m_ownPlayer, direction);
-	gRoomOrigin.MovePlayer(session->m_ownPlayer, direction);
+	gRoom.MovePlayer(session->m_ownPlayer, direction);
 
 	return true;
 }
@@ -298,7 +298,7 @@ bool ServerPacketHandler::Handle_REQUEST_PLAYER_INFO(shared_ptr<RioServerSession
 	int id;
 	br >> id;
 
-	session->SendPlayersInfo(gRoomOrigin.m_playersInfo);
+	session->SendPlayersInfo(gRoom.m_playersInfo);
 
 	return true;
 }

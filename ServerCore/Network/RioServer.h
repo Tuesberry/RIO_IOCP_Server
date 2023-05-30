@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common.h"
+#include "RioCommon.h"
 
 #include "SockAddress.h"
 
@@ -64,6 +65,7 @@ private:
 	int m_coreCnt;
 	int m_currAllocCoreNum;
 
-	// IOCP
+#if RIOIOCP
 	HANDLE m_iocpHandle;
+#endif // RIOIOCP
 };

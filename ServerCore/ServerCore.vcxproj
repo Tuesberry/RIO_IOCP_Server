@@ -177,6 +177,7 @@
     <ClInclude Include="Network\RecvBuffer.h" />
     <ClInclude Include="Network\RingBuffer.h" />
     <ClInclude Include="Network\RioBuffer.h" />
+    <ClInclude Include="Network\RioCommon.h" />
     <ClInclude Include="Network\RioCore.h" />
     <ClInclude Include="Network\RioEvent.h" />
     <ClInclude Include="Network\RioSendBuffer.h" />

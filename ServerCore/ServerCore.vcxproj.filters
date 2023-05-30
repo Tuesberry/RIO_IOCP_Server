@@ -135,6 +135,9 @@
     <ClInclude Include="Utils\LockMap.h">
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="Network\RioCommon.h">
+      <Filter>Header Files\Network\RIO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">

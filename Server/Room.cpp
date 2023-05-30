@@ -81,7 +81,8 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 	int checkTime2 = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
 	player->m_ownerSession->m_updatePosTime = checkTime2 - checkTime1;
 
-	// new view list
+	// new view list & old view list
+	//unordered_set<int> oldViewList = player->GetViewList();
 	unordered_set<int> newViewList;
 
 	// synchronization
@@ -102,13 +103,16 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 			m_zones[zoneX][zoneY]->ReadLock();
 			for (auto iter = m_zones[zoneX][zoneY]->m_set.begin(); iter != m_zones[zoneX][zoneY]->m_set.end(); iter++)
 			{
-				m_zones[zoneX][zoneY]->m_set.size();
-
 				// check invalid
 				if (IsValidPlayer(*iter) == false)
 					continue;
+
 				// check same
 				if ((*iter)->m_playerId == player->m_playerId)
+					continue;
+
+				// check near
+				if (!IsNear(player->m_posX, player->m_posY, (*iter)->m_posX, (*iter)->m_posY))
 					continue;
 
 				// add in view list
@@ -140,14 +144,42 @@ void Room::MovePlayer(std::shared_ptr<Player> player, unsigned short direction)
 			m_zones[zoneX][zoneY]->ReadUnlock();
 		}
 	}
+	// old view list check
+	/*
+	unordered_set<int>::iterator viter;
+	for (viter = oldViewList.begin(); viter != oldViewList.end(); viter++)
+	{
+		if (newViewList.count(*viter) == false)
+		{
+			// oldViewList에는 있는데, newViewlist에는 없음
+			{
+				m_players.ReadLock();
+				targetPlayer = m_players.m_map.find(*viter)->second;
+				m_players.ReadUnlock();
+			}
 
+			SendLeaveMsg(player, targetPlayer);
+			SendLeaveMsg(targetPlayer, player);
+		}
+	}
+	*/
 	player->m_ownerSession->m_synchronizePosTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - checkTime2;
 
 	// update player view list
 	player->SetViewList(newViewList);
 
+	player->m_ownerSession->m_serverProcessTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - player->m_ownerSession->m_serverProcessTime;
+
 	// send player move
 	SendMoveMsg(player, player);
+}
+
+bool Room::IsNear(unsigned short posX1, unsigned short posY1, unsigned short posX2, unsigned short posY2)
+{
+	double result = sqrt(pow(posX1 - posX2, 2) + pow(posY1 - posY2, 2));
+	if (result < VIEW_DISTANCE)
+		return true;
+	return false;
 }
 
 bool Room::IsValidPlayer(shared_ptr<Player> player)
