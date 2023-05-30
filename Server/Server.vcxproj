@@ -164,6 +164,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RioServerSession.cpp" />
     <ClCompile Include="Room.cpp" />
+    <ClCompile Include="RoomOrigin.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="ServerPacketHandler.cpp" />
     <ClCompile Include="StressTestServer.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="RioServerSession.h" />
     <ClInclude Include="Room.h" />
+    <ClInclude Include="RoomOrigin.h" />
     <ClInclude Include="ServerPacketHandler.h" />
     <ClInclude Include="StressTestServer.h" />
   </ItemGroup>

@@ -24,6 +24,7 @@ RioCore::RioCore()
 -------------------------------------------------------- */
 bool RioCore::InitRioCore(HANDLE iocpHandle)
 {	
+#if RIOIOCP
 	m_rioCQEvent.m_ownerCore = shared_from_this();
 
 	RIO_NOTIFICATION_COMPLETION completionType;
@@ -40,7 +41,15 @@ bool RioCore::InitRioCore(HANDLE iocpHandle)
 		HandleError("RIOCreateCompletionQueue");
 		return false;
 	}
-	
+#else
+	// create completion queue
+	m_rioCompletionQueue = SocketCore::RIO.RIOCreateCompletionQueue(MAX_CQ_SIZE, NULL);
+	if (m_rioCompletionQueue == RIO_INVALID_CQ)
+	{
+		HandleError("RIOCreateCompletionQueue");
+		return false;
+	}
+#endif
 	return true;
 }
 
@@ -57,7 +66,12 @@ bool RioCore::Dispatch()
 	ULONG numResults = SocketCore::RIO.RIODequeueCompletion(m_rioCompletionQueue, m_results, MAX_RIO_RESULT);
 
 	// check numResults
-	if (numResults == 0 || numResults == RIO_CORRUPT_CQ)
+	if (numResults == 0)
+	{
+		this_thread::yield();
+		return false;
+	}
+	if (numResults == RIO_CORRUPT_CQ)
 	{
 		HandleError("RIO_CORRUPT_CQ");
 		return false;
@@ -78,12 +92,15 @@ bool RioCore::Dispatch()
 		else
 		{
 			session->Dispatch(rioEvent, bytesTransferred);
-			session->SendDeferred();
+			//session->SendDeferred();
+			//session->SendCommit();
 		}
 	}
 
+#if RIOIOCP
 	// notify
 	return SetRioNotify();
+#endif
 }
 
 /* --------------------------------------------------------
@@ -114,6 +131,7 @@ void RioCore::DeferredSend()
 	for (auto sIter = m_sessions.begin(); sIter != m_sessions.end(); sIter++)
 	{
 		(*sIter)->SendDeferred();
+		(*sIter)->SendCommit();
 	}
 }
 

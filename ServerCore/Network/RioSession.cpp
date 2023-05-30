@@ -93,8 +93,7 @@ bool RioSession::SendDeferred()
 	if (IsConnected() == false || IsAllocated() == false)
 		return false;
 
-	int bufCnt = 0;
-	int sendCnt = 0;
+	int cnt = 0;
 
 	lock_guard<mutex> lock(m_sendQueueLock);
 	shared_ptr<SendBuffer> sendBuffer;
@@ -108,23 +107,21 @@ bool RioSession::SendDeferred()
 				break;
 			}
 
-			bufCnt++;
 			m_sendBufQueue.pop();
 
 			while (m_sendBuffer->GetSendDataSize() > 0)
 			{
 				if (!RegisterSend(m_sendBuffer->GetChunkSendSize(), m_sendBuffer->GetSendOffset()))
 				{
+					//cout << ThreadId << " | , SendDeferred Count = " << cnt << endl;
 					return false;
 				}
-				sendCnt++;
 			}
-		}
-	}
 
-	if (bufCnt != sendCnt)
-	{
-		cout << bufCnt << " " << sendCnt << endl;
+			cnt++;
+		}
+
+		//cout << ThreadId << " | , SendDeferred Count = " << cnt << endl;
 	}
 
 	return true;
@@ -136,7 +133,17 @@ bool RioSession::SendDeferred()
 -------------------------------------------------------- */
 void RioSession::SendCommit()
 {
+	if (m_sendCnt.load() <= 0)
+		return;
 
+	if (SocketCore::RIO.RIOSend(m_requestQueue, NULL, 0, RIO_MSG_COMMIT_ONLY, NULL) == false)
+	{
+		HandleError("SendCommit");
+		Disconnect();
+	}
+
+	m_commintCnt.store(m_sendCnt.load());
+	m_sendCnt.store(0);
 }
 
 /* --------------------------------------------------------
@@ -185,7 +192,7 @@ bool RioSession::RegisterSend(int dataLength, int dataOffset)
 	DWORD bytesTransferred = 0;
 	DWORD flags = 0;
 
-	if (SocketCore::RIO.RIOSend(m_requestQueue, (PRIO_BUF)sendEvent, SEND_BUFF_COUNT, flags, sendEvent) == false)
+	if (SocketCore::RIO.RIOSend(m_requestQueue, (PRIO_BUF)sendEvent, SEND_BUFF_COUNT, RIO_MSG_DEFER, sendEvent) == false)
 	{
 		sendEvent->m_owner = nullptr;
 		delete(sendEvent);
@@ -196,11 +203,16 @@ bool RioSession::RegisterSend(int dataLength, int dataOffset)
 			HandleError("RioSend");
 			Disconnect();
 		}
+		else
+		{
+			cout << ThreadId << " | " << "WSAENOBUFS, SendCnt = " << m_sendCnt << endl;
+		}
 
 		return false;
 	}
 
-	m_rioSendCnt.fetch_add(1);
+	//cout << ThreadId << " | Register Send, data length = " << dataLength << endl;
+	m_sendCnt.fetch_add(1);
 
 	if (m_sendBuffer->OnSendBuffer(dataLength) == false)
 	{
@@ -276,8 +288,6 @@ void RioSession::ProcessSend(int bytesTransferred, RioSendEvent* sendEvent)
 	sendEvent->m_owner = nullptr;
 	delete(sendEvent);
 	
-	m_rioSendCnt.fetch_sub(1);
-
 	// bytesTransferred 0 check
 	if (bytesTransferred == 0)
 	{
@@ -285,6 +295,8 @@ void RioSession::ProcessSend(int bytesTransferred, RioSendEvent* sendEvent)
 		Disconnect();
 		return;
 	}
+
+	//cout << ThreadId << " | Process Send, data length = " << bytesTransferred << endl;
 
 	OnSend(bytesTransferred);
 

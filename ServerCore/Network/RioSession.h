@@ -101,6 +101,11 @@ private:
 	queue<shared_ptr<SendBuffer>> m_sendBufQueue;
 	mutex m_sendQueueLock;
 	atomic<bool> m_bSendRegistered;
+
+	// send deferred
+	atomic<int> m_sendCnt;
+	atomic<int> m_commintCnt;
+	int m_sendStartTime;
 	
 	// rio Buffer
 	RIO_BUFFERID m_recvBufId;
@@ -113,8 +118,5 @@ private:
 	shared_ptr<RioSendBuffer> m_sendBuffer;
 
 public:
-	// debugging
-	// send count
-	atomic<int> m_rioSendCnt;
-	atomic<int> m_sendBufCnt;
+
 };

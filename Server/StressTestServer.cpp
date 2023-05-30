@@ -1,5 +1,7 @@
 #include "StressTestServer.h"
-#include "Room.h"
+
+//#include "Room.h"
+#include "RoomOrigin.h"
 
 #if IOCP
 StressTestServer::StressTestServer(shared_ptr<IocpServer> server)
@@ -42,7 +44,7 @@ void StressTestServer::Draw()
 	cout << currCnt << endl;
 
 	MoveCursor(25, 1);
-	cout << gRoom.GetLoginCnt() << endl;
+	cout << gRoomOrigin.GetLoginCnt() << endl;
 }
 
 void StressTestServer::InitDraw()

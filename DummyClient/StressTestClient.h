@@ -51,7 +51,7 @@ class StressTestClient
 	enum : int
 	{
 		PACKET_SEND_DURATION = 1000,
-		STRESS_TEST_TIME_SEC = 60,
+		STRESS_TEST_TIME_SEC = 600,
 	};
 
 public:

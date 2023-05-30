@@ -42,6 +42,9 @@
     <ClCompile Include="Room.cpp">
       <Filter>Source Files\Contents</Filter>
     </ClCompile>
+    <ClCompile Include="RoomOrigin.cpp">
+      <Filter>Source Files\Contents</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -69,6 +72,9 @@
       <Filter>Header Files\Contents</Filter>
     </ClInclude>
     <ClInclude Include="Job.h">
+      <Filter>Header Files\Contents</Filter>
+    </ClInclude>
+    <ClInclude Include="RoomOrigin.h">
       <Filter>Header Files\Contents</Filter>
     </ClInclude>
   </ItemGroup>

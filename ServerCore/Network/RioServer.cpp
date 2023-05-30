@@ -180,7 +180,7 @@ bool RioServer::InitCore()
 {
 	// determine core count
 	// = cpu core count x 2
-	m_coreCnt = thread::hardware_concurrency() * 2;
+	m_coreCnt = thread::hardware_concurrency();
 	//m_coreCnt = 2;
 
 	// allocate & init core
@@ -214,17 +214,23 @@ bool RioServer::StartCoreWork()
 			{
 				while (true)
 				{
+#if RIOIOCP
 					Dispatch();
+#else
+					m_rioCores[i]->DeferredSend();
+					m_rioCores[i]->Dispatch();
+#endif
 				}
 			});
 	}
 
+#if RIOIOCP
 	// set RioNotify
 	for (auto core : m_rioCores)
 	{
 		core->SetRioNotify();
 	}
-
+#endif
 	return true;
 }
 
@@ -244,7 +250,6 @@ bool RioServer::Dispatch()
 	{
 		shared_ptr<RioCore> rioCore = rioCQEvent->m_ownerCore;
 		rioCore->Dispatch();
-		//rioCore->DeferredSend();
 	}
 	else
 	{
@@ -257,7 +262,6 @@ bool RioServer::Dispatch()
 		default:
 			shared_ptr<RioCore> rioCore = rioCQEvent->m_ownerCore;
 			rioCore->Dispatch();
-			//rioCore->DeferredSend();
 			break;
 		}
 	}

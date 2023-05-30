@@ -16,6 +16,12 @@ enum class State : unsigned short
 	Disconnected
 };
 
+struct PlayerInfo
+{
+	unsigned short x;
+	unsigned short y;
+};
+
 class Player
 {
 public:
@@ -37,6 +43,7 @@ public:
 
 	bool IsExistInViewList(int playerId);
 	void SetViewList(unordered_set<int>& viewList);
+	unordered_set<int> GetViewList();
 
 public:
 	void SetPlayerInitPos();

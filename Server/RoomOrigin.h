@@ -1,62 +1,63 @@
-#pragma once
+﻿#pragma once
 
 #include "Common.h"
 
 #include "Player.h"
-#include "Utils/LockUnorderedSet.h"
+#include "Utils/LockMap.h"
 
-using LockSetPlayerRef = shared_ptr<LockUnorderedSet<shared_ptr<Player>>>;
-
-class Room 
+class RoomOrigin
 {
 public:
 	enum {
 		VIEW_DISTANCE = 16,
 		WAITING_TIME_LIMIT = 5,
 		MAP_WIDTH = 800,
-		MAP_HEIGHT = 600,
-		ZONE_WIDTH = 20,
-		ZONE_HEIGHT = 20
+		MAP_HEIGHT = 600
 	};
 
 public:
-	Room();
-	Room(const Room& other) = delete;
-	Room(Room&& other) = delete;
-	Room& operator=(const Room& other) = delete;
-	Room& operator=(Room&& other) = delete;
-	~Room() = default;
+	RoomOrigin();
+	RoomOrigin(const RoomOrigin& other) = delete;
+	RoomOrigin(RoomOrigin&& other) = delete;
+	RoomOrigin& operator=(const RoomOrigin& other) = delete;
+	RoomOrigin& operator=(RoomOrigin&& other) = delete;
+	~RoomOrigin() = default;
 
 public:
-	// Room Login & Logout
 	void Login(std::shared_ptr<Player> player);
 	void Logout(std::shared_ptr<Player> player);
 
-	// Move Player & Synchronization
 	void MovePlayer(std::shared_ptr<Player> player, unsigned short direction);
 
 	int GetLoginCnt() { return m_loginCnt; }
 	int GetUpdateMoveCnt() { return m_moveCnt; }
 
 private:
-	bool IsValidPlayer(shared_ptr<Player> player);
-	tuple<int, int> GetPlayerZoneIdx(shared_ptr<Player> player);
+	bool IsNear(
+		unsigned short posX1,
+		unsigned short posY1,
+		unsigned short posX2,
+		unsigned short posY2
+	);
 
 	void SendMoveMsg(std::shared_ptr<Player> player, std::shared_ptr<Player> targetPlayer);
 	void SendEnterMsg(std::shared_ptr<Player> player, std::shared_ptr<Player> targetPlayer);
 	void SendLeaveMsg(std::shared_ptr<Player> player, std::shared_ptr<Player> targetPlayer);
 
-	void UpdatePlayerPosition(shared_ptr<Player> player, int direction);
+	void UpdatePlayerPosition(int direction, shared_ptr<Player> player);
+
+	void FindNearPlayer(unordered_set<int>& viewList, shared_ptr<Player> player);
+
+	bool IsValidPlayer(shared_ptr<Player> player);
 
 private:
-	atomic<int> m_moveCnt; 
+	atomic<int> m_moveCnt;
 	atomic<int> m_loginCnt;
 
-	vector<vector<LockSetPlayerRef>> m_zones;
+	LockMap<unsigned int, std::shared_ptr<Player>> m_players;
+
 public:
 	map<int, PlayerInfo> m_playersInfo;
-
-	// for debug
 };
 
-extern Room gRoom;
+extern RoomOrigin gRoomOrigin;

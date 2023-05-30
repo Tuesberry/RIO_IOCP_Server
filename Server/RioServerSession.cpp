@@ -1,7 +1,10 @@
 #include "RioServerSession.h"
 #include "Utils/BufferHelper.h"
 #include "ServerPacketHandler.h"
-#include "Room.h"
+
+//#include "Room.h"
+#include "RoomOrigin.h"
+
 #include "Player.h"
 
 #if IOCP
@@ -31,7 +34,7 @@ RioServerSession::~RioServerSession()
     {
         m_ownPlayer->m_playerState = State::Disconnected;
         //gRoom->DoAsync(&Room::Logout, m_ownPlayer);
-        gRoom.Logout(m_ownPlayer);
+        gRoomOrigin.Logout(m_ownPlayer);
     }
 }
 
@@ -71,7 +74,7 @@ void RioServerSession::OnDisconnected()
     {
         m_ownPlayer->m_playerState = State::Disconnected;
         //gRoom->DoAsync(&Room::Logout, m_ownPlayer);
-        gRoom.Logout(m_ownPlayer);
+        gRoomOrigin.Logout(m_ownPlayer);
     }
 }
 
@@ -104,7 +107,7 @@ void RioServerSession::SendMoveMsg(int targetId, unsigned short x, unsigned shor
     {
         // 자기 자신의 move message인 경우
         pktMove.moveTime = m_moveTime;
-        pktMove.processTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count() - m_serverProcessTime;
+        pktMove.processTime = m_serverProcessTime;
         pktMove.sendTime = m_sendTime;
         pktMove.recvTime = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
         pktMove.updatePosTime = m_updatePosTime;

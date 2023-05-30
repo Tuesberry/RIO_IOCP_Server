@@ -192,6 +192,7 @@
     <ClInclude Include="Utils\ConsoleOutputManager.h" />
     <ClInclude Include="Utils\LockUnorderedSet.h" />
     <ClInclude Include="Utils\Logger.h" />
+    <ClInclude Include="Utils\LockMap.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreCommon.cpp" />

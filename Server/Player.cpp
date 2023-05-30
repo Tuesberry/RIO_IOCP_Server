@@ -39,6 +39,12 @@ void Player::SetViewList(unordered_set<int>& viewList)
 	m_viewList = viewList;
 }
 
+unordered_set<int> Player::GetViewList()
+{
+	ReadLockGuard lock(m_lock);
+	return m_viewList;
+}
+
 void Player::SetPlayerInitPos()
 {
 	::random_device rd;
