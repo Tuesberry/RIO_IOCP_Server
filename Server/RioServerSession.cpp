@@ -19,6 +19,7 @@ RioServerSession::RioServerSession()
     , m_moveTime(0)
     , m_loginTime(0)
     , m_serverProcessTime(0)
+    , m_ownPlayer()
 {
 }
 
@@ -30,10 +31,14 @@ RioServerSession::~RioServerSession()
 {
     cout << m_connectClientId << " | Delete Session " << endl;
 
+    if (m_ownPlayer == nullptr)
+    {
+        return;
+    }
+
     if (m_ownPlayer->m_playerState == State::Connected)
     {
         m_ownPlayer->m_playerState = State::Disconnected;
-        //gRoom->DoAsync(&Room::Logout, m_ownPlayer);
         gRoom.Logout(m_ownPlayer);
     }
 }
@@ -69,13 +74,19 @@ void RioServerSession::OnSend(int len)
 void RioServerSession::OnDisconnected()
 {
     cout << "Disconnected | session = " << m_connectClientId << endl;
+    
+    if (m_ownPlayer == nullptr)
+    {
+        return;
+    }
 
     if (m_ownPlayer->m_playerState == State::Connected)
     {
         m_ownPlayer->m_playerState = State::Disconnected;
-        //gRoom->DoAsync(&Room::Logout, m_ownPlayer);
         gRoom.Logout(m_ownPlayer);
     }
+
+    m_ownPlayer = nullptr;
 }
 
 /* --------------------------------------------------------

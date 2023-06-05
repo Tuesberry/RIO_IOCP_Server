@@ -39,6 +39,3 @@ using namespace chrono;
 void HandleError(const char* cause);
 
 extern class ThreadManager gThreadMgr;
-
-#define RIOIOCP false
-#define SEPCQ true

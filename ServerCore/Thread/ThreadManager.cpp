@@ -1,6 +1,8 @@
 #include "ThreadManager.h"
 
 thread_local int ThreadId;
+thread_local atomic<int> ThreadCQNum;
+
 
 /* --------------------------------------------------------
 *	Method:		ThreadManager::ThreadManager

@@ -4,7 +4,7 @@
 #include "Utils/BufferHelper.h"
 #include "Network/IocpService.h"
 #include "Network/IocpClient.h"
-#include "StressTestClient.h"
+#include "TestSessionManager.h"
 
 atomic<int> gSessionID = 0;
 
@@ -28,7 +28,6 @@ ClientSession::ClientSession()
 -------------------------------------------------------- */
 ClientSession::~ClientSession()
 {
-	cout << Logger::GetCurrentTimeStr() << m_sessionID << " | Delete Session " << endl;
 }
 
 /* --------------------------------------------------------
@@ -45,7 +44,7 @@ void ClientSession::OnConnected()
 	m_bConnect = true;
 
 	// stress test
-	gTestSessionMgr.AddSession(static_pointer_cast<ClientSession>(shared_from_this()));
+	gTestSessionMgr.AddSession(m_sessionID, static_pointer_cast<ClientSession>(shared_from_this()));
 }
 
 /* --------------------------------------------------------
@@ -74,7 +73,6 @@ void ClientSession::OnRecvPacket(BYTE* buffer, int len)
 -------------------------------------------------------- */
 void ClientSession::OnSend(int len)
 {
-	// cout << "OnSend Len = " << len << endl;
 }
 
 /* --------------------------------------------------------
@@ -83,7 +81,7 @@ void ClientSession::OnSend(int len)
 -------------------------------------------------------- */
 void ClientSession::OnDisconnected()
 {
-	cout << Logger::GetCurrentTimeStr() << "Disconnected | session = " << m_sessionID << endl;
+	cout << "OnDisconnected" << endl;
 }
 
 /* --------------------------------------------------------

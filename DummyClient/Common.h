@@ -9,3 +9,9 @@
 #endif // _DEBUG
 
 #include "CoreCommon.h"
+
+enum TestConfig
+{
+	PACKET_SEND_DURATION = 1000,
+	STRESS_TEST_TIME_SEC = 5,
+};

@@ -145,18 +145,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CheckMaxPointClient.cpp" />
     <ClCompile Include="ClientPacketHandler.cpp" />
     <ClCompile Include="ClientSession.cpp" />
     <ClCompile Include="DelayManager.cpp" />
     <ClCompile Include="DummyClient.cpp" />
     <ClCompile Include="StressTestClient.cpp" />
+    <ClCompile Include="TestSessionManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CheckMaxPointClient.h" />
     <ClInclude Include="ClientPacketHandler.h" />
     <ClInclude Include="ClientSession.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="DelayManager.h" />
     <ClInclude Include="StressTestClient.h" />
+    <ClInclude Include="TestSessionManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

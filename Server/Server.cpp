@@ -24,7 +24,7 @@ int main()
         std::make_shared<IocpServerSession>,
         SockAddress(L"127.0.0.1", 7777),
         50,
-        1);
+        2);
 #else RIO
     shared_ptr<RioServer> server = std::make_shared<RioServer>(
         std::make_shared<RioServerSession>,

@@ -104,10 +104,10 @@ private:
 
 	// Data Buffer
 	shared_ptr<RioBuffer> m_recvBuffer;
-
-	mutex m_sendBufferLock;
 	shared_ptr<RioSendBuffer> m_sendBuffer;
 
 public:
-
+	// for debugging
+	atomic<int> m_send;
+	atomic<int> m_recv;
 };

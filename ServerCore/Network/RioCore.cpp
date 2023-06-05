@@ -241,6 +241,8 @@ bool RioCore::Dispatch()
 	}
 #endif
 
+	ThreadCQNum.store(numResults);
+
 	// handle results
 	for (ULONG i = 0; i < numResults; i++)
 	{
@@ -297,7 +299,6 @@ void RioCore::DeferredSend()
 	for (auto sIter = m_sessions.begin(); sIter != m_sessions.end(); sIter++)
 	{
 		(*sIter)->SendDeferred();
-		(*sIter)->SendCommit();
 	}
 }
 

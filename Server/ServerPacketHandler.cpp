@@ -61,7 +61,6 @@ bool ServerPacketHandler::Handle_LOGIN(shared_ptr<IocpServerSession>session, BYT
 	shared_ptr<Player> player = make_shared<Player>(session->m_connectClientId, session);
 	session->m_ownPlayer = player;
 	// login
-	//gRoom->DoAsync(&Room::Login, player);
 	gRoom.Login(player);
 
 	return true;

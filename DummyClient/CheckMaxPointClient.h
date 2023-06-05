@@ -8,21 +8,21 @@
 
 
 /* --------------------------------------------------------
-*	class:		StressTestClient
-*	Summary:	client for stress test
+*	class:		CheckMaxPointClient
+*	Summary:	client for check maximum point of server
 -------------------------------------------------------- */
 
-class StressTestClient
+class CheckMaxPointClient
 {
 public:
-	StressTestClient(shared_ptr<IocpClient> client, int clientNum, int threadCnt = thread::hardware_concurrency());
+	CheckMaxPointClient(shared_ptr<IocpClient> client, int threadCnt = thread::hardware_concurrency());
 
-	StressTestClient() = delete;
-	StressTestClient(const StressTestClient& other) = delete;
-	StressTestClient(StressTestClient&& other) = delete;
-	StressTestClient& operator=(const StressTestClient& other) = delete;
-	StressTestClient& operator=(StressTestClient&& other) = delete;
-	~StressTestClient();
+	CheckMaxPointClient() = delete;
+	CheckMaxPointClient(const CheckMaxPointClient& other) = delete;
+	CheckMaxPointClient(CheckMaxPointClient&& other) = delete;
+	CheckMaxPointClient& operator=(const CheckMaxPointClient& other) = delete;
+	CheckMaxPointClient& operator=(CheckMaxPointClient&& other) = delete;
+	~CheckMaxPointClient();
 
 	void RunClient();
 
@@ -46,14 +46,11 @@ private:
 	COORD m_initCursor;
 
 	// stress test
-	bool m_bRunClient;
-	bool m_bDisconnectComplete;
-
+	bool m_runClient;
 	int m_startTime;
 
 	int m_clientNum;
 	int m_threadCnt;
 	int m_jobCnt;
-
 	vector<__int64> m_sendTime;
 };

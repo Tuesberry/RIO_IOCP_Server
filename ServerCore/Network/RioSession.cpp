@@ -22,7 +22,6 @@ RioSession::RioSession()
 	, m_recvBufId()
 	, m_sendBufId()
 	, m_recvBuffer(nullptr)
-	, m_sendBufferLock()
 	, m_sendBuffer(nullptr)
 {
 }
@@ -33,13 +32,18 @@ RioSession::RioSession()
 -------------------------------------------------------- */
 void RioSession::Disconnect()
 {
+	if (m_bConnected.exchange(false) == false)
+	{
+		return;
+	}
+
 	// no TCP TIME_WAIT
 	if (!SocketCore::SetLinger(m_socket, true, 0))
 	{
 		HandleError("SetLinger");
 		return;
 	}
-
+	
 	// close socket
 	SocketCore::Close(m_socket);
 
@@ -47,7 +51,7 @@ void RioSession::Disconnect()
 	OnDisconnected();
 
 	// release session from RioCore
-	m_rioCore.lock()->ReleaseSession(static_pointer_cast<RioSession>(shared_from_this()));
+	m_rioCore.lock()->ReleaseSession(shared_from_this());
 }
 
 /* --------------------------------------------------------
@@ -93,36 +97,57 @@ bool RioSession::SendDeferred()
 	if (IsConnected() == false || IsAllocated() == false)
 		return false;
 
-	int cnt = 0;
+	// TODO: time since last commit > 20 => continue
 
-	lock_guard<mutex> lock(m_sendQueueLock);
+
 	shared_ptr<SendBuffer> sendBuffer;
-	{
-		while (!m_sendBufQueue.empty())
-		{
-			sendBuffer = m_sendBufQueue.front();
+	int sendCount = 0;
 
+	while (true)
+	{
+		// dequeue msg from queue
+		{
+			lock_guard<mutex> lock(m_sendQueueLock);
+			
+			if (m_sendBufQueue.empty())
+			{
+				break;
+			}
+			
+			sendBuffer = m_sendBufQueue.front();
+			
 			if (!m_sendBuffer->WriteBuffer((char*)sendBuffer->GetData(), sendBuffer->GetDataSize()))
 			{
 				break;
 			}
 
 			m_sendBufQueue.pop();
-
-			cnt++;
-
-			while (m_sendBuffer->GetSendDataSize() > 0)
-			{
-				if (!RegisterSend(m_sendBuffer->GetChunkSendSize(), m_sendBuffer->GetSendOffset()))
-				{
-					//cout << ThreadId << " | , SendDeferred Count = " << cnt << endl;
-					return false;
-				}
-			}
 		}
-		//cout << ThreadId << " | , SendDeferred Count = " << cnt << endl;
+
+		// deferred Send
+		while (m_sendBuffer->GetSendDataSize() > 0)
+		{
+			if (!RegisterSend(m_sendBuffer->GetChunkSendSize(), m_sendBuffer->GetSendOffset()))
+			{
+				break;
+			}
+
+			sendCount++;
+		}
+
+		// check sendCount > MAX_POST_CNT
+		if (sendCount > MAX_POST_CNT)
+		{
+			break;
+		}
 	}
 
+	// rio send commit
+	if (sendCount > 0)
+	{
+		SendCommit();
+	}
+	
 	return true;
 }
 
@@ -155,7 +180,8 @@ void RioSession::RegisterRecv()
 		return;
 
 	m_recvEvent.m_owner = shared_from_this();
-	
+	m_recv.fetch_add(1);
+
 	m_recvEvent.BufferId = m_recvBufId;
 	m_recvEvent.Length = m_recvBuffer->GetFreeSize();	
 	m_recvEvent.Offset = m_recvBuffer->GetWritePos(); 
@@ -166,6 +192,7 @@ void RioSession::RegisterRecv()
 	if (SocketCore::RIO.RIOReceive(m_requestQueue, (PRIO_BUF)&m_recvEvent, RECV_BUFF_COUNT, flags, &m_recvEvent) == false)
 	{
 		m_recvEvent.m_owner = nullptr;
+		m_recv.fetch_sub(1);
 
 		HandleError("RioReceive");
 		Disconnect();
@@ -188,6 +215,8 @@ bool RioSession::RegisterSend(int dataLength, int dataOffset)
 	sendEvent->Length = dataLength;
 	sendEvent->Offset = dataOffset;
 
+	m_send.fetch_add(1);
+
 	DWORD bytesTransferred = 0;
 	DWORD flags = 0;
 
@@ -195,6 +224,8 @@ bool RioSession::RegisterSend(int dataLength, int dataOffset)
 	{
 		sendEvent->m_owner = nullptr;
 		delete(sendEvent);
+
+		m_send.fetch_sub(1);
 
 		int errCode = ::WSAGetLastError();
 		if (errCode != WSAENOBUFS)
@@ -204,7 +235,7 @@ bool RioSession::RegisterSend(int dataLength, int dataOffset)
 		}
 		else
 		{
-			cout << ThreadId << " | " << "WSAENOBUFS, SendCnt = " << m_sendCnt << endl;
+			cout << m_sendCnt << " " << ThreadCQNum << endl;
 		}
 
 		return false;
@@ -249,6 +280,7 @@ void RioSession::ProcessConnect()
 void RioSession::ProcessRecv(int bytesTransferred)
 {
 	m_recvEvent.m_owner = nullptr;
+	m_recv.fetch_sub(1);
 
 	if (bytesTransferred == 0)
 	{
@@ -287,6 +319,8 @@ void RioSession::ProcessSend(int bytesTransferred, RioSendEvent* sendEvent)
 	sendEvent->m_owner = nullptr;
 	delete(sendEvent);
 	
+	m_send.fetch_sub(1);
+
 	// bytesTransferred 0 check
 	if (bytesTransferred == 0)
 	{
@@ -382,10 +416,10 @@ bool RioSession::CreateRequestQueue()
 #if SEPCQ
 	m_requestQueue = SocketCore::RIO.RIOCreateRequestQueue(
 		m_socket,
-		MAX_SEND_RQ_SIZE,
-		SEND_BUFF_COUNT,
 		MAX_RECV_RQ_SIZE,
 		RECV_BUFF_COUNT,
+		MAX_SEND_RQ_SIZE,
+		SEND_BUFF_COUNT,
 		rioCore->GetRecvCompletionQueue(),
 		rioCore->GetSendCompletionQueue(),
 		NULL
@@ -393,10 +427,10 @@ bool RioSession::CreateRequestQueue()
 #else
 	m_requestQueue = SocketCore::RIO.RIOCreateRequestQueue(
 		m_socket, 
-		MAX_SEND_RQ_SIZE,
-		SEND_BUFF_COUNT,
 		MAX_RECV_RQ_SIZE,
 		RECV_BUFF_COUNT,
+		MAX_SEND_RQ_SIZE,
+		SEND_BUFF_COUNT,
 		rioCore->GetCompletionQueue(),
 		rioCore->GetCompletionQueue(),
 		NULL

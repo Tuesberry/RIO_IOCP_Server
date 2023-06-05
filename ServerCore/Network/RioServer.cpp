@@ -230,8 +230,8 @@ bool RioServer::StartCoreWork()
 					m_rioCores[i]->DeferredSend();
 					m_rioCores[i]->DispatchRecv();
 #else
-					m_rioCores[i]->Dispatch();
 					m_rioCores[i]->DeferredSend();
+					m_rioCores[i]->Dispatch();
 #endif
 				}
 			});
@@ -278,8 +278,10 @@ bool RioServer::Dispatch()
 		shared_ptr<RioCore> rioCore = rioCQEvent->m_ownerCore;
 #if SEPCQ
 		rioCore->DispatchRecv();
+		rioCore->DeferredSend();
 #else
 		rioCore->Dispatch();
+		rioCore->DeferredSend();
 #endif
 	}
 	else
@@ -294,8 +296,10 @@ bool RioServer::Dispatch()
 			shared_ptr<RioCore> rioCore = rioCQEvent->m_ownerCore;
 #if SEPCQ
 			rioCore->DispatchRecv();
+			rioCore->DeferredSend();
 #else
 			rioCore->Dispatch();
+			rioCore->DeferredSend();
 #endif			
 			break;
 		}

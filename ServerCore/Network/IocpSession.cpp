@@ -33,12 +33,11 @@ bool IocpSession::Connect()
 
 void IocpSession::Disconnect()
 {
-	cout << "Disconnect Called" << endl;
-
 	if (m_bConnected.exchange(false) == false)
 	{
 		return;
 	}
+
 	RegisterDisconnect();
 }
 
@@ -153,10 +152,6 @@ void IocpSession::RegisterRecv()
 	m_recvEvent.Init();
 	m_recvEvent.m_owner = shared_from_this();
 
-	// log
-	if (m_recvBuffer.GetFreeSize() == 0)
-		cout << "Recv Buffer Free Size == 0" << endl;
-
 	// set wsaBuf
 	WSABUF wsaBuf;
 	wsaBuf.buf = reinterpret_cast<CHAR*>(m_recvBuffer.GetWritePos());
@@ -217,8 +212,11 @@ void IocpSession::RegisterSend()
 		{
 			m_sendEvent.m_owner = nullptr;
 			m_sendEvent.m_sendBuffer.clear();
+
 			m_bSendRegistered.store(false);
+
 			HandleError("WSASend");
+			
 			return;
 		}
 	}
@@ -256,11 +254,6 @@ void IocpSession::ProcessRecv(int bytesTransferred)
 
 	if (bytesTransferred == 0)
 	{
-		if (::WSAGetLastError() == ERROR_IO_PENDING)
-		{
-			cout << "IO PENDING" << endl;
-			return;
-		}
 		HandleError("ProcessRecv::ByteTransferred Error");
 		Disconnect();
 		return;
@@ -313,6 +306,7 @@ void IocpSession::ProcessSend(int bytesTransferred)
 		return;
 	}
 	m_sendBufLock.unlock();
+
 	RegisterSend();
 }
 
@@ -327,10 +321,6 @@ int IocpSession::OnRecv(BYTE* buffer, int len)
 		// packet header parsing possible?
 		if (dataSize < sizeof(PacketHeader))
 		{
-			if (dataSize > BUFSIZE)
-			{
-				cout << "OnRecv Data Size = " << dataSize << endl;
-			}
 			break;
 		}	
 
@@ -340,11 +330,6 @@ int IocpSession::OnRecv(BYTE* buffer, int len)
 		// packet enable?
 		if (dataSize < header.size)
 		{
-			if (dataSize > BUFSIZE)
-			{
-				cout << "OnRecv Data Size = " << dataSize << " Header Size = " << header.size << endl;
-			}
-			//cout << "OnRecv Data Size = " << dataSize << " Header Size = " << header.size << endl;
 			break;
 		}
 
@@ -352,7 +337,6 @@ int IocpSession::OnRecv(BYTE* buffer, int len)
 		OnRecvPacket(&buffer[processLen], header.size);
 
 		processLen += header.size;
-
 	}
 
 	return processLen;

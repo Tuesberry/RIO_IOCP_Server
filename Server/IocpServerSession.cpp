@@ -29,13 +29,13 @@ IocpServerSession::IocpServerSession()
 -------------------------------------------------------- */
 IocpServerSession::~IocpServerSession()
 {
-    cout << Logger::GetCurrentTimeStr() << m_connectClientId << " | Delete Session " << endl;
-
-    if (m_ownPlayer->m_playerState == State::Connected)
+    if (m_ownPlayer != nullptr)
     {
-        m_ownPlayer->m_playerState = State::Disconnected;
-        //gRoom->DoAsync(&Room::Logout, m_ownPlayer);
-        gRoom.Logout(m_ownPlayer);
+        if (m_ownPlayer->m_playerState == State::Connected)
+        {
+            m_ownPlayer->m_playerState = State::Disconnected;
+            gRoom.Logout(m_ownPlayer);
+        }
     }
 }
 
@@ -61,7 +61,6 @@ void IocpServerSession::OnRecvPacket(BYTE* buffer, int len)
 -------------------------------------------------------- */
 void IocpServerSession::OnSend(int len)
 {
-    //cout << "OnSend Len = " << len << endl;
 }
 
 /* --------------------------------------------------------
@@ -70,17 +69,16 @@ void IocpServerSession::OnSend(int len)
 -------------------------------------------------------- */
 void IocpServerSession::OnDisconnected()
 {
-    cout << Logger::GetCurrentTimeStr() << "Disconnected | session = " << m_connectClientId << endl;
-
     if (m_ownPlayer == nullptr)
         return;
 
     if (m_ownPlayer->m_playerState == State::Connected)
     {
         m_ownPlayer->m_playerState = State::Disconnected;
-        //gRoom->DoAsync(&Room::Logout, m_ownPlayer);
         gRoom.Logout(m_ownPlayer);
     }
+
+    m_ownPlayer = nullptr;
 }
 
 /* --------------------------------------------------------
