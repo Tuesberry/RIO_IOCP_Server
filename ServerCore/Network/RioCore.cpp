@@ -297,7 +297,11 @@ void RioCore::DeferredSend()
 	lock_guard<mutex> lock(m_sessionLock);
 	for (auto sIter = m_sessions.begin(); sIter != m_sessions.end(); sIter++)
 	{
+#if USE_SG
+		(*sIter)->SendDeferredSG();
+#else
 		(*sIter)->SendDeferred();
+#endif
 	}
 }
 

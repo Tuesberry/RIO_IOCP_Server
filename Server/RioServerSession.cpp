@@ -29,8 +29,6 @@ RioServerSession::RioServerSession()
 -------------------------------------------------------- */
 RioServerSession::~RioServerSession()
 {
-    cout << m_connectClientId << " | Delete Session " << endl;
-
     if (m_ownPlayer == nullptr)
     {
         return;
@@ -73,8 +71,8 @@ void RioServerSession::OnSend(int len)
 -------------------------------------------------------- */
 void RioServerSession::OnDisconnected()
 {
-    cout << "Disconnected | session = " << m_connectClientId << endl;
-    
+    cout << "Disconnect Session : " << m_connectClientId << endl;
+
     if (m_ownPlayer == nullptr)
     {
         return;

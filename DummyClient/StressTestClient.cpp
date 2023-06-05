@@ -97,13 +97,15 @@ void StressTestClient::RunClient()
 		}
 		else
 		{
+			//UpdateOutput();
 			TestStopOutput();
-			break;
+			//break;
 		}
 		// sleep thread
-		this_thread::sleep_for(100ms);
+		this_thread::sleep_for(200ms);
 	}
 
+	/*
 	// disconnect all session
 	for (int i = 0; i < m_clientNum; i++)
 	{
@@ -112,6 +114,7 @@ void StressTestClient::RunClient()
 
 	// stop sending threads
 	m_bDisconnectComplete = true;
+	*/
 }
 
 /* --------------------------------------------------------

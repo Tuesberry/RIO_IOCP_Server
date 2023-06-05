@@ -49,6 +49,8 @@ public:
 
 	// DeferredSend & Commit
 	bool SendDeferred();
+	bool SendDeferredSG();
+
 	void SendCommit();
 
 public:
@@ -84,19 +86,14 @@ private:
 	// request queue
 	RIO_RQ m_requestQueue;
 
-	// RioEvent
+	// Rio Recv
 	RioRecvEvent m_recvEvent;
-	RioSendEvent m_sendEvent;
 
 	// Rio Send
 	queue<shared_ptr<SendBuffer>> m_sendBufQueue;
 	mutex m_sendQueueLock;
-	atomic<bool> m_bSendRegistered;
-
-	// send deferred
 	atomic<int> m_sendCnt;
-	atomic<int> m_commintCnt;
-	int m_sendStartTime;
+	long int m_lastSendTime;
 	
 	// rio Buffer
 	RIO_BUFFERID m_recvBufId;
@@ -107,7 +104,4 @@ private:
 	shared_ptr<RioSendBuffer> m_sendBuffer;
 
 public:
-	// for debugging
-	atomic<int> m_send;
-	atomic<int> m_recv;
 };

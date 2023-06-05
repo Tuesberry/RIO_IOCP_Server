@@ -14,10 +14,10 @@ RioSession::RioSession()
 	, m_bAllocated(false)
 	, m_rioCore(weak_ptr<RioCore>())
 	, m_recvEvent()
-	, m_sendEvent()
 	, m_sendBufQueue()
 	, m_sendQueueLock()
-	, m_bSendRegistered(false)
+	, m_sendCnt(0)
+	, m_lastSendTime(0)
 	, m_requestQueue()
 	, m_recvBufId()
 	, m_sendBufId()
@@ -97,8 +97,12 @@ bool RioSession::SendDeferred()
 	if (IsConnected() == false || IsAllocated() == false)
 		return false;
 
-	// TODO: time since last commit > 20 => continue
-
+	// time since last commit > 20 => continue
+	long int currentTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
+	if (currentTime - m_lastSendTime <= COMMIT_TIME)
+	{
+		return false;
+	}
 
 	shared_ptr<SendBuffer> sendBuffer;
 	int sendCount = 0;
@@ -138,9 +142,12 @@ bool RioSession::SendDeferred()
 		// check sendCount > MAX_POST_CNT
 		if (sendCount > MAX_POST_CNT)
 		{
+			cout << "MAX POST CNT" << endl;
 			break;
 		}
 	}
+
+	m_lastSendTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
 
 	// rio send commit
 	if (sendCount > 0)
@@ -148,6 +155,94 @@ bool RioSession::SendDeferred()
 		SendCommit();
 	}
 	
+	return true;
+}
+
+bool RioSession::SendDeferredSG()
+{
+	if (IsConnected() == false || IsAllocated() == false)
+		return false;
+
+	// time since last commit > 20 => continue
+	long int currentTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
+	if (currentTime - m_lastSendTime <= COMMIT_TIME)
+	{
+		return false;
+	}
+
+	shared_ptr<SendBuffer> sendBuffer;
+	int sendCount = 0;
+
+	while (true)
+	{
+		// dequeue msg from queue
+		{
+			lock_guard<mutex> lock(m_sendQueueLock);
+
+			if (m_sendBufQueue.empty())
+			{
+				break;
+			}
+
+			sendBuffer = m_sendBufQueue.front();
+
+			if (!m_sendBuffer->WriteBuffer((char*)sendBuffer->GetData(), sendBuffer->GetDataSize()))
+			{
+				break;
+			}
+
+			m_sendBufQueue.pop();
+		}
+
+		if (m_sendBuffer->GetSendDataSize() < SEND_LIMIT)
+		{
+			continue;
+		}
+
+		// deferred Send
+		while (m_sendBuffer->GetSendDataSize() > 0)
+		{
+			if (!RegisterSend(m_sendBuffer->GetChunkSendSize(), m_sendBuffer->GetSendOffset()))
+			{
+				break;
+			}
+
+			sendCount++;
+		}
+
+		// check sendCount > MAX_POST_CNT
+		if (sendCount > MAX_POST_CNT)
+		{
+			break;
+		}
+	}
+
+	if (sendCount < MAX_POST_CNT)
+	{
+		while (m_sendBuffer->GetSendDataSize() > 0)
+		{
+			if (!RegisterSend(m_sendBuffer->GetChunkSendSize(), m_sendBuffer->GetSendOffset()))
+			{
+				break;
+			}
+
+			sendCount++;
+
+			if (sendCount > MAX_POST_CNT)
+			{
+				break;
+			}
+		}
+	}
+
+	m_lastSendTime = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
+
+	// rio send commit
+	if (sendCount > 0)
+	{
+		SendCommit();
+	}
+
 	return true;
 }
 
@@ -166,7 +261,6 @@ void RioSession::SendCommit()
 		Disconnect();
 	}
 
-	m_commintCnt.store(m_sendCnt.load());
 	m_sendCnt.store(0);
 }
 
@@ -180,7 +274,6 @@ void RioSession::RegisterRecv()
 		return;
 
 	m_recvEvent.m_owner = shared_from_this();
-	m_recv.fetch_add(1);
 
 	m_recvEvent.BufferId = m_recvBufId;
 	m_recvEvent.Length = m_recvBuffer->GetFreeSize();	
@@ -192,7 +285,6 @@ void RioSession::RegisterRecv()
 	if (SocketCore::RIO.RIOReceive(m_requestQueue, (PRIO_BUF)&m_recvEvent, RECV_BUFF_COUNT, flags, &m_recvEvent) == false)
 	{
 		m_recvEvent.m_owner = nullptr;
-		m_recv.fetch_sub(1);
 
 		HandleError("RioReceive");
 		Disconnect();
@@ -215,8 +307,6 @@ bool RioSession::RegisterSend(int dataLength, int dataOffset)
 	sendEvent->Length = dataLength;
 	sendEvent->Offset = dataOffset;
 
-	m_send.fetch_add(1);
-
 	DWORD bytesTransferred = 0;
 	DWORD flags = 0;
 
@@ -224,8 +314,6 @@ bool RioSession::RegisterSend(int dataLength, int dataOffset)
 	{
 		sendEvent->m_owner = nullptr;
 		delete(sendEvent);
-
-		m_send.fetch_sub(1);
 
 		int errCode = ::WSAGetLastError();
 		if (errCode != WSAENOBUFS)
@@ -235,13 +323,12 @@ bool RioSession::RegisterSend(int dataLength, int dataOffset)
 		}
 		else
 		{
-			cout << m_sendCnt << " " << ThreadCQNum << endl;
+			cout << ThreadId << " | WSAENOBUFS, SendCount = " << m_sendCnt.load() << endl;
 		}
 
 		return false;
 	}
 
-	//cout << ThreadId << " | Register Send, data length = " << dataLength << endl;
 	m_sendCnt.fetch_add(1);
 
 	if (m_sendBuffer->OnSendBuffer(dataLength) == false)
@@ -280,7 +367,6 @@ void RioSession::ProcessConnect()
 void RioSession::ProcessRecv(int bytesTransferred)
 {
 	m_recvEvent.m_owner = nullptr;
-	m_recv.fetch_sub(1);
 
 	if (bytesTransferred == 0)
 	{
@@ -314,13 +400,9 @@ void RioSession::ProcessRecv(int bytesTransferred)
 
 void RioSession::ProcessSend(int bytesTransferred, RioSendEvent* sendEvent)
 {
-	//cout << ThreadId << " | ProcessSend : " << bytesTransferred << endl;
-
 	sendEvent->m_owner = nullptr;
 	delete(sendEvent);
 	
-	m_send.fetch_sub(1);
-
 	// bytesTransferred 0 check
 	if (bytesTransferred == 0)
 	{
@@ -328,8 +410,6 @@ void RioSession::ProcessSend(int bytesTransferred, RioSendEvent* sendEvent)
 		Disconnect();
 		return;
 	}
-
-	//cout << ThreadId << " | Process Send, data length = " << bytesTransferred << endl;
 
 	OnSend(bytesTransferred);
 
