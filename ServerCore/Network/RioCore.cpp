@@ -250,15 +250,14 @@ bool RioCore::Dispatch()
 		
 		RioEvent* rioEvent = reinterpret_cast<RioEvent*>(m_results[i].RequestContext);
 		shared_ptr<RioSession> session = rioEvent->m_owner;
+		
+		if (session == nullptr)
+		{
+			cout << "session null" << endl;
+			continue;
+		}
 
-		if (bytesTransferred == 0)
-		{
-			session->Disconnect();
-		}
-		else
-		{
-			session->Dispatch(rioEvent, bytesTransferred);
-		}
+		session->Dispatch(rioEvent, bytesTransferred);
 	}
 
 #if RIOIOCP
