@@ -29,10 +29,10 @@ void StressTestServer::RunServer()
 
 	m_server->RunServer();
 
-	//InitDraw();
+	InitDraw();
 	while (true)
 	{
-		//Draw();
+		Draw();
 	}
 }
 
@@ -67,7 +67,6 @@ void StressTestServer::DrawMap()
 
 bool StressTestServer::UpdateMap()
 {
-
 	return false;
 }
 

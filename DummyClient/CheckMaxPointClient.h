@@ -14,6 +14,12 @@
 
 class CheckMaxPointClient
 {
+	enum
+	{
+		INCREASE_RATE_DEFAULT = 100,
+		DELAY_LIMIT = 100, // 100ms
+	};
+
 public:
 	CheckMaxPointClient(shared_ptr<IocpClient> client, int threadCnt = thread::hardware_concurrency());
 
@@ -27,16 +33,13 @@ public:
 	void RunClient();
 
 private:
-	void ConnectToServer();
-	void DisconnectFromServer(int idx);
-	bool SendToServer(int idx);
+	void CreateSenderThreads();
+	bool ConnectToServer(int clientNum);
 	void ResetSendTime();
+	//void DisconnectFromServer(int idx);
+	bool SendToServer(int idx);
 
-	void InitOutput();
-	void UpdateOutput();
-	void TestStopOutput();
-
-	void MoveCursor(int x, int y);
+	void PrintOutput();
 
 private:
 	// iocp client
@@ -46,10 +49,18 @@ private:
 	COORD m_initCursor;
 
 	// stress test
-	bool m_runClient;
+	bool m_bRunClient;
+	bool m_bStopTest;
+	bool m_bSendLoginOnly;
+	
+	// test start time
 	int m_startTime;
 
+	// test client num
 	int m_clientNum;
+	int m_increaseRate;
+
+	// thread
 	int m_threadCnt;
 	int m_jobCnt;
 	vector<__int64> m_sendTime;

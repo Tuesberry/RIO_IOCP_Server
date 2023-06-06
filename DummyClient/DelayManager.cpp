@@ -26,3 +26,30 @@ long double DelayChecker::GetAvgDelay()
 	return m_avgDelay;
 }
 
+/* --------------------------------------------------------
+*	Method:		DelayChecker::Reset
+*	Summary:	reset delay checker
+-------------------------------------------------------- */
+void DelayChecker::Reset()
+{
+	m_dataCnt = 0;
+	m_avgDelay = 0;
+}
+
+/* --------------------------------------------------------
+*	Method:		DelayManager::Reset
+*	Summary:	reset delay checker
+-------------------------------------------------------- */
+void DelayManager::Reset()
+{
+	m_avgProcessDelay.Reset();
+	m_avgLoginDelay.Reset();
+	m_avgReceivingDelay.Reset();
+	m_avgSendingDelay.Reset();
+	m_avgSendRecvDelay.Reset();
+	m_avgUpdatePosDelay.Reset();
+	m_avgSynchronizeMoveDelay.Reset();
+
+	m_sendCnt.store(0);
+	m_recvCnt.store(0);
+}

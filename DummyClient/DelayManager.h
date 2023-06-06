@@ -20,10 +20,12 @@ public:
 	void UpdateAvgDelay(IN int delay);
 	long double GetAvgDelay();
 
+	void Reset();
+
 private:
 	mutex m_updateLock;
-	long double m_avgDelay;
-	long int m_dataCnt;
+	long double m_avgDelay = 0;
+	long int m_dataCnt = 0;
 };
 
 /* --------------------------------------------------------
@@ -42,6 +44,7 @@ public:
 	DelayManager& operator=(DelayManager&& other) = delete;
 	~DelayManager() = default;
 
+	void Reset();
 public:
 	DelayChecker m_avgProcessDelay;
 	DelayChecker m_avgLoginDelay;

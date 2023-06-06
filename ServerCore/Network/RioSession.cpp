@@ -19,11 +19,21 @@ RioSession::RioSession()
 	, m_sendCnt(0)
 	, m_lastSendTime(0)
 	, m_requestQueue()
-	, m_recvBufId()
-	, m_sendBufId()
+	, m_recvBufId(NULL)
+	, m_sendBufId(NULL)
 	, m_recvBuffer(nullptr)
 	, m_sendBuffer(nullptr)
 {
+}
+
+/* --------------------------------------------------------
+*	Method:		RioSession::!RioSession
+*	Summary:	Destructor
+-------------------------------------------------------- */
+RioSession::~RioSession()
+{
+	SocketCore::RIO.RIODeregisterBuffer(m_recvBufId);
+	SocketCore::RIO.RIODeregisterBuffer(m_sendBufId);
 }
 
 /* --------------------------------------------------------
@@ -142,7 +152,7 @@ bool RioSession::SendDeferred()
 		// check sendCount > MAX_POST_CNT
 		if (sendCount > MAX_POST_CNT)
 		{
-			cout << "MAX POST CNT" << endl;
+			cout << "EXCEED MAX_POST_CNT" << endl;
 			break;
 		}
 	}

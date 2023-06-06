@@ -24,7 +24,7 @@ public:
 	RioSession(RioSession&& other) = delete;
 	RioSession& operator=(const RioSession& other) = delete;
 	RioSession& operator=(RioSession&& other) = delete;
-	~RioSession() = default;
+	~RioSession();
 
 	// get
 	SOCKET& GetSocket() { return m_socket; }

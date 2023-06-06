@@ -33,7 +33,10 @@ bool TestSessionManager::SendLogin(int id)
 	shared_ptr<ClientSession> session = m_sessions.find(id)->second.lock();
 	if (session)
 	{
-		session->SendLogin();
+		if (!session->m_bLogin && session->m_bConnect && session->m_bStartLogin == false)
+		{
+			session->SendLogin();
+		}
 	}
 
 	return true;

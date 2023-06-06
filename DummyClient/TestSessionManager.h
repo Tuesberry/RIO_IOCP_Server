@@ -35,7 +35,6 @@ public:
 
 private:
 	RWLock m_rwLock;
-	//vector<weak_ptr<ClientSession>> m_sessions;
 	map<int, weak_ptr<ClientSession>> m_sessions;
 
 	int m_size;
