@@ -1,11 +1,11 @@
-#include "CheckMaxPointClient.h"
+#include "AutoStressTestClient.h"
 #include "ClientSession.h"
 #include "DelayManager.h"
 #include <cmath>
 #include "TestSessionManager.h"
 
 /* --------------------------------------------------------
-*	Method:		CheckMaxPointClient::CheckMaxPointClient
+*	Method:		AutoStressTestClient::AutoStressTestClient
 *	Summary:	Constructor
 *	Args:		shared_ptr<IocpClient> client
 *					iocp client
@@ -14,7 +14,7 @@
 *				int threadCnt
 *					number of threads used for stress test
 ------------------------------------------------------- */
-CheckMaxPointClient::CheckMaxPointClient(shared_ptr<IocpClient> client, int threadCnt)
+AutoStressTestClient::AutoStressTestClient(shared_ptr<IocpClient> client, int threadCnt)
 	: m_client(client)
 	, m_initCursor()
 	, m_clientNum(0)
@@ -29,10 +29,10 @@ CheckMaxPointClient::CheckMaxPointClient(shared_ptr<IocpClient> client, int thre
 }
 
 /* --------------------------------------------------------
-*	Method:		CheckMaxPointClient::~CheckMaxPointClient
+*	Method:		AutoStressTestClient::~AutoStressTestClient
 *	Summary:	Destructor
 ------------------------------------------------------- */
-CheckMaxPointClient::~CheckMaxPointClient()
+AutoStressTestClient::~AutoStressTestClient()
 {
 	m_client->StopClient();
 }
@@ -41,7 +41,7 @@ CheckMaxPointClient::~CheckMaxPointClient()
 *	Method:		CheckMaxPointClient::RunClient
 *	Summary:	run stress test client
 ------------------------------------------------------- */
-void CheckMaxPointClient::RunClient()
+void AutoStressTestClient::RunClient()
 {
 	if (m_client->StartClient() == false)
 		return;
@@ -106,7 +106,7 @@ void CheckMaxPointClient::RunClient()
 
 }
 
-void CheckMaxPointClient::CreateSenderThreads()
+void AutoStressTestClient::CreateSenderThreads()
 {
 	// create threads
 	// these threads send packets to server
@@ -129,7 +129,7 @@ void CheckMaxPointClient::CreateSenderThreads()
 	}
 }
 
-bool CheckMaxPointClient::ConnectToServer(int clientNum)
+bool AutoStressTestClient::ConnectToServer(int clientNum)
 {
 	for (int i = 0; i < clientNum; i++)
 	{
@@ -142,7 +142,7 @@ bool CheckMaxPointClient::ConnectToServer(int clientNum)
 	return true;
 }
 
-void CheckMaxPointClient::ResetSendTime()
+void AutoStressTestClient::ResetSendTime()
 {
 	// send time vector initialize
 	m_sendTime.resize(m_clientNum);
@@ -156,7 +156,7 @@ void CheckMaxPointClient::ResetSendTime()
 	}
 }
 
-bool CheckMaxPointClient::SendToServer(int idx)
+bool AutoStressTestClient::SendToServer(int idx)
 {
 	if (m_bRunClient == false)
 		return false;
@@ -187,7 +187,7 @@ bool CheckMaxPointClient::SendToServer(int idx)
 	return true;
 }
 
-void CheckMaxPointClient::PrintOutput()
+void AutoStressTestClient::PrintOutput()
 {
 	cout << "client num: " << m_clientNum << endl;
 	cout << "Delay: " << gDelayMgr.m_avgSendRecvDelay.GetAvgDelay() / 1000 << " ms\n";

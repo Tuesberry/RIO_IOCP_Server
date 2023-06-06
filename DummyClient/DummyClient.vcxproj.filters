@@ -29,7 +29,7 @@
     <ClCompile Include="TestSessionManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CheckMaxPointClient.cpp">
+    <ClCompile Include="AutoStressTestClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -52,7 +52,7 @@
     <ClInclude Include="TestSessionManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CheckMaxPointClient.h">
+    <ClInclude Include="AutoStressTestClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

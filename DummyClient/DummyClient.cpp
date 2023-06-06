@@ -3,7 +3,7 @@
 #include "Common.h"
 
 #include "StressTestClient.h"
-#include "CheckMaxPointClient.h"
+#include "AutoStressTestClient.h"
 
 #include "ClientSession.h"
 
@@ -32,7 +32,7 @@ int main()
 	//StressTestClient stressTestClient(iocpClient, CLIENT_NUM, STRESS_TEST_THREAD_CNT);
 	//stressTestClient.RunClient();
 
-	CheckMaxPointClient checkMaxClient(iocpClient, STRESS_TEST_THREAD_CNT);
+	AutoStressTestClient checkMaxClient(iocpClient, STRESS_TEST_THREAD_CNT);
 	checkMaxClient.RunClient();
 
 	gThreadMgr.JoinThreads();

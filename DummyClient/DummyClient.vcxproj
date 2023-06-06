@@ -145,7 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CheckMaxPointClient.cpp" />
+    <ClCompile Include="AutoStressTestClient.cpp" />
     <ClCompile Include="ClientPacketHandler.cpp" />
     <ClCompile Include="ClientSession.cpp" />
     <ClCompile Include="DelayManager.cpp" />
@@ -154,7 +154,7 @@
     <ClCompile Include="TestSessionManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CheckMaxPointClient.h" />
+    <ClInclude Include="AutoStressTestClient.h" />
     <ClInclude Include="ClientPacketHandler.h" />
     <ClInclude Include="ClientSession.h" />
     <ClInclude Include="Common.h" />

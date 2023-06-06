@@ -12,7 +12,7 @@
 *	Summary:	client for check maximum point of server
 -------------------------------------------------------- */
 
-class CheckMaxPointClient
+class AutoStressTestClient
 {
 	enum
 	{
@@ -21,14 +21,14 @@ class CheckMaxPointClient
 	};
 
 public:
-	CheckMaxPointClient(shared_ptr<IocpClient> client, int threadCnt = thread::hardware_concurrency());
+	AutoStressTestClient(shared_ptr<IocpClient> client, int threadCnt = thread::hardware_concurrency());
 
-	CheckMaxPointClient() = delete;
-	CheckMaxPointClient(const CheckMaxPointClient& other) = delete;
-	CheckMaxPointClient(CheckMaxPointClient&& other) = delete;
-	CheckMaxPointClient& operator=(const CheckMaxPointClient& other) = delete;
-	CheckMaxPointClient& operator=(CheckMaxPointClient&& other) = delete;
-	~CheckMaxPointClient();
+	AutoStressTestClient() = delete;
+	AutoStressTestClient(const AutoStressTestClient& other) = delete;
+	AutoStressTestClient(AutoStressTestClient&& other) = delete;
+	AutoStressTestClient& operator=(const AutoStressTestClient& other) = delete;
+	AutoStressTestClient& operator=(AutoStressTestClient&& other) = delete;
+	~AutoStressTestClient();
 
 	void RunClient();
 
