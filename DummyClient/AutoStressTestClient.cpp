@@ -49,6 +49,14 @@ void AutoStressTestClient::RunClient()
 	// run client
 	m_client->RunClient();
 
+	// START connection
+	m_clientNum = START_NUM;
+	if (!ConnectToServer(m_clientNum))
+	{
+		HandleError("ConnectToServer");
+		return;
+	}
+
 	// create thread
 	CreateSenderThreads();
 
@@ -189,6 +197,7 @@ bool AutoStressTestClient::SendToServer(int idx)
 
 void AutoStressTestClient::PrintOutput()
 {
+	/*
 	cout << "client num: " << m_clientNum << endl;
 	cout << "Delay: " << gDelayMgr.m_avgSendRecvDelay.GetAvgDelay() / 1000 << " ms\n";
 	cout << "Send Delay: " << gDelayMgr.m_avgSendingDelay.GetAvgDelay() / 1000 << " ms\n";
@@ -197,4 +206,11 @@ void AutoStressTestClient::PrintOutput()
 	cout << "Send Count: " << gDelayMgr.m_sendCnt.load() << '\n';
 	cout << "Recv Count: " << gDelayMgr.m_recvCnt.load() << '\n';
 	cout << "=====================================================\n";
+	*/
+
+	cout << m_clientNum << " ";
+	cout << gDelayMgr.m_avgSendRecvDelay.GetAvgDelay() / 1000 << " ";
+	cout << gDelayMgr.m_avgSendingDelay.GetAvgDelay() / 1000 << " ";
+	cout << gDelayMgr.m_avgReceivingDelay.GetAvgDelay() / 1000 << " ";
+	cout << gDelayMgr.m_avgProcessDelay.GetAvgDelay() / 1000 << '\n';
 }

@@ -2,7 +2,7 @@
 
 #define RIOIOCP false
 #define SEPCQ false
-#define USE_SG false
+#define USE_SG true
 
 enum RioConfig
 {

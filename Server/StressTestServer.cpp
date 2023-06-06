@@ -29,10 +29,10 @@ void StressTestServer::RunServer()
 
 	m_server->RunServer();
 
-	InitDraw();
+	//InitDraw();
 	while (true)
 	{
-		Draw();
+		//Draw();
 	}
 }
 

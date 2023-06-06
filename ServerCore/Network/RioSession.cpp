@@ -150,7 +150,7 @@ bool RioSession::SendDeferred()
 		}
 
 		// check sendCount > MAX_POST_CNT
-		if (sendCount > MAX_POST_CNT)
+		if (sendCount >= MAX_POST_CNT)
 		{
 			cout << "EXCEED MAX_POST_CNT" << endl;
 			break;

@@ -16,6 +16,7 @@ class AutoStressTestClient
 {
 	enum
 	{
+		START_NUM = 3000,
 		INCREASE_RATE_DEFAULT = 100,
 		DELAY_LIMIT = 100, // 100ms
 	};

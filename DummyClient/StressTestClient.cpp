@@ -49,24 +49,17 @@ void StressTestClient::RunClient()
 	// run client
 	m_client->RunClient();
 
-	// start check
-	m_bRunClient = true;
-	m_startTime = duration_cast<seconds>(high_resolution_clock::now().time_since_epoch()).count();
-
 	// init output
 	InitOutput();
 
 	// connect sessions
 	ConnectToServer();
 
-	// reset sendTime
-	ResetSendTime();
-		
 	// create threads
 	// these threads send packets to server
 	for (int i = 0; i < m_threadCnt; i++)
 	{
-		gThreadMgr.CreateThread([=]() 
+		gThreadMgr.CreateThread([=]()
 			{
 				while (true)
 				{
@@ -81,6 +74,13 @@ void StressTestClient::RunClient()
 				}
 			});
 	}
+
+	// start check
+	m_bRunClient = true;
+	m_startTime = duration_cast<seconds>(high_resolution_clock::now().time_since_epoch()).count();
+
+	// reset sendTime
+	ResetSendTime();
 	
 	while (true)
 	{
