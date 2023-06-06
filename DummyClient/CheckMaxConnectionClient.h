@@ -8,31 +8,30 @@
 
 
 /* --------------------------------------------------------
-*	class:		CheckMaxPointClient
-*	Summary:	client for check maximum point of server
+*	class:		CheckMaxConnectionClient
+*	Summary:	client for check max point
 -------------------------------------------------------- */
 
-class AutoStressTestClient
+class CheckMaxConnectionClient
 {
 	enum
 	{
-		START_NUM = 3000,
+		START_CONN_CNT = 4000,
 		INCREASE_RATE_DEFAULT = 100,
 		DELAY_LIMIT = 100, // 100ms
 	};
 
 public:
-	AutoStressTestClient(shared_ptr<IocpClient> client, int threadCnt = thread::hardware_concurrency());
+	CheckMaxConnectionClient(shared_ptr<IocpClient> client, int threadCnt = thread::hardware_concurrency());
 
-	AutoStressTestClient() = delete;
-	AutoStressTestClient(const AutoStressTestClient& other) = delete;
-	AutoStressTestClient(AutoStressTestClient&& other) = delete;
-	AutoStressTestClient& operator=(const AutoStressTestClient& other) = delete;
-	AutoStressTestClient& operator=(AutoStressTestClient&& other) = delete;
-	~AutoStressTestClient();
+	CheckMaxConnectionClient() = delete;
+	CheckMaxConnectionClient(const CheckMaxConnectionClient& other) = delete;
+	CheckMaxConnectionClient(CheckMaxConnectionClient&& other) = delete;
+	CheckMaxConnectionClient& operator=(const CheckMaxConnectionClient& other) = delete;
+	CheckMaxConnectionClient& operator=(CheckMaxConnectionClient&& other) = delete;
+	~CheckMaxConnectionClient();
 
-	void RunStressTestClient();
-	void RunToFindMaxConcurrentConn();
+	void RunClient();
 
 private:
 	void CreateSenderThreads();
@@ -54,7 +53,7 @@ private:
 	bool m_bRunClient;
 	bool m_bStopTest;
 	bool m_bSendLoginOnly;
-	
+
 	// test start time
 	int m_startTime;
 

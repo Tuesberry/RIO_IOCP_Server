@@ -38,10 +38,10 @@ AutoStressTestClient::~AutoStressTestClient()
 }
 
 /* --------------------------------------------------------
-*	Method:		CheckMaxPointClient::RunClient
+*	Method:		CheckMaxPointClient::RunStressTestClient
 *	Summary:	run stress test client
 ------------------------------------------------------- */
-void AutoStressTestClient::RunClient()
+void AutoStressTestClient::RunStressTestClient()
 {
 	if (m_client->StartClient() == false)
 		return;
@@ -111,6 +111,71 @@ void AutoStressTestClient::RunClient()
 		this_thread::sleep_for(5s);
 	}
 
+
+}
+
+void AutoStressTestClient::RunToFindMaxConcurrentConn()
+{
+	if (m_client->StartClient() == false)
+		return;
+
+	// run client
+	m_client->RunClient();
+
+	// START connection
+	m_clientNum = START_NUM;
+	if (!ConnectToServer(m_clientNum))
+	{
+		HandleError("ConnectToServer");
+		return;
+	}
+
+	// create thread
+	CreateSenderThreads();
+
+	// set initial increase rate
+	int increaseRate = INCREASE_RATE_DEFAULT;
+
+	while (!m_bStopTest)
+	{
+		// set client count
+		m_clientNum += increaseRate;
+
+		// set job count
+		m_jobCnt = ceil(static_cast<double>(m_clientNum) / m_threadCnt);
+
+		// connect new sessions
+		if (!ConnectToServer(increaseRate))
+		{
+			HandleError("ConnectToServer");
+			break;
+		}
+
+		// reset send time
+		ResetSendTime();
+
+		// start check
+		m_bRunClient = true;
+		m_startTime = duration_cast<seconds>(high_resolution_clock::now().time_since_epoch()).count();
+
+		// stress test time check
+		while (m_bRunClient)
+		{
+			int workingTime = duration_cast<seconds>(high_resolution_clock::now().time_since_epoch()).count() - m_startTime;
+			if (workingTime > STRESS_TEST_TIME_SEC)
+			{
+				m_bRunClient = false;
+			}
+
+			this_thread::sleep_for(100ms);
+		}
+
+		// output
+		PrintOutput();
+
+		// test pause
+		this_thread::sleep_for(5s);
+	}
 
 }
 

@@ -33,7 +33,9 @@ int main()
 	//stressTestClient.RunClient();
 
 	AutoStressTestClient checkMaxClient(iocpClient, STRESS_TEST_THREAD_CNT);
-	checkMaxClient.RunClient();
+	checkMaxClient.RunStressTestClient();
+
+	//checkMaxClient.RunToFindMaxConcurrentConn();
 
 	gThreadMgr.JoinThreads();
 }

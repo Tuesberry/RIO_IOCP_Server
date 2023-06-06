@@ -9,51 +9,63 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="Header Files\StressTestClient">
+      <UniqueIdentifier>{a48aa7c0-3b50-44c8-a1cc-0e588e96cace}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\StressTestClient">
+      <UniqueIdentifier>{ff295dfb-49b1-4d03-99aa-9bdf78dcc3c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network">
+      <UniqueIdentifier>{c1a42788-8b36-4d99-af61-cd1aaa149a13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Network">
+      <UniqueIdentifier>{9b9c92d5-1cb1-472c-8d97-f8475ab550c8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DummyClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ClientPacketHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ClientSession.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DelayManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StressTestClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TestSessionManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ClientPacketHandler.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientSession.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
     <ClCompile Include="AutoStressTestClient.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\StressTestClient</Filter>
+    </ClCompile>
+    <ClCompile Include="StressTestClient.cpp">
+      <Filter>Source Files\StressTestClient</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ClientPacketHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ClientSession.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DelayManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StressTestClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TestSessionManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ClientSession.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientPacketHandler.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
     <ClInclude Include="AutoStressTestClient.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\StressTestClient</Filter>
+    </ClInclude>
+    <ClInclude Include="StressTestClient.h">
+      <Filter>Header Files\StressTestClient</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
