@@ -11,7 +11,7 @@
 #include "Network/SocketCore.h"
 
 #define CLIENT_NUM 3200
-#define STRESS_TEST_THREAD_CNT 2
+#define STRESS_TEST_THREAD_CNT 1
 
 #include "Network/RingBuffer.h"
 

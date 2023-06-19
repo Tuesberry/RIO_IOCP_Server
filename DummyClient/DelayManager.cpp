@@ -13,7 +13,7 @@ void DelayChecker::UpdateAvgDelay(IN int delay)
 {
 	lock_guard<mutex> lock(m_updateLock);
 	m_dataCnt++;
-	m_avgDelay = ((long double)m_dataCnt - 1) / (long double)m_dataCnt * m_avgDelay + (long double)1 / (long double)m_dataCnt * (long double)delay;
+	m_avgDelay = ((double)m_dataCnt - 1) / (double)m_dataCnt * m_avgDelay + (double)1 / (double)m_dataCnt * (double)delay;
 }
 
 /* --------------------------------------------------------

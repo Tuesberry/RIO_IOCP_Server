@@ -8,8 +8,8 @@ IOCP, RIO 서버의 스트레스 테스트를 위한 서버-클라이언트 프�
 - [x] Recv & Send Buffer
 - [x] Packet Handler
 - [x] IOCP Network Server-Client
-- [ ] RIO Network Server-Client
-- [ ] Stress Test
+- [x] RIO Network Server-Client
+- [x] Stress Test
 
 ### Reference
 * 강수빈, 2020, RIO와 HTM을 이용한 게임서버의 성능 개선, 한국산업기술대학교

@@ -24,7 +24,7 @@ public:
 
 private:
 	mutex m_updateLock;
-	long double m_avgDelay = 0;
+	double m_avgDelay = 0;
 	long int m_dataCnt = 0;
 };
 
