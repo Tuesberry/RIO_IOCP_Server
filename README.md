@@ -1,4 +1,4 @@
-# Registered I/O 기반 MMORPG 게임 서버 구현 및 성능 개선
+# Registered I/O 기반 MMORPG 게임서버 구현 및 성능 개선
 * 2023-1H KHU Software Convergence Capstone Design Project
 * [박경숙](https://github.com/Tuesberry)
 
