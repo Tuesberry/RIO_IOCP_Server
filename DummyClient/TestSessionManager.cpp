@@ -77,7 +77,10 @@ bool TestSessionManager::SendPacket(int id)
 	ReadLockGuard lock(m_rwLock);
 
 	if (m_sessions.count(id) == 0)
+	{
+		cout << "SendPacket Error, Id = " << id << endl;
 		return false;
+	}
 
 	// get session
 	shared_ptr<ClientSession> session = m_sessions.find(id)->second.lock();

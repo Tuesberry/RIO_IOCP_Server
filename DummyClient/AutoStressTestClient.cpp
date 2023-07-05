@@ -21,6 +21,7 @@ AutoStressTestClient::AutoStressTestClient(shared_ptr<IocpClient> client, int th
 	, m_increaseRate(INCREASE_RATE_DEFAULT)
 	, m_bRunClient(false)
 	, m_bStopTest(false)
+	, m_bSendLoginOnly(false)
 	, m_startTime(0)
 	, m_threadCnt(threadCnt)
 	, m_jobCnt(0)
@@ -72,7 +73,7 @@ void AutoStressTestClient::RunStressTestClient()
 		m_jobCnt = ceil(static_cast<double>(m_clientNum) / m_threadCnt);
 
 		// set login only
-		m_bSendLoginOnly = true;
+		//m_bSendLoginOnly = true;
 
 		// connect new sessions
 		if (!ConnectToServer(m_increaseRate))
@@ -89,8 +90,8 @@ void AutoStressTestClient::RunStressTestClient()
 		m_startTime = duration_cast<seconds>(high_resolution_clock::now().time_since_epoch()).count();
 
 		// wait 1s -> send move packet start
-		this_thread::sleep_for(1s);
-		m_bSendLoginOnly = false;
+		//this_thread::sleep_for(1s);
+		//m_bSendLoginOnly = false;
 
 		// stress test time check
 		while (m_bRunClient)
@@ -108,7 +109,7 @@ void AutoStressTestClient::RunStressTestClient()
 		PrintOutput();
 
 		// test pause
-		this_thread::sleep_for(5s);
+		// this_thread::sleep_for(1s);
 	}
 
 
@@ -138,6 +139,9 @@ void AutoStressTestClient::RunToFindMaxConcurrentConn()
 
 	while (!m_bStopTest)
 	{
+		// reset delay manager
+		gDelayMgr.Reset();
+		
 		// set client count
 		m_clientNum += increaseRate;
 
@@ -174,7 +178,7 @@ void AutoStressTestClient::RunToFindMaxConcurrentConn()
 		PrintOutput();
 
 		// test pause
-		this_thread::sleep_for(5s);
+		this_thread::sleep_for(1s);
 	}
 
 }
@@ -277,5 +281,7 @@ void AutoStressTestClient::PrintOutput()
 	cout << gDelayMgr.m_avgSendRecvDelay.GetAvgDelay() / 1000 << " ";
 	cout << gDelayMgr.m_avgSendingDelay.GetAvgDelay() / 1000 << " ";
 	cout << gDelayMgr.m_avgReceivingDelay.GetAvgDelay() / 1000 << " ";
-	cout << gDelayMgr.m_avgProcessDelay.GetAvgDelay() / 1000 << '\n';
+	cout << gDelayMgr.m_avgProcessDelay.GetAvgDelay() / 1000 << ' ';
+	cout << gDelayMgr.m_recvCnt.load() << " ";
+	cout << gDelayMgr.m_sendCnt.load() << '\n';
 }
