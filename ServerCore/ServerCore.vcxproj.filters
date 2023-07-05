@@ -43,6 +43,12 @@
     <Filter Include="Source Files\Memory">
       <UniqueIdentifier>{a2bf0775-b269-4705-8de7-017a58b623cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Job">
+      <UniqueIdentifier>{7c136b24-5508-43d9-83dc-7fa7fb0dfc9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Job">
+      <UniqueIdentifier>{806f3424-ac56-4308-b30e-8a03d8e5f527}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreCommon.h">
@@ -86,9 +92,6 @@
     </ClInclude>
     <ClInclude Include="Network\Packet.h">
       <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\ConsoleOutputManager.h">
-      <Filter>Header Files\Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\BufferHelper.h">
       <Filter>Header Files\Utils</Filter>
@@ -138,6 +141,15 @@
     <ClInclude Include="Network\RioCommon.h">
       <Filter>Header Files\Network\RIO</Filter>
     </ClInclude>
+    <ClInclude Include="Utils\LockQueue.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Job\Job.h">
+      <Filter>Header Files\Job</Filter>
+    </ClInclude>
+    <ClInclude Include="Job\JobQueue.h">
+      <Filter>Header Files\Job</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -179,9 +191,6 @@
     <ClCompile Include="Network\SendBuffer.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\ConsoleOutputManager.cpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="Utils\BufferHelper.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
@@ -217,6 +226,9 @@
     </ClCompile>
     <ClCompile Include="Memory\MemoryPool.cpp">
       <Filter>Source Files\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Job\JobQueue.cpp">
+      <Filter>Source Files\Job</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

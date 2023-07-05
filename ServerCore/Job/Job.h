@@ -10,7 +10,7 @@ class Job
 {
 public:
 	// callback function
-	Job(std::function<void()> callback):m_callback(callback){}
+	Job(std::function<void()> callback) :m_callback(callback) {}
 
 	// class member callback function
 	template<typename T, typename Ret, typename...Args>

@@ -164,6 +164,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CoreCommon.h" />
+    <ClInclude Include="Job\Job.h" />
+    <ClInclude Include="Job\JobQueue.h" />
     <ClInclude Include="Memory\MemoryPool.h" />
     <ClInclude Include="Memory\ObjectPool.h" />
     <ClInclude Include="Network\IocpClient.h" />
@@ -190,13 +192,14 @@
     <ClInclude Include="Thread\RWLock.h" />
     <ClInclude Include="Thread\ThreadManager.h" />
     <ClInclude Include="Utils\BufferHelper.h" />
-    <ClInclude Include="Utils\ConsoleOutputManager.h" />
+    <ClInclude Include="Utils\LockQueue.h" />
     <ClInclude Include="Utils\LockUnorderedSet.h" />
     <ClInclude Include="Utils\Logger.h" />
     <ClInclude Include="Utils\LockMap.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreCommon.cpp" />
+    <ClCompile Include="Job\JobQueue.cpp" />
     <ClCompile Include="Memory\MemoryPool.cpp" />
     <ClCompile Include="Network\IocpClient.cpp" />
     <ClCompile Include="Network\IocpCore.cpp" />
@@ -225,7 +228,6 @@
     <ClCompile Include="Thread\RWLock.cpp" />
     <ClCompile Include="Thread\ThreadManager.cpp" />
     <ClCompile Include="Utils\BufferHelper.cpp" />
-    <ClCompile Include="Utils\ConsoleOutputManager.cpp" />
     <ClCompile Include="Utils\Logger.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

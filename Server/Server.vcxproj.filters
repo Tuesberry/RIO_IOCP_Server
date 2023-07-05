@@ -68,12 +68,6 @@
     <ClInclude Include="Player.h">
       <Filter>Header Files\Contents</Filter>
     </ClInclude>
-    <ClInclude Include="JobQueue.h">
-      <Filter>Header Files\Contents</Filter>
-    </ClInclude>
-    <ClInclude Include="Job.h">
-      <Filter>Header Files\Contents</Filter>
-    </ClInclude>
     <ClInclude Include="RoomOrigin.h">
       <Filter>Header Files\Contents</Filter>
     </ClInclude>
