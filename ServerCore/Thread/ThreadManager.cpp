@@ -1,8 +1,5 @@
 #include "ThreadManager.h"
-
-thread_local int ThreadId;
-thread_local atomic<int> ThreadCQNum;
-
+#include "Job/JobQueue.h"
 
 /* --------------------------------------------------------
 *	Method:		ThreadManager::ThreadManager
@@ -39,7 +36,7 @@ void ThreadManager::CreateThread(function<void(void)> function)
 		{
 			// set thread id
 			m_threadCnt++;
-			ThreadId = m_threadCnt;
+			LThreadId = m_threadCnt;
 			function();
 		}));
 }

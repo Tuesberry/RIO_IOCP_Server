@@ -2,6 +2,7 @@
 #include "SocketCore.h"
 #include "RioCore.h"
 #include "RioBuffer.h"	
+#include "PacketHeader.h"
 
 /* --------------------------------------------------------
 *	Method:		RioSession::RioSession
@@ -333,7 +334,7 @@ bool RioSession::RegisterSend(int dataLength, int dataOffset)
 		}
 		else
 		{
-			cout << ThreadId << " | WSAENOBUFS, SendCount = " << m_sendCnt.load() << endl;
+			cout << LThreadId << " | WSAENOBUFS, SendCount = " << m_sendCnt.load() << endl;
 		}
 
 		return false;

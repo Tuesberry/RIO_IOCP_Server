@@ -80,11 +80,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Libraries\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)Libraries\Libs\ServerCore\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Libraries\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)Libraries\Libs\ServerCore\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -164,18 +164,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CoreCommon.h" />
+    <ClInclude Include="CoreGlobal.h" />
+    <ClInclude Include="CoreMacro.h" />
+    <ClInclude Include="CoreTLS.h" />
+    <ClInclude Include="Job\GlobalQueue.h" />
     <ClInclude Include="Job\Job.h" />
     <ClInclude Include="Job\JobQueue.h" />
     <ClInclude Include="Memory\MemoryPool.h" />
     <ClInclude Include="Memory\ObjectPool.h" />
     <ClInclude Include="Network\IocpClient.h" />
+    <ClInclude Include="Network\IocpCommon.h" />
     <ClInclude Include="Network\IocpCore.h" />
     <ClInclude Include="Network\IocpEvent.h" />
     <ClInclude Include="Network\IocpListener.h" />
     <ClInclude Include="Network\IocpServer.h" />
     <ClInclude Include="Network\IocpService.h" />
     <ClInclude Include="Network\IocpSession.h" />
-    <ClInclude Include="Network\Packet.h" />
+    <ClInclude Include="Network\PacketHeader.h" />
     <ClInclude Include="Network\RecvBuffer.h" />
     <ClInclude Include="Network\RingBuffer.h" />
     <ClInclude Include="Network\RioBuffer.h" />
@@ -199,6 +204,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreCommon.cpp" />
+    <ClCompile Include="CoreGlobal.cpp" />
+    <ClCompile Include="CoreTLS.cpp" />
+    <ClCompile Include="Job\GlobalQueue.cpp" />
     <ClCompile Include="Job\JobQueue.cpp" />
     <ClCompile Include="Memory\MemoryPool.cpp" />
     <ClCompile Include="Network\IocpClient.cpp" />

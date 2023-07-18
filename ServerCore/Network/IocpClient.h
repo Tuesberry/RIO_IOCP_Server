@@ -25,9 +25,10 @@ public:
 	~IocpClient();
 
 	// Client
-	bool StartClient();
-	void RunClient();
-	void StopClient();
+	virtual bool Start() override;
+	virtual bool StopService() override;
+
+	bool RunClient(function<void(void)> clientWork);
 
 	// Session Connect & Disconnect
 	bool ConnectNewSession();

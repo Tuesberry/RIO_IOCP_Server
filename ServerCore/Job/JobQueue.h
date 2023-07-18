@@ -2,7 +2,6 @@
 
 #include "Common.h"
 
-#include "Thread/RWLock.h"
 #include "Utils/LockQueue.h"
 #include "Job.h"
 
@@ -25,9 +24,10 @@ public:
 		Push(make_shared<Job>(owner, memFunc, std::forward<Args>(args)...));
 	}
 
+	void Execute();
+
 private:
 	void Push(shared_ptr<Job>&& job);
-	void Execute();
 
 protected:
 	atomic<int> m_jobCount = 0;

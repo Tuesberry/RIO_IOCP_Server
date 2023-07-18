@@ -241,7 +241,7 @@ bool RioCore::Dispatch()
 	}
 #endif
 
-	ThreadCQNum.store(numResults);
+	LThreadCQNum.store(numResults);
 
 	// handle results
 	for (ULONG i = 0; i < numResults; i++)

@@ -5,13 +5,16 @@ using namespace std;
 
 #include <random>
 #include <chrono>
+#include <time.h>
 using namespace chrono;
 
+#include <algorithm>
 #include <vector>
 #include <set>
 #include <queue>
 #include <map>
 #include <unordered_set>
+#include <list>
 
 #include <WinSock2.h>
 #include <MSWSock.h>
@@ -24,18 +27,11 @@ using namespace chrono;
 
 #include <thread>
 #include <mutex>
-
+#include <atomic>
 #include <malloc.h>
 
-#include <time.h>
-#include <iostream>
-
-#include "Thread/ThreadManager.h"
-#include "Utils/Logger.h"
-
-#define BUFSIZE 65536
-#define len(arr) static_cast<int>(sizeof(arr)/sizeof(arr[0]))
+#include "CoreTLS.h"
+#include "CoreGlobal.h"
+#include "CoreMacro.h"
 
 void HandleError(const char* cause);
-
-extern class ThreadManager gThreadMgr;

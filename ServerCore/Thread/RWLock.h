@@ -33,6 +33,7 @@ public:
 
 private:
 	atomic<unsigned __int32> m_lockFlag;
+	int m_writeCnt = 0;
 };
 
 /* --------------------------------------------------------

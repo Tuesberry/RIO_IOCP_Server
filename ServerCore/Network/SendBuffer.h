@@ -1,6 +1,5 @@
 #pragma once
 #include "Common.h"
-#include "Packet.h"
 
 /* ----------------------------
 *		SendBuffer

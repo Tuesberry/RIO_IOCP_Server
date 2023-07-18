@@ -90,9 +90,6 @@
     <ClInclude Include="Network\SendBuffer.h">
       <Filter>Header Files\Network</Filter>
     </ClInclude>
-    <ClInclude Include="Network\Packet.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
     <ClInclude Include="Utils\BufferHelper.h">
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
@@ -149,6 +146,24 @@
     </ClInclude>
     <ClInclude Include="Job\JobQueue.h">
       <Filter>Header Files\Job</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\PacketHeader.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Job\GlobalQueue.h">
+      <Filter>Header Files\Job</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreGlobal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreTLS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreMacro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IocpCommon.h">
+      <Filter>Header Files\Network\IOCP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -229,6 +244,15 @@
     </ClCompile>
     <ClCompile Include="Job\JobQueue.cpp">
       <Filter>Source Files\Job</Filter>
+    </ClCompile>
+    <ClCompile Include="Job\GlobalQueue.cpp">
+      <Filter>Source Files\Job</Filter>
+    </ClCompile>
+    <ClCompile Include="CoreGlobal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CoreTLS.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

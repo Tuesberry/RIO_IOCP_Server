@@ -5,15 +5,6 @@
 class IocpListener;
 
 /* ----------------------------
-*		ClientInfo
----------------------------- */
-struct CLIENT_INFO
-{
-	int posX;
-	int posY;
-};
-
-/* ----------------------------
 *		IocpServer
 ---------------------------- */
 
@@ -35,12 +26,11 @@ public:
 	IocpServer& operator=(IocpServer&& other) = delete;
      ~IocpServer();
 
-	// server
-	bool InitServer();
-	void RunServer();
-	void StopServer();
+	virtual bool Start() override;
+	virtual bool StopService() override;
+
+	bool RunServer(function<void(void)> serverWork);
 
 private:
-	// listener
 	shared_ptr<IocpListener> m_iocpListener;
 };

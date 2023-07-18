@@ -44,9 +44,6 @@ public:
 	void ReleaseSession(shared_ptr<IocpSession> session);
 	void DisconnectAllSession();
 
-	// thread
-	void CreateWorkerThreads();
-
 	// get method
 	shared_ptr<IocpCore> GetIocpCore() { return m_iocpCore; }
 	SockAddress GetAddress() { return m_address; }
@@ -58,6 +55,10 @@ public:
 	// start
 	bool IsStart() { return m_bStart; }
 	bool CanStart() { return m_sessionFactory != nullptr; }
+	virtual bool Start() abstract;
+
+	// stop
+	virtual bool StopService();
 
 protected:
 	// service type

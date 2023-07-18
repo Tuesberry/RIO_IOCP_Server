@@ -39,8 +39,7 @@ bool IocpCore::Dispatch(unsigned int timeOutMs)
 		switch (errCode)
 		{
 		case WAIT_TIMEOUT:
-			HandleError("WAIT_TIMEOUT");
-			return false;
+			break;
 		default:
 			shared_ptr<IocpObject> iocpObject = iocpEvent->m_owner;
 			iocpObject->Dispatch(iocpEvent, bytesTransferred);

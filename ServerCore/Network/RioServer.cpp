@@ -2,6 +2,7 @@
 #include "SocketCore.h"
 #include "RioSession.h"
 #include "RioCore.h"
+#include "Thread/ThreadManager.h"
 
 /* --------------------------------------------------------
 *	Method:		RioServer::RioServer
@@ -121,7 +122,7 @@ bool RioServer::StartListener()
 		return false;
 
 	// accept loop
-	gThreadMgr.CreateThread([=]()
+	gThreadMgr->CreateThread([=]()
 		{
 			while (true)
 			{
@@ -220,7 +221,7 @@ bool RioServer::StartCoreWork()
 	// create thread & dispatch 
 	for (int i = 0; i < m_coreCnt; i++)
 	{
-		gThreadMgr.CreateThread([=]() 
+		gThreadMgr->CreateThread([=]() 
 			{
 				while (true)
 				{

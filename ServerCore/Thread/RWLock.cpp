@@ -7,6 +7,7 @@
 -------------------------------------------------------- */
 RWLock::RWLock()
 	: m_lockFlag(0)
+	, m_writeCnt(0)
 {
 }
 
@@ -41,11 +42,7 @@ void RWLock::ReadUnlock()
 {
 	// unlock
 	// lock flag check
-	if ((m_lockFlag.load() & READ_LOCK_MASK) > 0)
-	{
-		m_lockFlag.fetch_sub(1);
-	}
-	if ((m_lockFlag.load() & READ_LOCK_MASK) < 0)
+	if ((m_lockFlag.fetch_sub(1) & READ_LOCK_MASK) == 0)
 	{
 		HandleError("ReadUnlock Error");
 	}
@@ -57,9 +54,17 @@ void RWLock::ReadUnlock()
 -------------------------------------------------------- */
 void RWLock::WriteLock()
 {
+	// if same thread => correct!
+	const unsigned __int32 lockThreadId = (m_lockFlag.load() & WRITE_LOCK_MASK) >> 16;
+	if (LThreadId == lockThreadId)
+	{
+		m_writeCnt++;
+		return;
+	}
+
 	// get write lock
 	unsigned __int32 expected = EMPTY_FLAG;
-	unsigned __int32 desired = (ThreadId << 16) & WRITE_LOCK_MASK;
+	unsigned __int32 desired = (LThreadId << 16) & WRITE_LOCK_MASK;
 
 	while (true)
 	{
@@ -68,6 +73,7 @@ void RWLock::WriteLock()
 			expected = EMPTY_FLAG;
 			if (m_lockFlag.compare_exchange_weak(expected, desired) == true)
 			{
+				m_writeCnt++;
 				return;
 			}
 		}
@@ -84,8 +90,12 @@ void RWLock::WriteUnlock()
 {
 	// thread id check
 	unsigned __int32 lockThreadId = (m_lockFlag.load() & WRITE_LOCK_MASK) >> 16;
-	if (lockThreadId == ThreadId)
+	if (lockThreadId == LThreadId)
 	{
-		m_lockFlag.store(EMPTY_FLAG);
+		const unsigned __int32 lockCnt = --m_writeCnt;
+		if (lockCnt == 0)
+		{
+			m_lockFlag.store(EMPTY_FLAG);
+		}
 	}
 }

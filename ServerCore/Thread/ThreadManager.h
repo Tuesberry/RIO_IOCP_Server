@@ -2,9 +2,6 @@
 
 #include "Common.h"
 
-extern thread_local int ThreadId;
-extern thread_local atomic<int> ThreadCQNum;
-
 /* --------------------------------------------------------
 *	class:		ThreadManager
 *	Summary:	manage threads

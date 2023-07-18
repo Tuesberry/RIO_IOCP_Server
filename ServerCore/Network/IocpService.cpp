@@ -1,6 +1,7 @@
 #include "IocpService.h"
 #include "IocpCore.h"
 #include "IocpSession.h"
+#include "Thread/ThreadManager.h"
 
 IocpService::IocpService(
 	ServiceType serviceType,
@@ -67,16 +68,8 @@ void IocpService::DisconnectAllSession()
 	}
 }
 
-void IocpService::CreateWorkerThreads()
+bool IocpService::StopService()
 {
-	for (int i = 0; i < m_threadCnt; i++)
-	{
-		gThreadMgr.CreateThread([=]()
-			{
-				while (true)
-				{
-					m_iocpCore->Dispatch();
-				}
-			});
-	}
+	return false;
 }
+

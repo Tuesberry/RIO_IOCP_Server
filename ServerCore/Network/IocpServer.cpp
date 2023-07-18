@@ -1,6 +1,7 @@
 #include "IocpServer.h"
 #include "IocpListener.h"
 #include "IocpSession.h"
+#include "Thread/ThreadManager.h"
 
 IocpServer::IocpServer(
 	shared_ptr<IocpCore> iocpCore, 
@@ -16,10 +17,10 @@ IocpServer::IocpServer(
 
 IocpServer::~IocpServer()
 {
-	StopServer();
+	StopService();
 }
 
-bool IocpServer::InitServer()
+bool IocpServer::Start()
 {
 	if (CanStart() == false)
 		return false;
@@ -38,24 +39,8 @@ bool IocpServer::InitServer()
 	return true;
 }
 
-void IocpServer::RunServer()
+bool IocpServer::StopService()
 {
-	if (CanStart() == false)
-	{
-		HandleError("RunServer");
-		return;
-	}
-
-	// create threads
-	CreateWorkerThreads();
-
-	// TODO : server command check thread
-}
-
-void IocpServer::StopServer()
-{
-	cout << "StopServer " << endl;
-
 	// close listener socket
 	m_iocpListener->CloseSocket();
 
@@ -64,5 +49,23 @@ void IocpServer::StopServer()
 
 	// server stop
 	m_bStart = false;
+
+	return true;
 }
 
+bool IocpServer::RunServer(function<void(void)> serverWork)
+{
+	if (CanStart() == false)
+	{
+		HandleError("RunServer");
+		return false;
+	}
+
+	// create threads
+	for (int i = 0; i < m_threadCnt; i++)
+	{
+		gThreadMgr->CreateThread(serverWork);
+	}
+
+	return true;
+}

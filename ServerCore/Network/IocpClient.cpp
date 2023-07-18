@@ -1,5 +1,6 @@
 #include "IocpClient.h"
 #include "IocpSession.h"
+#include "Thread/ThreadManager.h"
 
 IocpClient::IocpClient(
 	shared_ptr<IocpCore> iocpCore, 
@@ -14,10 +15,10 @@ IocpClient::IocpClient(
 
 IocpClient::~IocpClient()
 {
-	StopClient();
+	StopService();
 }
 
-bool IocpClient::StartClient()
+bool IocpClient::Start()
 {
 	if (CanStart() == false)
 		return false;
@@ -28,22 +29,32 @@ bool IocpClient::StartClient()
 	return true;
 }
 
-void IocpClient::RunClient()
-{
-	if (CanStart() == false)
-		return;
-
-	// create worker threads
-	CreateWorkerThreads();
-}
-
-void IocpClient::StopClient()
+bool IocpClient::StopService()
 {
 	// Disconnect all sessions
 	DisconnectAllSession();
 
 	// stop client
 	m_bStart = false;
+
+	return true;
+}
+
+bool IocpClient::RunClient(function<void(void)> clientWork)
+{
+	if (CanStart() == false)
+	{
+		HandleError("RunClient");
+		return false;
+	}
+
+	// create worker threads
+	for (int i = 0; i < m_threadCnt; i++)
+	{
+		gThreadMgr->CreateThread(clientWork);
+	}
+
+	return true;
 }
 
 bool IocpClient::ConnectNewSession()

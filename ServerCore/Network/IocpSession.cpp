@@ -1,6 +1,7 @@
 #include "IocpSession.h"
 #include "SocketCore.h"
 #include "IocpService.h"
+#include "PacketHeader.h"
 
 IocpSession::IocpSession()
 	: m_socket(INVALID_SOCKET)

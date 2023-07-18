@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Common.h"
 
 #include "Thread/RWLock.h"
@@ -31,8 +32,10 @@ public:
 	void PopAll(vector<T>& items)
 	{
 		WriteLockGuard lock(m_rwLock);
-		while (T item = Pop())
+		while (m_queue.size())
 		{
+			T item = m_queue.front();
+			m_queue.pop();
 			items.push_back(item);
 		}
 	}

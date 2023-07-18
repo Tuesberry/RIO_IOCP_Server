@@ -1,5 +1,8 @@
 #pragma once
+
 #include "Common.h"
+#include "IocpCommon.h"
+
 #include "IocpCore.h"
 #include "IocpEvent.h"
 #include "SockAddress.h"
