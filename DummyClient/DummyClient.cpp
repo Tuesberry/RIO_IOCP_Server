@@ -7,7 +7,7 @@
 #include "Thread/ThreadManager.h"
 #include "Network/SocketCore.h"
 
-#define START_CLIENT_NUM 100
+#define START_CLIENT_NUM 1000
 #define STRESS_TEST_THREAD_CNT 1
 
 int main()

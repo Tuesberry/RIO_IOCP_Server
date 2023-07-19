@@ -104,6 +104,9 @@ void ClientSession::SendLogin()
 -------------------------------------------------------- */
 void ClientSession::SendMove()
 {
+	// update move
+	m_moveComp.Update(1);
+
 	Protocol::C2S_MOVE pkt;
 	pkt.set_session_id(m_sessionID);
 	pkt.set_request_result(true);
@@ -131,5 +134,67 @@ void ClientSession::SendMove()
 
 void MoveComponent::Update(float deltaTime)
 {
+	// update direction & velocity
+	UpdateVelocityByNewDirection();
 
+	// update position
+	UpdateNewPosition(deltaTime);
+}
+
+pair<int, int> MoveComponent::GetNewDirection()
+{
+	::random_device rd;
+	::mt19937 mt(rd());
+
+	::uniform_int_distribution<int> dist(-1, 1);
+
+	int dy = dist(mt);
+	int dx = dist(mt);
+
+	if (m_positionInfo.x < -9900)
+	{
+		dx = 1;
+	}
+	else if (m_positionInfo.x > 9900)
+	{
+		dx = -1;
+	}
+	if (m_positionInfo.y < -9900)
+	{
+		dy = 1;
+	}
+	else if (m_positionInfo.y > 9900)
+	{
+		dy = -1;
+	}
+	
+	return { dy, dx };
+}
+
+void MoveComponent::UpdateVelocityByNewDirection()
+{
+	int vx, vy;
+	tie(vy, vx) = GetNewDirection();
+
+	if (vx == 0 || vy == 0)
+	{
+		m_positionInfo.vx = vx;
+		m_positionInfo.vy = vy;
+	}
+	else
+	{
+		// normalize
+		float sum = sqrtf(powf(vx, 2) + powf(vy, 2));
+		m_positionInfo.vx = vx / sum;
+		m_positionInfo.vy = vy / sum;
+	}
+}
+
+void MoveComponent::UpdateNewPosition(float deltaTime)
+{
+	// x
+	m_positionInfo.x += m_positionInfo.vx * m_speed * deltaTime;
+
+	// y
+	m_positionInfo.y += m_positionInfo.vy * m_speed * deltaTime;
 }

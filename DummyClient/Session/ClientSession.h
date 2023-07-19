@@ -34,8 +34,14 @@ public:
 	~MoveComponent() = default;
 
 	PositionInfo m_positionInfo;
+	float m_speed = 600.0f;
 
 	void Update(float deltaTime);
+
+private:
+	pair<int, int> GetNewDirection();
+	void UpdateVelocityByNewDirection();
+	void UpdateNewPosition(float deltaTime);
 };
 
 /* --------------------------------------------------------
