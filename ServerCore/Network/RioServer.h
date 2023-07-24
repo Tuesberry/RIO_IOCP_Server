@@ -11,6 +11,9 @@ class RioSession;
 // rio session
 using RIOSessionFactory = function<shared_ptr<RioSession>(void)>;
 
+// jobQueue logic
+using JobQueueLogicFunc = function<void(void)>;
+
 /* --------------------------------------------------------
 *	class:		RioServer
 *	Summary:	registered i/o server
@@ -31,6 +34,9 @@ public:
 	bool InitServer();
 	bool RunServer();
 	void StopServer();
+
+	// jobqueue logic
+	void SetJobQueueLogic(JobQueueLogicFunc func) { m_jobQueueLogicFunc = func; }
 
 	// get
 	int GetConnectCnt() { return m_sessionCnt; }
@@ -64,6 +70,9 @@ private:
 	bool m_bInitCore;
 	int m_coreCnt;
 	int m_currAllocCoreNum;
+
+	// JobQueue Logic
+	JobQueueLogicFunc m_jobQueueLogicFunc;
 
 #if RIOIOCP
 	HANDLE m_iocpHandle;

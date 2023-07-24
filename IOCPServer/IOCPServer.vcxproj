@@ -148,6 +148,7 @@
     <ClCompile Include="Contents\Player.cpp" />
     <ClCompile Include="Contents\Room.cpp" />
     <ClCompile Include="Contents\Sector.cpp" />
+    <ClCompile Include="Contents\ViewComponent.cpp" />
     <ClCompile Include="Contents\Zone.cpp" />
     <ClCompile Include="IOCPServer.cpp" />
     <ClCompile Include="Protocol\Protocol.pb.cc" />
@@ -158,6 +159,7 @@
     <ClInclude Include="Contents\Player.h" />
     <ClInclude Include="Contents\Room.h" />
     <ClInclude Include="Contents\Sector.h" />
+    <ClInclude Include="Contents\ViewComponent.h" />
     <ClInclude Include="Contents\Zone.h" />
     <ClInclude Include="Protocol\Protocol.pb.h" />
     <ClInclude Include="IOCPServerCommon.h" />

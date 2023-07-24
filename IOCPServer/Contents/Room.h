@@ -14,15 +14,15 @@ class Room : public JobQueue
 
 public:
 	enum{
-		VIEW_DISTANCE = 2000,
+		VIEW_DISTANCE = 2500,
 		MAP_WIDTH = 20000,
 		MAP_HEIGHT = 20000,
 		MAP_MIN_Y = -10000,
 		MAP_MIN_X = -10000,
 		ZONE_WIDTH = 5000,
 		ZONE_HEIGHT = 5000,
-		SECTOR_WIDTH = 1000,
-		SECTOR_HEIGHT = 1000,
+		SECTOR_WIDTH = 2500,
+		SECTOR_HEIGHT = 2500,
 	};
 
 public:

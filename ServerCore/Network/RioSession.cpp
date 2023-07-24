@@ -139,6 +139,11 @@ bool RioSession::SendDeferred()
 			m_sendBufQueue.pop();
 		}
 
+		if (m_sendBuffer->GetSendDataSize() < SEND_LIMIT)
+		{
+			continue;
+		}
+
 		// deferred Send
 		while (m_sendBuffer->GetSendDataSize() > 0)
 		{
@@ -153,8 +158,26 @@ bool RioSession::SendDeferred()
 		// check sendCount > MAX_POST_CNT
 		if (sendCount >= MAX_POST_CNT)
 		{
-			cout << "EXCEED MAX_POST_CNT" << endl;
 			break;
+		}
+	}
+
+	// send data
+	if (sendCount < MAX_POST_CNT)
+	{
+		while (m_sendBuffer->GetSendDataSize() > 0)
+		{
+			if (!RegisterSend(m_sendBuffer->GetChunkSendSize(), m_sendBuffer->GetSendOffset()))
+			{
+				break;
+			}
+
+			sendCount++;
+
+			if (sendCount >= MAX_POST_CNT)
+			{
+				break;
+			}
 		}
 	}
 

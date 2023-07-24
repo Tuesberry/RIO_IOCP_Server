@@ -62,7 +62,6 @@ void Zone::MovePlayer(shared_ptr<Player> player)
 			}
 
 			newViewList.insert(target->m_playerId);
-			/*
 			if (target->IsExistInViewList(player->m_playerId))
 			{
 				// send move
@@ -73,7 +72,6 @@ void Zone::MovePlayer(shared_ptr<Player> player)
 				// send enter
 				SendEnter(target, player);
 			}
-			*/
 			if (player->IsExistInViewList(target->m_playerId))
 			{
 				// send move
@@ -95,7 +93,7 @@ void Zone::MovePlayer(shared_ptr<Player> player)
 		{
 			// send leave message
 			SendLeave(player, target);
-			//SendLeave(target, player->m_playerId);
+			SendLeave(target, player->m_playerId);
 		}
 	}
 
@@ -161,8 +159,11 @@ void Zone::SendLeave(shared_ptr<Player> player, int targetId)
 
 void Zone::SendLeave(int playerId, int targetId)
 {
-	auto pIter = gRoom->m_players.m_map.find(playerId);
-	pIter->second->m_ownerSession->SendLeaveMsg(targetId);
+	if (gRoom->m_players.m_map.count(playerId))
+	{
+		auto pIter = gRoom->m_players.m_map.find(playerId);
+		pIter->second->m_ownerSession->SendLeaveMsg(targetId);
+	}
 }
 
 void Zone::SendMoveResult(shared_ptr<Player> player)

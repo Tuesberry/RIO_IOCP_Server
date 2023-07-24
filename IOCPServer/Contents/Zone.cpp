@@ -62,8 +62,7 @@ void Zone::MovePlayer(shared_ptr<Player> player)
 			}
 
 			newViewList.insert(target->m_playerId);
-			
-			/*
+
 			if (target->IsExistInViewList(player->m_playerId))
 			{
 				// send move
@@ -74,7 +73,6 @@ void Zone::MovePlayer(shared_ptr<Player> player)
 				// send enter
 				SendEnter(target, player);
 			}
-			*/
 			if (player->IsExistInViewList(target->m_playerId))
 			{
 				// send move
@@ -96,7 +94,7 @@ void Zone::MovePlayer(shared_ptr<Player> player)
 		{
 			// send leave message
 			SendLeave(player, target);
-			//SendLeave(target, player->m_playerId);
+			SendLeave(target, player->m_playerId);
 		}
 	}
 

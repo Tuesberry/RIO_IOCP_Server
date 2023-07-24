@@ -53,6 +53,9 @@
     <ClCompile Include="Protocol\Protocol.pb.cc">
       <Filter>Source Files\Protocol</Filter>
     </ClCompile>
+    <ClCompile Include="Contents\ViewComponent.cpp">
+      <Filter>Source Files\Contents</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Contents\Player.h">
@@ -76,8 +79,11 @@
     <ClInclude Include="Protocol\Protocol.pb.h">
       <Filter>Header Files\Protocol</Filter>
     </ClInclude>
+    <ClInclude Include="Contents\ViewComponent.h">
+      <Filter>Header Files\Contents</Filter>
+    </ClInclude>
     <ClInclude Include="IOCPServerCommon.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

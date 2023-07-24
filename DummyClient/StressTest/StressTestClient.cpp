@@ -204,13 +204,13 @@ void StressTestClient::StartNormalMode()
 	ResetSendTime();
 
 	// init output
-	//InitOutput();
+	InitOutput();
 
 	// stress test time check
 	while (m_bRunClient)
 	{
 		// update output
-		//UpdateOutput();
+		 UpdateOutput();
 
 		// check working time
 		int workingTime = duration_cast<seconds>(high_resolution_clock::now().time_since_epoch()).count() - m_startTime;

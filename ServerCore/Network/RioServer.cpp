@@ -17,6 +17,7 @@ RioServer::RioServer(RIOSessionFactory sessionFactory, SockAddress address)
 	, m_bInitCore(false)
 	, m_coreCnt(0)
 	, m_currAllocCoreNum(0)
+	, m_jobQueueLogicFunc(nullptr)
 #if RIOIOCP
 	, m_iocpHandle(nullptr)
 #endif
@@ -233,6 +234,10 @@ bool RioServer::StartCoreWork()
 #else
 					m_rioCores[i]->DeferredSend();
 					m_rioCores[i]->Dispatch();
+					if (m_jobQueueLogicFunc != nullptr) 
+					{
+						m_jobQueueLogicFunc();
+					}
 #endif
 				}
 			});
