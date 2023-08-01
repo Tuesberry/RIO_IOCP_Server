@@ -17,6 +17,9 @@ bool ServerPacketHandler::HandlePacket(shared_ptr<RioServerSession>session, BYTE
 	case PROTO_ID::C2S_MOVE:
 		return Handle_C2S_MOVE(session, buffer, len);
 		break;
+	case PROTO_ID::C2S_CHAT:
+		return Handle_CHAT(session, buffer, len);
+		break;
 	default:
 		break;
 	}
@@ -47,6 +50,9 @@ bool ServerPacketHandler::Handle_LOGIN(shared_ptr<RioServerSession>session, BYTE
 	// create new player
 	shared_ptr<Player> player = make_shared<Player>(session->m_sessionId, session);
 	session->m_ownPlayer = player;
+
+	player->m_playerInfo.playerType = pkt.player_type();
+	player->m_playerInfo.playerId = pkt.player_id();
 
 	// login
 	gRoom->DoAsync(&Room::Login, player);
@@ -115,14 +121,41 @@ bool ServerPacketHandler::Handle_LOGOUT(shared_ptr<RioServerSession> session, BY
 		return false;
 	}
 
-	//Protocol::C2S_LOGOUT pkt;
-	//pkt.ParseFromArray(buffer + sizeof(PacketHeader), len - sizeof(PacketHeader));
+	Protocol::C2S_LOGOUT pkt;
+	pkt.ParseFromArray(buffer + sizeof(PacketHeader), len - sizeof(PacketHeader));
 
 	// logout
 	gRoom->DoAsync(&Room::Logout, session->m_ownPlayer);
 
 	// disconnect session
 	session->Disconnect();
+
+	return true;
+}
+
+bool ServerPacketHandler::Handle_CHAT(shared_ptr<RioServerSession> session, BYTE* buffer, int len)
+{
+	PacketHeader header = *(reinterpret_cast<PacketHeader*>(buffer));
+
+	// check packet size
+	if (header.size > len)
+	{
+		return false;
+	}
+
+	Protocol::C2S_CHAT pkt;
+	pkt.ParseFromArray(buffer + sizeof(PacketHeader), len - sizeof(PacketHeader));
+
+	// check id validation
+	if (pkt.session_id() != session->m_sessionId)
+	{
+		return false;
+	}
+
+	cout << "Recv Chat | " << session->m_sessionId << " : " << pkt.chat() << endl;
+
+	// chat
+	gRoom->Chat(session->m_ownPlayer, pkt.chat());
 
 	return true;
 }
@@ -147,5 +180,10 @@ shared_ptr<SendBuffer> ServerPacketHandler::CreateSendBuffer(Protocol::S2C_LEAVE
 shared_ptr<SendBuffer> ServerPacketHandler::CreateSendBuffer(Protocol::S2C_MOVE_RESULT& pkt)
 {
 	return _CreateSendBuffer(pkt, PROTO_ID::S2C_MOVE_RESULT);
+}
+
+shared_ptr<SendBuffer> ServerPacketHandler::CreateSendBuffer(Protocol::S2C_CHAT& pkt)
+{
+	return  _CreateSendBuffer(pkt, PROTO_ID::S2C_CHAT);
 }
 

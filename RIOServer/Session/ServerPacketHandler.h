@@ -41,12 +41,13 @@ private:
 	static bool Handle_LOGIN(shared_ptr<RioServerSession>session, BYTE* buffer, int len);
 	static bool Handle_C2S_MOVE(shared_ptr<RioServerSession>session, BYTE* buffer, int len);
 	static bool Handle_LOGOUT(shared_ptr<RioServerSession>session, BYTE* buffer, int len);
-
+	static bool Handle_CHAT(shared_ptr<RioServerSession>session, BYTE* buffer, int len);
 public:
 	static shared_ptr<SendBuffer> CreateSendBuffer(Protocol::S2C_LOGIN_RESULT& pkt);
 	static shared_ptr<SendBuffer> CreateSendBuffer(Protocol::S2C_MOVE& pkt);
 	static shared_ptr<SendBuffer> CreateSendBuffer(Protocol::S2C_ENTER& pkt);
 	static shared_ptr<SendBuffer> CreateSendBuffer(Protocol::S2C_LEAVE& pkt);
 	static shared_ptr<SendBuffer> CreateSendBuffer(Protocol::S2C_MOVE_RESULT& pkt);
+	static shared_ptr<SendBuffer> CreateSendBuffer(Protocol::S2C_CHAT& pkt);
 };
 

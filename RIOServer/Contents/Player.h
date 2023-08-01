@@ -13,6 +13,8 @@ enum class State : unsigned short
 
 struct PlayerInfo
 {
+	string playerId;
+	int playerType;
 	float x;
 	float y;
 	float z;
@@ -57,6 +59,7 @@ public:
 	unordered_set<int> GetViewList();
 public:
 	unsigned int m_playerId;
+
 	PlayerInfo m_playerInfo;
 	State m_playerState;
 	IdxInfo m_idxInfo;

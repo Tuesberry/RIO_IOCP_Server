@@ -56,7 +56,7 @@ void Zone::MovePlayer(shared_ptr<Player> player)
 				continue;
 			}
 
-			if (!IsNear(player->m_playerInfo.x, player->m_playerInfo.y, target->m_playerInfo.x, target->m_playerInfo.y))
+			if (!IsNear(player->m_playerInfo.x, player->m_playerInfo.y, target->m_playerInfo.x, target->m_playerInfo.y, gRoom->VIEW_DISTANCE))
 			{
 				continue;
 			}
@@ -133,11 +133,46 @@ void Zone::Logout(shared_ptr<Player> player)
 	gRoom->m_sectors[y][x]->m_players.Erase(player);
 }
 
-bool Zone::IsNear(int posX1, int posY1, int posX2, int posY2)
+void Zone::Chat(shared_ptr<Player> player, string chat)
+{
+	if (!player->IsValidPlayer())
+	{
+		return;
+	}
+
+	// get adjacent sectors
+	vector<shared_ptr<Sector>> view;
+	gRoom->GetNarrowAdjacentSectors(player, view);
+
+	// check view list -> sync
+	for (int i = 0; i < view.size(); i++)
+	{
+		view[i]->m_players.ReadLock();
+		for (auto target : view[i]->m_players.m_set)
+		{
+			if (!target->IsValidPlayer())
+			{
+				continue;
+			}
+
+			if (!IsNear(player->m_playerInfo.x, player->m_playerInfo.y, target->m_playerInfo.x, target->m_playerInfo.y, gRoom->VIEW_DISTANCE_NARROW))
+			{
+				continue;
+			}
+
+			SendChat(target, player, chat);
+		}
+		view[i]->m_players.ReadUnlock();
+	}
+}
+
+bool Zone::IsNear(int posX1, int posY1, int posX2, int posY2, int viewDist)
 {
 	double result = sqrt(pow(posX1 - posX2, 2) + pow(posY1 - posY2, 2));
-	if (result < gRoom->VIEW_DISTANCE)
+	if (result < viewDist)
+	{
 		return true;
+	}
 
 	return false;
 }
@@ -173,5 +208,10 @@ void Zone::SendMoveResult(shared_ptr<Player> player)
 
 void Zone::SendLoginResult(shared_ptr<Player> player)
 {
-	player->m_ownerSession->SendLoginResultMsg(true);
+	player->m_ownerSession->SendLoginResultMsg(true, player->m_playerInfo.playerType);
+}
+
+void Zone::SendChat(shared_ptr<Player> player, shared_ptr<Player> target, string& chat)
+{
+	player->m_ownerSession->SendChat(target->m_playerId, target->m_playerInfo.playerId, chat);
 }

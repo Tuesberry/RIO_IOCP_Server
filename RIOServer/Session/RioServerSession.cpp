@@ -134,7 +134,9 @@ void RioServerSession::SendEnterMsg(int targetId, PlayerInfo& pInfo)
     pkt.set_session_id(m_sessionId);
     pkt.set_target_id(targetId);
     pkt.set_time_stamp(pInfo.timeStamp);
-
+    pkt.set_player_type(pInfo.playerType);
+    pkt.set_target_str_id(pInfo.playerId);
+ 
     Protocol::PLAYER_POS_INFO* pos = pkt.mutable_pos_info();
     pos->set_x(pInfo.x);
     pos->set_y(pInfo.y);
@@ -174,14 +176,18 @@ void RioServerSession::SendLeaveMsg(int targetId)
 *	Summary:	send login result message to client
 *   Args:       bool result
 *                   login result
+*               int player_type
+*                   player's type
 -------------------------------------------------------- */
-void RioServerSession::SendLoginResultMsg(bool result)
+void RioServerSession::SendLoginResultMsg(bool result, int player_type)
 {
     Protocol::S2C_LOGIN_RESULT pkt;
     pkt.set_session_id(m_sessionId);
     pkt.set_result(result);
     pkt.set_login_time(m_loginTime);
-
+    pkt.set_player_type(player_type);
+    pkt.set_player_str_id(m_playerId);
+    
     PlayerInfo& pInfo = m_ownPlayer->m_playerInfo;
     Protocol::PLAYER_POS_INFO* pos = pkt.mutable_pos_info();
     pos->set_x(pInfo.x);
@@ -220,6 +226,19 @@ void RioServerSession::SendMoveResultMsg()
     pkt.set_process_time(m_serverProcessTime);
     pkt.set_send_time(m_sendTime);
     pkt.set_recv_time(duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count());
+
+    shared_ptr<SendBuffer> sendBuffer = ServerPacketHandler::CreateSendBuffer(pkt);
+    Send(sendBuffer);
+}
+
+void RioServerSession::SendChat(int targetId, string& playerStrId, string& chat)
+{
+    Protocol::S2C_CHAT pkt;
+
+    pkt.set_session_id(m_sessionId);
+    pkt.set_target_id(targetId);
+    pkt.set_target_str_id(playerStrId);
+    pkt.set_chat(chat);
 
     shared_ptr<SendBuffer> sendBuffer = ServerPacketHandler::CreateSendBuffer(pkt);
     Send(sendBuffer);

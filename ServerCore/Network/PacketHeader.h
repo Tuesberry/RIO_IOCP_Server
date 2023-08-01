@@ -16,6 +16,8 @@ enum PROTO_ID : unsigned short
 	S2C_LEAVE,
 	C2S_LOGOUT,
 	S2C_LOGOUT_RESULT,
+	C2S_CHAT,
+	S2C_CHAT
 };
 
 #pragma pack(1)

@@ -37,6 +37,9 @@ bool ClientPacketHandler::HandlePacket(shared_ptr<ClientSession> session, BYTE* 
 	case PROTO_ID::S2C_LOGIN_RESULT:
 		return Handle_LOGIN_RESULT(session, buffer, len);
 		break;
+	case PROTO_ID::S2C_CHAT:
+		return true;
+		break;
 	default:
 		break;
 	}

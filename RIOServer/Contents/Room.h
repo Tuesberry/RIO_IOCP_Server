@@ -14,7 +14,8 @@ class Room : public JobQueue
 
 public:
 	enum{
-		VIEW_DISTANCE = 2500,
+		VIEW_DISTANCE = 5000,
+		VIEW_DISTANCE_NARROW = 2500,
 		MAP_WIDTH = 20000,
 		MAP_HEIGHT = 20000,
 		MAP_MIN_Y = -10000,
@@ -37,6 +38,7 @@ public:
 	void Login(shared_ptr<Player> player);
 	void Logout(shared_ptr<Player> player);
 	void MovePlayer(shared_ptr<Player> player);
+	void Chat(shared_ptr<Player> player, string chat);
 
 	int GetLoginCnt() { return m_loginCnt; }
 
@@ -44,7 +46,8 @@ public:
 	pair<int, int> GetPlayerSectorIdx(shared_ptr<Player> player);
 
 	void GetAdjacentSectors(shared_ptr<Player> player, vector<shared_ptr<Sector>>& ret);
-	
+	void GetNarrowAdjacentSectors(shared_ptr<Player> player, vector<shared_ptr<Sector>>& ret);
+
 	atomic<int> m_sessionCnt = 0;
 
 private:

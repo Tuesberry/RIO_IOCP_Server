@@ -23,8 +23,9 @@ public:
     void SendMoveMsg(int targetId, PlayerInfo& pInfo);
     void SendEnterMsg(int targetId, PlayerInfo& pInfo);
     void SendLeaveMsg(int targetId);
-    void SendLoginResultMsg(bool result);
+    void SendLoginResultMsg(bool result, int player_type);
     void SendMoveResultMsg();
+    void SendChat(int targetId, string& playerStrId, string& chat);
 
 public:
     string m_playerId;

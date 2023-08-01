@@ -9,7 +9,8 @@ TestSessionManager gTestSessionMgr;
 *	Summary:	Constructor
 -------------------------------------------------------- */
 TestSessionManager::TestSessionManager()
-	: m_rwLock()
+	: m_loginNum(1)
+	, m_rwLock()
 	, m_sessions()
 	, m_connectCnt(0)
 	, m_size(0)

@@ -90,8 +90,15 @@ void ClientSession::SendLogin()
 	m_bStartLogin = true;
 
 	Protocol::C2S_LOGIN pkt;
-	pkt.set_player_id("test");
-	pkt.set_player_pw("qwer");
+
+	pkt.set_player_id("test" + to_string(gTestSessionMgr.m_loginNum.fetch_add(1)));
+	pkt.set_player_pw("qwer1234");
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dist(1, 5);
+	pkt.set_player_type(dist(gen));
+
 	pkt.set_login_time(duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count());
 	
 	shared_ptr<SendBuffer> sendBuffer = ClientPacketHandler::CreateSendBuffer(pkt);

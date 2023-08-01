@@ -33,6 +33,8 @@ public:
 	void AddSession(int id, weak_ptr<ClientSession> session);
 	void DeleteSession(int id);
 
+	atomic<int> m_loginNum;
+
 private:
 	RWLock m_rwLock;
 	map<int, weak_ptr<ClientSession>> m_sessions;

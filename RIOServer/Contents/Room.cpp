@@ -54,7 +54,7 @@ void Room::Login(shared_ptr<Player> player)
 	player->m_idxInfo.sector_y = y;
 
 	// send login result
-	player->m_ownerSession->SendLoginResultMsg(true);
+	player->m_ownerSession->SendLoginResultMsg(true, player->m_playerInfo.playerType);
 }
 
 void Room::Logout(std::shared_ptr<Player> player)
@@ -70,12 +70,19 @@ void Room::Logout(std::shared_ptr<Player> player)
 	m_loginCnt.fetch_sub(1);
 
 	// TODO : Send Logout complete
+
 }
 
 void Room::MovePlayer(std::shared_ptr<Player> player)
 {
 	auto idx = GetPlayerZoneIdx(player);
 	m_zones[idx.first][idx.second]->DoAsync(&Zone::MovePlayer, player);
+}
+
+void Room::Chat(shared_ptr<Player> player, string chat)
+{
+	auto idx = GetPlayerZoneIdx(player);
+	m_zones[idx.first][idx.second]->DoAsync(&Zone::Chat, player, chat);
 }
 
 pair<int, int> Room::GetPlayerZoneIdx(shared_ptr<Player> player)
@@ -130,19 +137,46 @@ pair<int, int> Room::GetPlayerSectorIdx(shared_ptr<Player> player)
 
 void Room::GetAdjacentSectors(shared_ptr<Player> player, vector<shared_ptr<Sector>>& ret)
 {
-	const int dx[] = { -1, 0, 1, -1, 0, 1, -1, 0, 1 };
-	const int dy[] = { -1, -1, -1, 0, 0, 0, 1, 1, 1 };
+	// const int dx[] = { -1, 0, 1, -1, 0, 1, -1, 0, 1 };
+	// const int dy[] = { -1, -1, -1, 0, 0, 0, 1, 1, 1 };
+	
+	//const int dx[] = { -2, -1, 0, 1, 2,  -2, -1, 0, 1, 2,  -2, -1, 0, 1, 2,  -2, -1, 0, 1, 2,  -2, -1, 0, 1, 2 };
+	//const int dy[] = { 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -2, -2, -2, -2, -2 };
 
 	int x = 0, y = 0;
 	tie(y, x) = GetPlayerSectorIdx(player);
-	for (int i = 0; i < 9; i++)
+	
+	for (int dy = 2; dy >= -2; dy--)
 	{
-		int ny = y + dy[i];
-		int nx = x + dx[i];
-		if (nx < 0 || nx >= m_sectorListSizeX || ny < 0 || ny >= m_sectorListSizeY)
+		for (int dx = -2; dx <= 2; dx++)
 		{
-			continue;
+			int ny = y + dy;
+			int nx = x + dx;
+			if (nx < 0 || nx >= m_sectorListSizeX || ny < 0 || ny >= m_sectorListSizeY)
+			{
+				continue;
+			}
+			ret.push_back(m_sectors[ny][nx]);
 		}
-		ret.push_back(m_sectors[ny][nx]);
+	}
+}
+
+void Room::GetNarrowAdjacentSectors(shared_ptr<Player> player, vector<shared_ptr<Sector>>& ret)
+{
+	int x = 0, y = 0;
+	tie(y, x) = GetPlayerSectorIdx(player);
+
+	for (int dy = 1; dy >= -1; dy--)
+	{
+		for (int dx = -1; dx <= 1; dx++)
+		{
+			int ny = y + dy;
+			int nx = x + dx;
+			if (nx < 0 || nx >= m_sectorListSizeX || ny < 0 || ny >= m_sectorListSizeY)
+			{
+				continue;
+			}
+			ret.push_back(m_sectors[ny][nx]);
+		}
 	}
 }
