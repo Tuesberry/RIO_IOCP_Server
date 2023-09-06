@@ -1,6 +1,7 @@
 # RIO & IOCP MMO Game Server
 * 2023-1H KHU Software Convergence Capstone Design Project
 * 주제 : Registered I/O 기반 Seamless MMO 게임서버 구현 및 성능 개선
+* 프로젝트 보고서 : https://github.com/Tuesberry/RIO_IOCP_Server/blob/master/REPORT.md
 * [박경숙](https://github.com/Tuesberry)
 
 ## Description
