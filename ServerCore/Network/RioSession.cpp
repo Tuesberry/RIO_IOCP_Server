@@ -426,7 +426,6 @@ void RioSession::ProcessRecv(int bytesTransferred)
 	}
 	
 	// Adjust
-	m_recvBuffer->AdjustPos();
 
 	// register recv
 	RegisterRecv();
