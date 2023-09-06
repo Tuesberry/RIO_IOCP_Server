@@ -1,64 +1,120 @@
-# Registered I/O 기반 MMORPG 게임서버 구현 및 성능 개선
+# RIO & IOCP MMO Game Server
 * 2023-1H KHU Software Convergence Capstone Design Project
+* 주제 : Registered I/O 기반 Seamless MMO 게임서버 구현 및 성능 개선
 * [박경숙](https://github.com/Tuesberry)
 
-## Overview
-* 온라인 MMO 게임 서버는 다수의 플레이어 간에 주고받는 데이터 양이 많다.
-따라서 일정한 응답시간을 보장해주기위해서 운영체제에서 제공하는 고성능 네트워크 API를
-사용해야 한다.
-* Windows 서버에서는 주로 IOCP를 사용하여 게임 서버를 개발해왔지만, 더 성능이 우수한 RIO가 등장했다. RIO는 커널과 어플리케이션이 공유하는 자료구조를 두어, 완료 통지의 폴링을 시스템 콜이 아닌 유저 모드에서 구현함으로써 더 좋은 성능을 낸다.
-* 이번 프로젝트에서 기존의 논문을 참고하여 RIO 서버를 개발하고, 딜레이가 발생하는 부분을 개선했다. 그리고 개발한 RIO서버와 IOCP서버에 대해 스트레스 테스트를 통한 성능 평가를 진행했다.
+## Description
 
-## RIO Server Architecture
-![rio architecture](https://github.com/Tuesberry/RIO_IOCP_Server/assets/75127144/2a7cbb9e-c85d-4284-a49c-b221ffcd03ab)
-* RequestQueue(RQ)와 CompletionQueue(CQ)를 담당하는 스레드를 할당하여 Race Condition을 제거함
-* RioCore는 각각 담당하는 RioSession 리스트를 가지며, 해당 세션들에 대한 I/O만 처리함
+RIO, IOCP 모델을 사용하여 개발한 게임 서버 프로그램입니다. </br>
 
-![workerThread](https://github.com/Tuesberry/RIO_IOCP_Server/assets/75127144/24b9245a-8e46-4dde-8edf-f82929fa902e)
-* WorkerThread는 Send Queue Operation과 Packet Process를 반복하여 수행함
-* Send Queue Operation
-  * Request Queue에서의 race condition 제거를 위해 한 번에 전송하는 방식을 사용함. 해당 클라이언트에게 전송할 메시지를 큐에 넣어두었다가, 한 번에 전송함
-  * Deferred Send를 통해, Send 요청을 RQ에 모아두었다가 Send Commit을 통해 RQ에 모인 패킷을 한 번에 전송하여 System Call 호출 횟수를 줄임
+플레이어의 이동과 채팅 동기화를 구현한 간단한 프로그램으로, RIO 서버와 IOCP 서버의 성능 비교를 위해 개발했습니다. 아직 완벽한 서버는 아니지만 개선해 나가는 중입니다.</br>
 
-## Stress Test
-* 스트레스 테스트는 실제 게임에서 가장 부하가 많이 발생하는 이동 및 시야처리를 반복하는 방식으로 진행함
-* 1s 내에 연결된 모든 클라이언트가 순차적으로 서버에 패킷을 전송하고 그로부터 응답을 받은 시간에 대한 평균치를 구해서 딜레이 측정
-  
-![stress test howto](https://github.com/Tuesberry/RIO_IOCP_Server/assets/75127144/14665c54-dcf0-4a8f-aa6b-5a602577a7ac)
+Core i7-10세대, Core 4개(스레드 8개), RAM 16GB 컴퓨터 기준, 5500개까지 동시접속이 가능합니다.
 
-1. 유저의 이동 방향 정보를 클라이언트에서 서버로 전송
-2. 서버에서 유저의 새로운 위치 계산
-3. 해당 유저와 일정 거리 내에 위치한 다른 플레이어들을 찾음
-4. 각 유저들에게 서로의 위치 정보를 보내줘서, 동기화를 진행함
+## Directory
 
-## RIO Performance Improvement
-### Delay 원인 파악
-* 클라이언트에게 전송할 메시지가 개별적으로 큐에 들어가 딜레이 발생 & 큐 공간 부족 문제 발생
-* 데이터를 전송 시, 전송할 메시지들이 개별적으로 RQ에 들어가며 전송 완료에 대한 통지를 받을 때도 CQ에 해당 데이터들이 개별적으로 들어가 공간을 차지해 딜레이가 발생함
+| name     | description                                           |
+| -------- | ------------------------------------------------------|
+| Binary   | 빌드한 서버 exe 프로그램 directory                      |
+| DummyClient | 더미 클라이언트 소스코드 directory                   |
+| Libraries | ServerCore library, Protobuf library directory       |
+| RIOIOCPServer  | RIO, IOCP Server 소스코드 directory              |
+| ServerCore     | Server library directory                        |
 
-### Delay 개선 방법
-![improvement](https://github.com/Tuesberry/RIO_IOCP_Server/assets/75127144/03d3ad26-a361-4caf-8425-4b51ee516285)
-* 전송할 메시지를 여러개 모아 하나의 RIO_BUF로 전송함
-* 전송할 메시지들을 버퍼에 넣어놓고, 버퍼에 포함된 데이터의 길이가 특정 바이트 이상이 되면, 그때 데이터를 전송하도록 함
+## Start Guide
 
-## Result
-* 클라이언트 개수 6000개까지 10개 단위로 진행
-* 딜레이가 100ms에 도달하는 지점을 최대 동시 접속자 수로 판단함
+### Requirements
+RIOIOCP 서버를 빌드하고 실행하기 위해서는 다음의 요구사항이 충족되어야 한다. </br>
+서버 라이브러리만 활용하고자 한다면 꼭 설치하지 않아도 된다.
 
-### Server Delay(ms) 측정 결과
-![output](https://github.com/Tuesberry/RIO_IOCP_Server/assets/75127144/14269cc3-2f64-4bd3-be07-a5c744bdba07)
+* [Protobuf 3.21.12](https://github.com/protocolbuffers/protobuf)
 
-### 최대 동시 접속자 수
-|IOCP|RIO|RIO Improved|
-|:---:|:---:|:---:|
-|5230|4810|5530|
+Protobuf를 빌드한 다음, `/Libraries/Libs/Protobuf` 아래에 빌드한 라이브러리 파일을 위치시킨다.</br>
 
-### Conclusion
-* IOCP에서 RIO로 변경했을 때, 최대 동시 접속자 수는 5.74% 증가함
+```bash
+└── Libraries
+    └── Libs
+        └── Protobuf
+            ├── Debug
+            |   ├── libprotobufd.dll 
+            |   └── libprotobufd.lib
+            └── Release
+                ├── libprotobuf.dll 
+                └── libprotobuf.lib
+```
+
+### Installation
+```bash
+$ git clone https://github.com/Tuesberry/RIO_IOCP_Server.git
+```
+
+### RIOIOCPServer 실행 방법
+1. 먼저 ServerCore 라이브러리를 실행하고자 하는 환경(Debug/Release)에 맞춰 빌드한다. 정상적으로 빌드가 완료되었다면 `Libraries/Libs/ServerCore` 경로에 라이브러리가 있을 것이다.
+2. DummyClient와 RIOIOCPServer를 빌드한 후에 실행한다.
+
+## ServerCore Library 활용 방법
+
+### ServerSession
+
+서버 라이브러리의 세션을 상속하는 콘텐츠단의 세션 코드를 작성해야 한다.
+IOCP 서버를 사용한다면 `IocpSession`, RIO 서버를 사용한다면 `RioSession`을 상속한다. 
+
+```cpp
+virtual void OnConnected(){}
+virtual int OnRecv(char* buffer, int len) final;
+virtual void OnRecvPacket(char* buffer, int len){}
+virtual void OnSend(int len){}
+virtual void OnDisconnected(){}
+```
+
+위 함수들은 콘텐츠 단에서 재정의해서 사용할 수 있다.
+
+### ServerProxy
+
+서버 프록시 클래스를 사용하여 간단하게 서버를 실행할 수 있다.
+서버 타입과 세션 팩토리 함수는 같은 IO 모델로 통일되어야 한다. 
+
+#### 서버 생성
+서버 생성시 다음과 같은 인자들을 넘겨줘야 한다.
+
+* ServerType : 서버 종류(IOCP_SERVER or RIO_SERVER)
+* SockAddress : 서버의 ip 주소와 포트 넘버
+* SessionFactory : 세션 팩토리 함수
+
+#### 서버 실행 : Start
+JobQueue 사용여부 인자로 넘겨준다. 사용을 원하면 true, 원하지 않는다면 false
+
+```cpp
+int main()
+{
+    // 1. 서버 생성
+    shared_ptr<ServerProxy> server = std::make_shared<ServerProxy>(
+        ServerType::IOCP_SERVER,
+        SockAddress("127.0.0.1", 7777),
+        std::make_shared<IocpServerSession>
+    );
+    // 2. 서버 실행
+    server->Start(true);
+    // 3. 스레드 join 대기
+    gThreadMgr->JoinThreads();
+}
+```
+
+### 주의 사항
+
+패킷 전송시, 직렬화된 패킷의 앞에는 PacketHeader가 위치해야 한다.
+PacketHeader가 없으면, 전송받은 패킷을 역직렬화 할 수 없다.
+```cpp
+struct PacketHeader
+{
+	unsigned short size;
+	unsigned short id; // protocol id 
+};
+```
 
 ## Reference
 * 강수빈, (2020), RIO와 HTM을 이용한 게임서버의 성능 개선, 한국산업기술대학교
 * 배현직, 게임 서버 프로그래밍 교과서, 길벗
 * 김선우, TCP/IP 소켓 프로그래밍, 한빛아카데미
-* Rookiss, [C++과 언리얼로 만드는 MMORPG 게임 개발 시리즈] Part4: 게임 서버, 인프런, https://www.inflearn.com/course/%EC%96%B8%EB%A6%AC%EC%96%BC-3d-mmorpg-4
+* [Rookiss, [C++과 언리얼로 만드는 MMORPG 게임 개발 시리즈] Part4: 게임 서버, 인프런](https://www.inflearn.com/course/%EC%96%B8%EB%A6%AC%EC%96%BC-3d-mmorpg-4)
 * https://github.com/jacking75/edu_cpp_IOCP.git
