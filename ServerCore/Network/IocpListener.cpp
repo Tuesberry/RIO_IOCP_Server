@@ -5,6 +5,12 @@
 #include "IocpServer.h"
 #include "IocpSession.h"
 
+/* --------------------------------------------------------
+*	Method:		IocpListener::IocpListener
+*	Summary:	constructor
+*	Args:		shared_ptr<IocpServer> ownServer
+*					server that owns this listener
+-------------------------------------------------------- */
 IocpListener::IocpListener(shared_ptr<IocpServer> ownServer)
 	: m_listener(INVALID_SOCKET)
 	, m_acceptEvents()
@@ -12,6 +18,10 @@ IocpListener::IocpListener(shared_ptr<IocpServer> ownServer)
 {
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpListener::~IocpListener
+*	Summary:	destructor
+-------------------------------------------------------- */
 IocpListener::~IocpListener()
 {
 	CloseSocket();
@@ -22,40 +32,58 @@ IocpListener::~IocpListener()
 	}
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpListener::StartAccept
+*	Summary:	start accept
+-------------------------------------------------------- */
 bool IocpListener::StartAccept()
 {
 	// server null check
 	if (m_ownerServer == nullptr)
+	{
 		return false;
+	}
 
-	// listen socket
+	// create listen socket
 	m_listener = SocketCore::Socket();
 	if (m_listener == INVALID_SOCKET)
+	{
 		return false;
+	}
 
 	// register listener
-	if (m_ownerServer->GetIocpCore()->Register(shared_from_this()) == false)
+	if (!m_ownerServer->GetIocpCore()->Register(shared_from_this()))
+	{
 		return false;
+	}
 
 	// set sockopt
 	// reuse address
-	if (SocketCore::SetReuseAddr(m_listener, true) == false)
+	if (!SocketCore::SetReuseAddr(m_listener, true))
+	{
 		return false;
+	}
 
 	// set linger
-	if (SocketCore::SetLinger(m_listener, 0, 0) == false)
+	if (!SocketCore::SetLinger(m_listener, 0, 0))
+	{
 		return false;
+	}
 
 	// bind
-	if (SocketCore::Bind(m_listener, m_ownerServer->GetAddress()) == false)
+	if (!SocketCore::Bind(m_listener, m_ownerServer->GetAddress()))
+	{
 		return false;
+	}
 
 	// listen
-	if (SocketCore::Listen(m_listener) == false)
+	if (!SocketCore::Listen(m_listener))
+	{
 		return false;
+	}
 
 	// create accept events
-	int maxSessionCnt = m_ownerServer->GetMaxSessionCnt();
+	int maxSessionCnt = m_ownerServer->GetThreadCnt();
 	for (int i = 0; i < maxSessionCnt; i++)
 	{
 		AcceptEvent* acceptEvent = new AcceptEvent();
@@ -67,14 +95,24 @@ bool IocpListener::StartAccept()
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpListener::CloseSocket
+*	Summary:	close socket
+-------------------------------------------------------- */
 void IocpListener::CloseSocket()
 {
-	if (SocketCore::Close(m_listener) == false)
+	if (!SocketCore::Close(m_listener))
 	{
 		HandleError("IocpListener::CloseSocket");
 	}
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpListener::RegisterAccept
+*	Summary:	register accept request
+*	Args:		AcceptEvent* acceptEvent
+*					Event for accept request
+-------------------------------------------------------- */
 void IocpListener::RegisterAccept(AcceptEvent* acceptEvent)
 {
 	// CreateSession
@@ -86,7 +124,7 @@ void IocpListener::RegisterAccept(AcceptEvent* acceptEvent)
 
 	// AcceptEx
 	DWORD bytesReceived = 0;
-	BOOL retVal = SocketCore::AcceptEx(m_listener, session->GetSocket(), session->m_recvBuffer.GetWritePos(), 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytesReceived, static_cast<LPOVERLAPPED>(acceptEvent));
+	BOOL retVal = SocketCore::AcceptEx(m_listener, session->GetSocket(), session->m_recvBuffer.GetWriteBuf(), 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, &bytesReceived, static_cast<LPOVERLAPPED>(acceptEvent));
 	if (retVal == FALSE)
 	{
 		if (::WSAGetLastError() != WSA_IO_PENDING)
@@ -96,6 +134,12 @@ void IocpListener::RegisterAccept(AcceptEvent* acceptEvent)
 	}
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpListener::RegisterAccept
+*	Summary:	process completion of accept request
+*	Args:		AcceptEvent* acceptEvent
+*					Event for accept request
+-------------------------------------------------------- */
 void IocpListener::ProcessAccept(AcceptEvent* acceptEvent)
 {
 	shared_ptr<IocpSession> session = acceptEvent->m_session;
@@ -123,14 +167,26 @@ void IocpListener::ProcessAccept(AcceptEvent* acceptEvent)
 	RegisterAccept(acceptEvent);
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpListener::GetHandle
+*	Summary:	return listener socket
+-------------------------------------------------------- */
 HANDLE IocpListener::GetHandle()
 {
 	return reinterpret_cast<HANDLE>(m_listener);
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpListener::Dispatch
+*	Summary:	dispatch accept event
+*	Args:		IocpEvent* iocpEvent
+*					Event for io request
+*				int bytesTransferred
+*					number of bytes trasferred
+-------------------------------------------------------- */
 void IocpListener::Dispatch(IocpEvent* iocpEvent, int bytesTransferred)
 {
-	if (iocpEvent->m_eventType != IO_TYPE::ACCEPT)
+	if (iocpEvent->m_eventType != IOCP_IO_TYPE::ACCEPT)
 	{
 		HandleError("IocpListener::Dispatch, eventType check");
 		return;

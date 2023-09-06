@@ -1,12 +1,22 @@
 #include "IocpEvent.h"
 
-IocpEvent::IocpEvent(IO_TYPE type)
+/* --------------------------------------------------------
+*	Method:		IocpEvent::IocpEvent
+*	Summary:	constructor
+*	Args:		IOCP_IO_TYPE type
+*					io request type
+-------------------------------------------------------- */
+IocpEvent::IocpEvent(IOCP_IO_TYPE type)
 	: m_eventType(type)
 	, m_owner(nullptr)
 {
 	Init();
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpEvent::Init
+*	Summary:	initialize overlapped structure
+-------------------------------------------------------- */
 void IocpEvent::Init()
 {
 	OVERLAPPED::hEvent = 0;

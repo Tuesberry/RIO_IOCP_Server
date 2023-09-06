@@ -3,6 +3,10 @@
 #include "IocpService.h"
 #include "PacketHeader.h"
 
+/* --------------------------------------------------------
+*	Method:		IocpSession::IocpSession
+*	Summary:	constructor
+-------------------------------------------------------- */
 IocpSession::IocpSession()
 	: m_socket(INVALID_SOCKET)
 	, m_address()
@@ -19,19 +23,34 @@ IocpSession::IocpSession()
 {
 	m_socket = SocketCore::Socket();
 	if (m_socket == INVALID_SOCKET)
+	{
 		HandleError("IocpSession::IocpSession");
+	}
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpSession::~IocpSession
+*	Summary:	destructor
+-------------------------------------------------------- */
 IocpSession::~IocpSession()
 {
 	SocketCore::Close(m_socket);
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpSession::Connect
+*	Summary:	call RegisterConnect and return result
+-------------------------------------------------------- */
 bool IocpSession::Connect()
 {
 	return RegisterConnect();
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpSession::Disconnect
+*	Summary:	if m_bConnected is true, 
+*				RegisterDisconnect is called
+-------------------------------------------------------- */
 void IocpSession::Disconnect()
 {
 	if (m_bConnected.exchange(false) == false)
@@ -42,10 +61,17 @@ void IocpSession::Disconnect()
 	RegisterDisconnect();
 }
 
-void IocpSession::Send(shared_ptr<SendBuffer> sendBuffer)
+/* --------------------------------------------------------
+*	Method:		IocpSession::Disconnect
+*	Summary:	if m_bConnected is true,
+*				RegisterDisconnect is called
+-------------------------------------------------------- */
+void IocpSession::Send(shared_ptr<NetBuffer> sendBuffer)
 {
-	if (IsConnected() == false)
+	if (!IsConnected())
+	{
 		return;
+	}
 
 	bool registered = false;
 	{
@@ -54,36 +80,54 @@ void IocpSession::Send(shared_ptr<SendBuffer> sendBuffer)
 		// enqueue sendbuffer
 		m_sendBufferQueue.push(sendBuffer);
 
+		// registerSend를 수행하고 있는 스레드가 없으면, reigster에 true를 할당
 		if (m_bSendRegistered.exchange(true) == false)
+		{
 			registered = true;
+		}
 
 		m_sendBufLock.unlock();
 	}
 
 	if (registered)
+	{
 		RegisterSend();
+	}
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpSession::GetHandle
+*	Summary:	return m_socket
+-------------------------------------------------------- */
 HANDLE IocpSession::GetHandle()
 {
 	return reinterpret_cast<HANDLE>(m_socket);
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpSession::Dispatch
+*	Summary:	Check the type of I/O and call the Process
+*				function appropriate for the type
+*	Args:		IocpEvent* iocpEvent
+*					iocpEvent to process
+*				int bytesTransferred
+*					number of bytes sent or received
+-------------------------------------------------------- */
 void IocpSession::Dispatch(IocpEvent* iocpEvent, int bytesTransferred)
 {
-	IO_TYPE ioType = iocpEvent->m_eventType;
+	IOCP_IO_TYPE ioType = iocpEvent->m_eventType;
 	switch (ioType)
 	{
-	case IO_TYPE::CONNECT:
+	case IOCP_IO_TYPE::CONNECT:
 		ProcessConnect();
 		break;
-	case IO_TYPE::DISCONNECT:
+	case IOCP_IO_TYPE::DISCONNECT:
 		ProcessDisconnect();
 		break;
-	case IO_TYPE::RECV:
+	case IOCP_IO_TYPE::RECV:
 		ProcessRecv(bytesTransferred);
 		break;
-	case IO_TYPE::SEND:
+	case IOCP_IO_TYPE::SEND:
 		ProcessSend(bytesTransferred);
 		break;
 	default:
@@ -92,21 +136,33 @@ void IocpSession::Dispatch(IocpEvent* iocpEvent, int bytesTransferred)
 	}
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpSession::RegisterConnect
+*	Summary:	register connect request
+-------------------------------------------------------- */
 bool IocpSession::RegisterConnect()
 {
 	if (IsConnected())
+	{
 		return false;
+	}
 
 	if (m_iocpService->GetServiceType() != ServiceType::CLIENT)
+	{
 		return false;
+	}
 
 	// set reuse address
-	if (SocketCore::SetReuseAddr(m_socket, true) == false)
+	if (!SocketCore::SetReuseAddr(m_socket, true))
+	{
 		return false;
+	}
 
 	// bind any address
-	if (SocketCore::BindAddrAny(m_socket, 0) == false)
+	if (!SocketCore::BindAddrAny(m_socket, 0))
+	{
 		return false;
+	}
 
 	// init connect event
 	m_connectEvent.Init();
@@ -115,7 +171,7 @@ bool IocpSession::RegisterConnect()
 	// conenctEx
 	DWORD bytesTransferred = 0;
 	SOCKADDR_IN sockAddr = m_iocpService->GetAddress().GetSockAddr();
-	if (SocketCore::ConnectEx(m_socket, (SOCKADDR*)(&sockAddr), sizeof(sockAddr), nullptr, 0, &bytesTransferred, &m_connectEvent) == false)
+	if (!SocketCore::ConnectEx(m_socket, reinterpret_cast<SOCKADDR*>(&sockAddr), sizeof(sockAddr), nullptr, 0, &bytesTransferred, &m_connectEvent))
 	{
 		if (::WSAGetLastError() != ERROR_IO_PENDING)
 		{
@@ -128,12 +184,16 @@ bool IocpSession::RegisterConnect()
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpSession::RegisterDisconnect
+*	Summary:	register disconnect request
+-------------------------------------------------------- */
 void IocpSession::RegisterDisconnect()
 {
 	m_disconnectEvent.Init();
 	m_disconnectEvent.m_owner = shared_from_this();
 
-	if (SocketCore::DisconnectEx(m_socket, &m_disconnectEvent, TF_REUSE_SOCKET, 0) == false)
+	if (!SocketCore::DisconnectEx(m_socket, &m_disconnectEvent, TF_REUSE_SOCKET, 0))
 	{
 		if (::WSAGetLastError() != ERROR_IO_PENDING)
 		{
@@ -144,10 +204,16 @@ void IocpSession::RegisterDisconnect()
 	}
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpSession::RegisterRecv
+*	Summary:	register recv request
+-------------------------------------------------------- */
 void IocpSession::RegisterRecv()
 {
 	if (!IsConnected())
+	{
 		return;
+	}
 
 	// init recvEvent
 	m_recvEvent.Init();
@@ -155,8 +221,8 @@ void IocpSession::RegisterRecv()
 
 	// set wsaBuf
 	WSABUF wsaBuf;
-	wsaBuf.buf = reinterpret_cast<CHAR*>(m_recvBuffer.GetWritePos());
-	wsaBuf.len = m_recvBuffer.GetFreeSize();
+	wsaBuf.buf = reinterpret_cast<CHAR*>(m_recvBuffer.GetWriteBuf());
+	wsaBuf.len = m_recvBuffer.GetChunkWriteSize();
 
 	DWORD recvLen = 0;
 	DWORD flags = 0;
@@ -171,36 +237,42 @@ void IocpSession::RegisterRecv()
 	}
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpSession::RegisterSend
+*	Summary:	register send request
+-------------------------------------------------------- */
 void IocpSession::RegisterSend()
 {
 	if (!IsConnected())
+	{
 		return;
+	}
 
 	// Scatter-Gather
 	// init m_sendEvent
 	m_sendEvent.Init();
 	m_sendEvent.m_owner = shared_from_this();
+	
 	// add sendBuffer in sendEvent
 	{
 		m_sendBufLock.lock();
-
 		while (m_sendBufferQueue.empty() == false)
 		{
-			shared_ptr<SendBuffer> sendBuf = m_sendBufferQueue.front();
+			shared_ptr<NetBuffer> sendBuf = m_sendBufferQueue.front();
 			m_sendBufferQueue.pop();
 
 			m_sendEvent.m_sendBuffer.push_back(sendBuf);
 		}
-
 		m_sendBufLock.unlock();
 	}
+
 	// add all sendData in WSABuf
 	vector<WSABUF> wsaBuf;
 	wsaBuf.reserve(m_sendEvent.m_sendBuffer.size());
-	for (shared_ptr<SendBuffer> sendBuf : m_sendEvent.m_sendBuffer)
+	for (shared_ptr<NetBuffer> sendBuf : m_sendEvent.m_sendBuffer)
 	{
 		WSABUF buf;
-		buf.buf = (char*)sendBuf->GetData();
+		buf.buf = sendBuf->GetReadBuf();
 		buf.len = sendBuf->GetDataSize();
 		wsaBuf.push_back(buf);
 	}
@@ -224,6 +296,10 @@ void IocpSession::RegisterSend()
 
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpSession::ProcessConnect
+*	Summary:	process completion of connect request
+-------------------------------------------------------- */
 void IocpSession::ProcessConnect()
 {
 	m_connectEvent.m_owner = nullptr;
@@ -240,15 +316,27 @@ void IocpSession::ProcessConnect()
 	RegisterRecv();
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpSession::ProcessDisconnect
+*	Summary:	process completion of disconnect request
+-------------------------------------------------------- */
 void IocpSession::ProcessDisconnect()
 {
 	m_disconnectEvent.m_owner = nullptr;
 
+	// on disconnected
 	OnDisconnected();
 
+	// release session from iocpService
 	m_iocpService->ReleaseSession(static_pointer_cast<IocpSession>(shared_from_this()));
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpSession::ProcessRecv
+*	Summary:	process completion of recv request
+*	Args:		int bytesTransferred
+*					number of bytes received 
+-------------------------------------------------------- */
 void IocpSession::ProcessRecv(int bytesTransferred)
 {
 	m_recvEvent.m_owner = nullptr;
@@ -260,7 +348,7 @@ void IocpSession::ProcessRecv(int bytesTransferred)
 		return;
 	}
 
-	if (m_recvBuffer.OnWrite(bytesTransferred) == false)
+	if (m_recvBuffer.OnWriteBuffer(bytesTransferred) == false)
 	{
 		HandleError("ProcessRecv::OnWrite Error");
 		Disconnect();
@@ -269,21 +357,27 @@ void IocpSession::ProcessRecv(int bytesTransferred)
 
 	// on recv
 	int dataSize = m_recvBuffer.GetDataSize();
-	int processLen = OnRecv(m_recvBuffer.GetReadPos(), dataSize);
-	if (processLen < 0 || dataSize < processLen || m_recvBuffer.OnRead(processLen) == false)
+	int processLen = OnRecv(m_recvBuffer.GetReadBuf(), dataSize);
+	if (processLen < 0 || dataSize < processLen || m_recvBuffer.OnReadBuffer(processLen) == false)
 	{
 		HandleError("ProcessRecv::OnRecv Error");
 		Disconnect();
 		return;
 	}
 
-	// adjust cursor
+	// adjust buffer cursor
 	m_recvBuffer.AdjustPos();
 
 	// register recv
 	RegisterRecv();
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpSession::ProcessSend
+*	Summary:	process completion of send request
+*	Args:		int bytesTransferred
+*					number of bytes sent
+-------------------------------------------------------- */
 void IocpSession::ProcessSend(int bytesTransferred)
 {
 	m_sendEvent.m_owner = nullptr;
@@ -307,11 +401,20 @@ void IocpSession::ProcessSend(int bytesTransferred)
 		return;
 	}
 	m_sendBufLock.unlock();
-
+	
+	// 만약 버퍼에 데이터가 있으면, 다시 RegisterSend 호출
 	RegisterSend();
 }
 
-int IocpSession::OnRecv(BYTE* buffer, int len)
+/* --------------------------------------------------------
+*	Method:		IocpSession::OnRecv
+*	Summary:	recv data processing
+*	Args:		char* buffer
+*					recv buffer
+*				int len
+*					recv data length
+-------------------------------------------------------- */
+int IocpSession::OnRecv(char* buffer, int len)
 {
 	int processLen = 0;
 
@@ -339,6 +442,5 @@ int IocpSession::OnRecv(BYTE* buffer, int len)
 
 		processLen += header.size;
 	}
-
 	return processLen;
 }

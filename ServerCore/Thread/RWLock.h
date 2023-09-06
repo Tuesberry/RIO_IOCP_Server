@@ -6,7 +6,6 @@
 *	class:		RWLock
 *	Summary:	Read Write Lock
 -------------------------------------------------------- */
-
 class RWLock final
 {
 	enum : unsigned __int32

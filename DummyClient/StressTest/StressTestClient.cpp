@@ -4,12 +4,13 @@
 #include <cmath>
 #include "TestSessionManager.h"
 #include "Thread/ThreadManager.h"
+#include "Network/IocpClient.h"
 
 /* --------------------------------------------------------
 *	Method:		StressTestClient::StressTestClient
 *	Summary:	Constructor
 *	Args:		shared_ptr<IocpClient> client
-*					iocp client
+*				    dummy client for test
 *				int clientNum
 *					number of clients
 *				ETestMode testMode
@@ -39,7 +40,7 @@ StressTestClient::StressTestClient(shared_ptr<IocpClient> client, int clientNum,
 ------------------------------------------------------- */
 StressTestClient::~StressTestClient()
 {
-	m_client->StopService();
+
 }
 
 /* --------------------------------------------------------
@@ -84,7 +85,7 @@ bool StressTestClient::ConnectToServer(int clientNum)
 {
 	for (int i = 0; i < clientNum; i++)
 	{
-		if (m_client->ConnectNewSession() == false)
+		if (!m_client->ConnectNewSession())
 		{
 			HandleError("ConnectToServer");
 			return false;
@@ -177,12 +178,7 @@ void StressTestClient::CreateSenderThreads()
 ------------------------------------------------------- */
 bool StressTestClient::RunDummyClient()
 {
-	if (!m_client->Start())
-	{
-		return false;
-	}
-
-	m_client->RunClient([&]() {
+	return m_client->Start([&]() {
 		while (true)
 		{
 			m_client->GetIocpCore()->Dispatch();

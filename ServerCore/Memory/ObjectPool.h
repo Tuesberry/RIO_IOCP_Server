@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Common.h"
-//#include "MemoryPool.h"
 
 /* --------------------------------------------------------
 *	class:		ObjectPool
@@ -16,7 +15,7 @@ public:
 	ObjectPool(ObjectPool&& other) = delete;
 	ObjectPool& operator=(const ObjectPool& other) = delete;
 	ObjectPool& operator=(ObjectPool&& other) = delete;
-	~ObjectPool() = default;
+	~ObjectPool();
 
 	void Push(TObject* ptr);
 	TObject* Pop();
@@ -34,6 +33,16 @@ inline ObjectPool<TObject>::ObjectPool()
 	, m_useCount(0)
 	, m_allocCount(0)
 {
+}
+
+template<typename TObject>
+inline ObjectPool<TObject>::~ObjectPool()
+{
+	TObject* object = nullptr;
+	while ((object = static_cast<TObject*>(::InterlockedPopEntrySList(&m_header))) != nullptr)
+	{
+		::_aligned_free(object);
+	}
 }
 
 template<typename TObject>

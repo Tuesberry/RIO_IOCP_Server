@@ -4,18 +4,14 @@
 
 /* --------------------------------------------------------
 *	class:		RingBuffer
-*	Summary:	ring buffer
+*	Summary:	ring buffer class
 -------------------------------------------------------- */
-class RingBuffer
+class RingBuffer 
 {
 	/*
-	*	2 case 
-	*	//----tail====head----//
-	*	//====head----tail====//
-	* 
 	*	head = write position
 	*	tail = read position
-	*	end = capacity
+	*	capacity = buffer size
 	*/
 public:
 	RingBuffer(char* buffer, int capacity);
@@ -46,10 +42,14 @@ public:
 	int GetChunkWriteSize();
 	int GetChunkReadSize();
 
+	void AdjustPos();
+
 protected:
 	int m_capacity;
-	char* m_buffer;
+	int m_size;
 
+	char* m_buffer;
+	
 	int m_headPos;
 	int m_tailPos;
 };

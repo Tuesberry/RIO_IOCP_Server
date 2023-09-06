@@ -7,6 +7,7 @@
 RingBuffer::RingBuffer(char* buffer, int capacity)
 	: m_buffer(buffer)
 	, m_capacity(capacity)
+	, m_size(0)
 	, m_headPos(0)
 	, m_tailPos(0)
 {
@@ -26,7 +27,9 @@ RingBuffer::~RingBuffer()
 -------------------------------------------------------- */
 int RingBuffer::GetDataSize()
 {
-	if (m_headPos >= m_tailPos)
+	return m_size;
+	/*
+	if (m_headPos > m_tailPos)
 	{
 		return m_headPos - m_tailPos;
 	}
@@ -34,6 +37,7 @@ int RingBuffer::GetDataSize()
 	{
 		return m_capacity - m_tailPos + m_headPos;
 	}
+	*/
 }
 
 /* --------------------------------------------------------
@@ -42,7 +46,9 @@ int RingBuffer::GetDataSize()
 -------------------------------------------------------- */
 int RingBuffer::GetFreeSize()
 {
-	if (m_headPos >= m_tailPos)
+	return m_capacity - m_size;
+	/*
+	if (m_headPos > m_tailPos)
 	{
 		return m_capacity - m_headPos + m_tailPos;
 	}
@@ -50,6 +56,7 @@ int RingBuffer::GetFreeSize()
 	{
 		return m_tailPos - m_headPos;
 	}
+	*/
 }
 
 /* --------------------------------------------------------
@@ -64,7 +71,9 @@ bool RingBuffer::WriteBuffer(char* data, int writeSize)
 {
 	// valid check
 	if (GetFreeSize() < writeSize)
+	{
 		return false;
+	}
 
 	// write data
 	int needToWriteSize = writeSize;
@@ -78,7 +87,7 @@ bool RingBuffer::WriteBuffer(char* data, int writeSize)
 		if (chunkWriteSize < needToWriteSize)
 		{
 			// 현재 적을 공간의 사이즈보다 데이터 사이즈가 큰 경우
-			memcpy(GetWriteBuf(), &data[currentWritePos], chunkWriteSize);
+			std::memcpy(GetWriteBuf(), &data[currentWritePos], chunkWriteSize);
 			
 			m_headPos = (m_headPos + chunkWriteSize) % m_capacity;
 			
@@ -88,13 +97,14 @@ bool RingBuffer::WriteBuffer(char* data, int writeSize)
 		else
 		{
 			// 현재 적을 공간의 사이즈보다 데이터 사이즈가 작은 경우
-			memcpy(GetWriteBuf(), &data[currentWritePos], needToWriteSize);
+			std::memcpy(GetWriteBuf(), &data[currentWritePos], needToWriteSize);
 			
 			m_headPos = (m_headPos + needToWriteSize) % m_capacity;
 
 			break;
 		}
 	}
+	m_size += writeSize;
 
 	return true;
 }
@@ -111,7 +121,9 @@ bool RingBuffer::ReadBuffer(char* destData, int readSize)
 {
 	// valid check
 	if (GetDataSize() < readSize)
+	{
 		return false;
+	}
 
 	// read data
 	int chunkReadSize = 0;
@@ -124,7 +136,7 @@ bool RingBuffer::ReadBuffer(char* destData, int readSize)
 
 		if (chunkReadSize < needToReadSize)
 		{
-			memcpy(&destData[currentReadPos], GetReadBuf(), chunkReadSize);
+			std::memcpy(&destData[currentReadPos], GetReadBuf(), chunkReadSize);
 
 			m_tailPos = (m_tailPos + chunkReadSize) % m_capacity;
 
@@ -133,13 +145,14 @@ bool RingBuffer::ReadBuffer(char* destData, int readSize)
 		}
 		else
 		{
-			memcpy(&destData[currentReadPos], GetReadBuf(), needToReadSize);
+			std::memcpy(&destData[currentReadPos], GetReadBuf(), needToReadSize);
 
 			m_tailPos = (m_tailPos + needToReadSize) % m_capacity;
 
 			break;
 		}
 	}
+	m_size -= readSize;
 
 	return true;
 }
@@ -153,9 +166,12 @@ bool RingBuffer::ReadBuffer(char* destData, int readSize)
 bool RingBuffer::OnWriteBuffer(int writeSize)
 {
 	if (GetFreeSize() < writeSize)
+	{
 		return false;
+	}
 
-	m_headPos = (m_headPos + writeSize)& m_capacity;
+	m_headPos = (m_headPos + writeSize) % m_capacity;
+	m_size += writeSize;
 
 	return true;
 }
@@ -169,9 +185,12 @@ bool RingBuffer::OnWriteBuffer(int writeSize)
 bool RingBuffer::OnReadBuffer(int readSize)
 {
 	if (GetDataSize() < readSize)
+	{
 		return false;
+	}
 
 	m_tailPos = (m_tailPos + readSize) % m_capacity;
+	m_size -= readSize;
 
 	return true;
 }
@@ -207,6 +226,42 @@ int RingBuffer::GetChunkReadSize()
 	else
 	{
 		return m_capacity - m_tailPos;
+	}
+}
+
+/* --------------------------------------------------------
+*	Method:		RingBuffer::AdjustPos
+*	Summary:	adjust position of head and tail.
+*				Used when the remaining space is insufficient
+*				when using the buffer for reading data.
+-------------------------------------------------------- */
+void RingBuffer::AdjustPos()
+{
+	if (m_headPos >= m_tailPos)
+	{
+		int dataSize = GetDataSize();
+		if (m_headPos == m_tailPos)
+		{
+			m_headPos = 0;
+			m_tailPos = 0;
+		}
+		else if(GetChunkWriteSize() < m_capacity / 3)
+		{
+			::memcpy(&m_buffer[0], &m_buffer[m_tailPos], dataSize);
+			m_tailPos = 0;
+			m_headPos = dataSize;
+		}
+	}
+	else
+	{
+		int rDataSize = m_capacity - m_tailPos;
+		int lDataSize = m_headPos;
+
+		::memcpy(&m_buffer[rDataSize], &m_buffer[0], lDataSize);
+		::memcpy(&m_buffer[0], &m_buffer[m_tailPos], rDataSize);
+
+		m_tailPos = 0;
+		m_headPos = rDataSize + lDataSize;
 	}
 }
 

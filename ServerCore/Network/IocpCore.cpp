@@ -1,25 +1,44 @@
 #include "IocpCore.h"
 #include "IocpEvent.h"
 
+/* --------------------------------------------------------
+*	Method:		IocpCore::IocpCore
+*	Summary:	constructor
+-------------------------------------------------------- */
 IocpCore::IocpCore()
 	: m_iocpHandle(nullptr)
 {
 	CreateIocpHandle();
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpCore::~IocpCore
+*	Summary:	destructor
+-------------------------------------------------------- */
 IocpCore::~IocpCore()
 {
 	::CloseHandle(m_iocpHandle);
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpCore::Register
+*	Summary:	register the iocpObject(client socket) 
+				with completion port
+*	Args:		shared_ptr<IocpObject> iocpObject
+*					iocpObject to register in completion port
+-------------------------------------------------------- */
 bool IocpCore::Register(shared_ptr<IocpObject> iocpObject)
 {
-	if (::CreateIoCompletionPort(iocpObject->GetHandle(), m_iocpHandle, /*key*/0, 0) == NULL)
-		return false;
-
-	return true;
+	return ::CreateIoCompletionPort(iocpObject->GetHandle(), m_iocpHandle, /*key*/0, 0) != NULL;
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpCore::Dispatch
+*	Summary:	Worker Thread check and dispatch work 
+				using GetQueuedCompletionStatus
+*	Args:		unsigned int timeOutMs
+*					set wait time limit
+-------------------------------------------------------- */
 bool IocpCore::Dispatch(unsigned int timeOutMs)
 {
 	DWORD bytesTransferred = 0;
@@ -50,6 +69,10 @@ bool IocpCore::Dispatch(unsigned int timeOutMs)
 	return true;
 }
 
+/* --------------------------------------------------------
+*	Method:		IocpCore::CreateIocpHandle
+*	Summary:	create completion port
+-------------------------------------------------------- */
 void IocpCore::CreateIocpHandle()
 {
 	m_iocpHandle = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);

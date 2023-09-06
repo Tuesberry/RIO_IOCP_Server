@@ -4,10 +4,8 @@
 
 #include "RioCommon.h"
 #include "SockAddress.h"
-#include "SendBuffer.h"
+#include "NetBuffer.h"
 #include "RioEvent.h"
-
-#include "RioSendBuffer.h"
 
 class RioBuffer;
 class RioCore;
@@ -24,7 +22,7 @@ public:
 	RioSession(RioSession&& other) = delete;
 	RioSession& operator=(const RioSession& other) = delete;
 	RioSession& operator=(RioSession&& other) = delete;
-	~RioSession();
+	virtual ~RioSession();
 
 	// get
 	SOCKET& GetSocket() { return m_socket; }
@@ -42,15 +40,13 @@ public:
 
 	// networking
 	void Disconnect();
-	void Send(shared_ptr<SendBuffer> sendBuffer);
+	void Send(shared_ptr<NetBuffer> sendBuffer);
 
 	// dispatch
 	void Dispatch(RioEvent* rioEvent, int bytesTransferred = 0);
 
 	// DeferredSend & Commit
 	bool SendDeferred();
-	bool SendDeferredSG();
-
 	void SendCommit();
 
 public:
@@ -64,7 +60,7 @@ public:
 public:
 	virtual void OnConnected() {}
 	virtual int OnRecv(char* buffer, int len) final;
-	virtual void OnRecvPacket(char* buffer, int len) abstract;
+	virtual void OnRecvPacket(char* buffer, int len){}
 	virtual void OnSend(int len) {}
 	virtual void OnDisconnected() {}
 
@@ -90,10 +86,10 @@ private:
 	RioRecvEvent m_recvEvent;
 
 	// Rio Send
-	queue<shared_ptr<SendBuffer>> m_sendBufQueue;
+	queue<shared_ptr<NetBuffer>> m_sendBufQueue;
 	mutex m_sendQueueLock;
 	atomic<int> m_sendCnt;
-	long int m_lastSendTime;
+	long long m_lastSendTime;
 	
 	// rio Buffer
 	RIO_BUFFERID m_recvBufId;
@@ -101,7 +97,5 @@ private:
 
 	// Data Buffer
 	shared_ptr<RioBuffer> m_recvBuffer;
-	shared_ptr<RioSendBuffer> m_sendBuffer;
-
-public:
+	shared_ptr<RioBuffer> m_sendBuffer;
 };

@@ -1,9 +1,5 @@
 #pragma once
 
-#define RIOIOCP false
-#define SEPCQ false
-#define USE_SG false
-
 enum RioConfig
 {
 	MAX_RIO_RESULT = 256,
@@ -14,7 +10,7 @@ enum RioConfig
 	RECV_BUFF_COUNT = 1,
 	SEND_BUFF_COUNT = 1,
 
-	SEND_LIMIT = 600,
+	SEND_LIMIT = 400,
 	COMMIT_TIME = 20,
 	MAX_POST_CNT = 128,
 };

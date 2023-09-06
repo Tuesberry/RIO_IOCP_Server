@@ -55,7 +55,7 @@ public:
 	~ClientSession();
 
 	virtual void OnConnected() override;
-	virtual void OnRecvPacket(BYTE* buffer, int len) override;
+	virtual void OnRecvPacket(char* buffer, int len) override;
 	virtual void OnSend(int len) override;
 	virtual void OnDisconnected() override;
 

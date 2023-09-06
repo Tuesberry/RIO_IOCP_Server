@@ -24,7 +24,7 @@ void RWLock::ReadLock()
 		for (int i = 0; i < MAX_SPIN_COUNT; i++)
 		{
 			expected = (m_lockFlag.load() & READ_LOCK_MASK);
-			if (m_lockFlag.compare_exchange_weak(expected, expected+1) == true)
+			if (m_lockFlag.compare_exchange_weak(expected, expected+1))
 			{
 				return;
 			}
@@ -71,7 +71,7 @@ void RWLock::WriteLock()
 		for (int i = 0; i < MAX_SPIN_COUNT; i++)
 		{
 			expected = EMPTY_FLAG;
-			if (m_lockFlag.compare_exchange_weak(expected, desired) == true)
+			if (m_lockFlag.compare_exchange_weak(expected, desired))
 			{
 				m_writeCnt++;
 				return;

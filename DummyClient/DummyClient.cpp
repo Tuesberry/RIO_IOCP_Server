@@ -6,6 +6,7 @@
 #include "Session/ClientSession.h"
 #include "Thread/ThreadManager.h"
 #include "Network/SocketCore.h"
+#include "Network/IocpClient.h"
 
 #define START_CLIENT_NUM 2000
 #define STRESS_TEST_THREAD_CNT 1
@@ -17,9 +18,8 @@ int main()
 	shared_ptr<IocpClient> iocpClient = std::make_shared<IocpClient>(
 		std::make_shared<IocpCore>(),
 		std::make_shared<ClientSession>,
-		SockAddress(L"127.0.0.1", 7777),
-		500,
-		1);
+		SockAddress("127.0.0.1", 7777)
+	);
 
 	StressTestClient stressTestClient(iocpClient, START_CLIENT_NUM, ETestMode::NORMAL, STRESS_TEST_THREAD_CNT);
 	stressTestClient.RunClient();

@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -165,13 +165,14 @@
   <ItemGroup>
     <ClInclude Include="CoreCommon.h" />
     <ClInclude Include="CoreGlobal.h" />
-    <ClInclude Include="CoreMacro.h" />
     <ClInclude Include="CoreTLS.h" />
     <ClInclude Include="Job\GlobalQueue.h" />
     <ClInclude Include="Job\Job.h" />
     <ClInclude Include="Job\JobQueue.h" />
-    <ClInclude Include="Memory\MemoryPool.h" />
     <ClInclude Include="Memory\ObjectPool.h" />
+    <ClInclude Include="Network\ServerProxy.h" />
+    <ClInclude Include="Network\IService.h" />
+    <ClInclude Include="Network\NetBuffer.h" />
     <ClInclude Include="Network\IocpClient.h" />
     <ClInclude Include="Network\IocpCommon.h" />
     <ClInclude Include="Network\IocpCore.h" />
@@ -181,25 +182,20 @@
     <ClInclude Include="Network\IocpService.h" />
     <ClInclude Include="Network\IocpSession.h" />
     <ClInclude Include="Network\PacketHeader.h" />
-    <ClInclude Include="Network\RecvBuffer.h" />
     <ClInclude Include="Network\RingBuffer.h" />
-    <ClInclude Include="Network\RioBuffer.h" />
     <ClInclude Include="Network\RioCommon.h" />
     <ClInclude Include="Network\RioCore.h" />
     <ClInclude Include="Network\RioEvent.h" />
-    <ClInclude Include="Network\RioSendBuffer.h" />
+    <ClInclude Include="Network\RioBuffer.h" />
     <ClInclude Include="Network\RioServer.h" />
     <ClInclude Include="Network\RioSession.h" />
-    <ClInclude Include="Network\SendBuffer.h" />
     <ClInclude Include="Network\SockAddress.h" />
     <ClInclude Include="Network\SocketCore.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Thread\RWLock.h" />
     <ClInclude Include="Thread\ThreadManager.h" />
-    <ClInclude Include="Utils\BufferHelper.h" />
     <ClInclude Include="Utils\LockQueue.h" />
     <ClInclude Include="Utils\LockUnorderedSet.h" />
-    <ClInclude Include="Utils\Logger.h" />
     <ClInclude Include="Utils\LockMap.h" />
   </ItemGroup>
   <ItemGroup>
@@ -208,7 +204,7 @@
     <ClCompile Include="CoreTLS.cpp" />
     <ClCompile Include="Job\GlobalQueue.cpp" />
     <ClCompile Include="Job\JobQueue.cpp" />
-    <ClCompile Include="Memory\MemoryPool.cpp" />
+    <ClCompile Include="Network\NetBuffer.cpp" />
     <ClCompile Include="Network\IocpClient.cpp" />
     <ClCompile Include="Network\IocpCore.cpp" />
     <ClCompile Include="Network\IocpEvent.cpp" />
@@ -216,15 +212,12 @@
     <ClCompile Include="Network\IocpServer.cpp" />
     <ClCompile Include="Network\IocpService.cpp" />
     <ClCompile Include="Network\IocpSession.cpp" />
-    <ClCompile Include="Network\RecvBuffer.cpp" />
     <ClCompile Include="Network\RingBuffer.cpp" />
-    <ClCompile Include="Network\RioBuffer.cpp" />
     <ClCompile Include="Network\RioCore.cpp" />
     <ClCompile Include="Network\RioEvent.cpp" />
-    <ClCompile Include="Network\RioSendBuffer.cpp" />
+    <ClCompile Include="Network\RioBuffer.cpp" />
     <ClCompile Include="Network\RioServer.cpp" />
     <ClCompile Include="Network\RioSession.cpp" />
-    <ClCompile Include="Network\SendBuffer.cpp" />
     <ClCompile Include="Network\SockAddress.cpp" />
     <ClCompile Include="Network\SocketCore.cpp" />
     <ClCompile Include="Common.cpp">
@@ -233,10 +226,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Network\ServerProxy.cpp" />
     <ClCompile Include="Thread\RWLock.cpp" />
     <ClCompile Include="Thread\ThreadManager.cpp" />
-    <ClCompile Include="Utils\BufferHelper.cpp" />
-    <ClCompile Include="Utils\Logger.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

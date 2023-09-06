@@ -1,34 +1,37 @@
 #pragma once
+
 #include "Common.h"
+
 #include "SockAddress.h"
+#include "IService.h"
 
 class IocpSession;
 class IocpCore;
 
-/* ----------------------------
-*		ServiceType
----------------------------- */
+/* --------------------------------------------------------
+*	class:		ServiceType
+*	Summary:	iocp service type
+-------------------------------------------------------- */
 enum class ServiceType
 {
 	SERVER,
 	CLIENT
 };
 
-/* ----------------------------
-*		IocpService
----------------------------- */
-using SessionFactory = function<shared_ptr<IocpSession>(void)>;
+using IocpSessionFactory = function<shared_ptr<IocpSession>(void)>;
 
-class IocpService : public enable_shared_from_this<IocpService>
+/* --------------------------------------------------------
+*	class:		IocpService
+*	Summary:	service managed by iocp
+-------------------------------------------------------- */
+class IocpService : public enable_shared_from_this<IocpService>, public IService
 {
 public:
 	IocpService(
 		ServiceType serviceType,
 		shared_ptr<IocpCore> iocpCore,
-		SessionFactory sessionFactory,
-		SockAddress address,
-		int maxSessionCnt,
-		int multipleThreadNum = 1
+		IocpSessionFactory sessionFactory,
+		SockAddress address
 	);
 
 	IocpService() = delete;
@@ -47,31 +50,28 @@ public:
 	// get method
 	shared_ptr<IocpCore> GetIocpCore() { return m_iocpCore; }
 	SockAddress GetAddress() { return m_address; }
-	int GetMaxSessionCnt() { return m_maxSessionCnt; }
 	ServiceType GetServiceType() { return m_serviceType; }
 	int GetConnectCnt() { return m_sessionCnt; }
 	int GetThreadCnt() { return m_threadCnt; }
 
-	// start
+	// start & stop
 	bool IsStart() { return m_bStart; }
 	bool CanStart() { return m_sessionFactory != nullptr; }
-	virtual bool Start() abstract;
-
-	// stop
-	virtual bool StopService();
+	
+	virtual bool Start(function<void()> logicFunc) override { return false; }
+	virtual bool Stop() override { return false; }
 
 protected:
 	// service type
 	ServiceType m_serviceType;
 
 	// session
-	SessionFactory m_sessionFactory;
+	IocpSessionFactory m_sessionFactory;
 	set<shared_ptr<IocpSession>> m_serverSessions;
 	mutex m_sessionLock;
-	int m_maxSessionCnt;
 	atomic<int> m_sessionCnt;
 
-	// iocp core
+	// iocp core 
 	shared_ptr<IocpCore> m_iocpCore;
 
 	// address

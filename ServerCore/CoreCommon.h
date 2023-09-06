@@ -32,6 +32,5 @@ using namespace chrono;
 
 #include "CoreTLS.h"
 #include "CoreGlobal.h"
-#include "CoreMacro.h"
 
 void HandleError(const char* cause);

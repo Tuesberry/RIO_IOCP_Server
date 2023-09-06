@@ -5,40 +5,22 @@
 #include "Memory/ObjectPool.h"
 
 class RioSession;
-class RioCore;
 
-/* ----------------------------
-*		RioCQEvent
----------------------------- */
-
-class RioCQEvent : public OVERLAPPED
-{
-public:
-	RioCQEvent() = default;
-	RioCQEvent(const RioCQEvent& other) = delete;
-	RioCQEvent(RioCQEvent&& other) = delete;
-	RioCQEvent& operator=(const RioCQEvent& other) = delete;
-	RioCQEvent& operator=(RioCQEvent&& other) = delete;
-	~RioCQEvent() = default;
-
-public:
-	shared_ptr<RioCore> m_ownerCore;
-};
-
-/* ----------------------------
-*		RIO_IO_TYPE
----------------------------- */
-
+/* --------------------------------------------------------
+*	class:		RIO_IO_TYPE
+*	Summary:	IO Type used by RIO
+-------------------------------------------------------- */
 enum class RIO_IO_TYPE
 {
 	RECV,
 	SEND
 };
 
-/* ----------------------------
-*		RioEvent
----------------------------- */
-
+/* --------------------------------------------------------
+*	class:		RioEvent
+*	Summary:	Inherit the Poolable<RioEvent> and RIO_BUF.
+*				It contains pointer about the owner.
+-------------------------------------------------------- */
 class RioEvent : public Poolable<RioEvent>, public RIO_BUF
 {
 public:
@@ -55,10 +37,10 @@ public:
 	RIO_IO_TYPE m_ioType;
 };
 
-/* ----------------------------
-*		RioSendEvent
----------------------------- */
-
+/* --------------------------------------------------------
+*	class:		RioSendEvent
+*	Summary:	Event for send request
+-------------------------------------------------------- */
 class RioSendEvent : public RioEvent
 {
 public:
@@ -70,10 +52,10 @@ public:
 	~RioSendEvent() = default;
 };
 
-/* ----------------------------
-*		RioRecvEvent
----------------------------- */
-
+/* --------------------------------------------------------
+*	class:		RioRecvEvent
+*	Summary:	Event for recv request
+-------------------------------------------------------- */
 class RioRecvEvent : public RioEvent
 {
 public:

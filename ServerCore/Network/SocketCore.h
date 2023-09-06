@@ -1,15 +1,16 @@
 #pragma once
+
 #include "Common.h"
 #include "SockAddress.h"
 
-/* ----------------------------
-*	SocketCore
----------------------------- */
-
+/* --------------------------------------------------------
+*	class:		SocketCore
+*	Summary:	SocketUtil Class
+-------------------------------------------------------- */
 class SocketCore
 {
 public:
-	SocketCore();
+	SocketCore() = default;
 	SocketCore(const SocketCore& other) = delete;
 	SocketCore(SocketCore&& other) = delete;
 	SocketCore& operator=(const SocketCore& other) = delete;
@@ -40,8 +41,8 @@ public:
 	// set socket option
 	static bool SetNodelay(SOCKET socket, bool optVal);
 	static bool SetLinger(SOCKET socket, bool optVal, int time);
-	static bool SetSendBufSiz(SOCKET socket, int size);
-	static bool SetRecvBufSiz(SOCKET socket, int size);
+	static bool SetSendBufSize(SOCKET socket, int size);
+	static bool SetRecvBufSize(SOCKET socket, int size);
 	static bool SetReuseAddr(SOCKET socket, bool optVal);
 	static bool SetUpdateAcceptSocket(SOCKET socket, SOCKET listenSocket);
 
@@ -60,7 +61,4 @@ public:
 
 	//rio
 	static RIO_EXTENSION_FUNCTION_TABLE RIO;
-
-private:
-	SOCKET m_socket;
 };

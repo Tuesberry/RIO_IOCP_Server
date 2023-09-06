@@ -1,11 +1,17 @@
 #pragma once
+
 #include "Common.h"
+
 #include "IocpCore.h"
 #include "SockAddress.h"
 
 class AcceptEvent;
 class IocpServer;
 
+/* --------------------------------------------------------
+*	class:		IocpListener
+*	Summary:	listener managed by iocp core
+-------------------------------------------------------- */
 class IocpListener : public IocpObject
 {
 public:

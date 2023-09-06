@@ -28,9 +28,6 @@
     <Filter Include="Header Files\Utils">
       <UniqueIdentifier>{8bef0fc7-bcae-466f-8101-11cc234c851a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Utils">
-      <UniqueIdentifier>{da022053-f8a1-49bd-b454-267ad40d63e8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Thread">
       <UniqueIdentifier>{8ce02b9b-6c16-4a98-ae4e-604096334575}</UniqueIdentifier>
     </Filter>
@@ -39,9 +36,6 @@
     </Filter>
     <Filter Include="Header Files\Memory">
       <UniqueIdentifier>{13c3d166-63e3-47a0-8c2a-dedd4cee12d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Memory">
-      <UniqueIdentifier>{a2bf0775-b269-4705-8de7-017a58b623cb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Job">
       <UniqueIdentifier>{7c136b24-5508-43d9-83dc-7fa7fb0dfc9c}</UniqueIdentifier>
@@ -78,20 +72,11 @@
     <ClInclude Include="Network\IocpServer.h">
       <Filter>Header Files\Network\IOCP</Filter>
     </ClInclude>
-    <ClInclude Include="Network\RecvBuffer.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
     <ClInclude Include="Network\IocpService.h">
       <Filter>Header Files\Network\IOCP</Filter>
     </ClInclude>
     <ClInclude Include="Network\IocpClient.h">
       <Filter>Header Files\Network\IOCP</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\SendBuffer.h">
-      <Filter>Header Files\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\BufferHelper.h">
-      <Filter>Header Files\Utils</Filter>
     </ClInclude>
     <ClInclude Include="Network\RioCore.h">
       <Filter>Header Files\Network\RIO</Filter>
@@ -100,9 +85,6 @@
       <Filter>Header Files\Network\RIO</Filter>
     </ClInclude>
     <ClInclude Include="Network\RioEvent.h">
-      <Filter>Header Files\Network\RIO</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\RioBuffer.h">
       <Filter>Header Files\Network\RIO</Filter>
     </ClInclude>
     <ClInclude Include="Thread\RWLock.h">
@@ -117,19 +99,13 @@
     <ClInclude Include="Utils\LockUnorderedSet.h">
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\Logger.h">
-      <Filter>Header Files\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="Network\RingBuffer.h">
       <Filter>Header Files\Network</Filter>
     </ClInclude>
-    <ClInclude Include="Network\RioSendBuffer.h">
+    <ClInclude Include="Network\RioBuffer.h">
       <Filter>Header Files\Network\RIO</Filter>
     </ClInclude>
     <ClInclude Include="Memory\ObjectPool.h">
-      <Filter>Header Files\Memory</Filter>
-    </ClInclude>
-    <ClInclude Include="Memory\MemoryPool.h">
       <Filter>Header Files\Memory</Filter>
     </ClInclude>
     <ClInclude Include="Utils\LockMap.h">
@@ -159,11 +135,17 @@
     <ClInclude Include="CoreTLS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CoreMacro.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Network\IocpCommon.h">
       <Filter>Header Files\Network\IOCP</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\NetBuffer.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\IService.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\ServerProxy.h">
+      <Filter>Header Files\Network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -194,20 +176,11 @@
     <ClCompile Include="Network\IocpServer.cpp">
       <Filter>Source Files\Network\IOCP</Filter>
     </ClCompile>
-    <ClCompile Include="Network\RecvBuffer.cpp">
-      <Filter>Source Files\Network</Filter>
-    </ClCompile>
     <ClCompile Include="Network\IocpService.cpp">
       <Filter>Source Files\Network\IOCP</Filter>
     </ClCompile>
     <ClCompile Include="Network\IocpClient.cpp">
       <Filter>Source Files\Network\IOCP</Filter>
-    </ClCompile>
-    <ClCompile Include="Network\SendBuffer.cpp">
-      <Filter>Source Files\Network</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils\BufferHelper.cpp">
-      <Filter>Source Files\Utils</Filter>
     </ClCompile>
     <ClCompile Include="Network\RioCore.cpp">
       <Filter>Source Files\Network\RIO</Filter>
@@ -221,26 +194,17 @@
     <ClCompile Include="Network\RioEvent.cpp">
       <Filter>Source Files\Network\RIO</Filter>
     </ClCompile>
-    <ClCompile Include="Network\RioBuffer.cpp">
-      <Filter>Source Files\Network\RIO</Filter>
-    </ClCompile>
     <ClCompile Include="Thread\RWLock.cpp">
       <Filter>Source Files\Thread</Filter>
     </ClCompile>
     <ClCompile Include="Thread\ThreadManager.cpp">
       <Filter>Source Files\Thread</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\Logger.cpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="Network\RingBuffer.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
-    <ClCompile Include="Network\RioSendBuffer.cpp">
+    <ClCompile Include="Network\RioBuffer.cpp">
       <Filter>Source Files\Network\RIO</Filter>
-    </ClCompile>
-    <ClCompile Include="Memory\MemoryPool.cpp">
-      <Filter>Source Files\Memory</Filter>
     </ClCompile>
     <ClCompile Include="Job\JobQueue.cpp">
       <Filter>Source Files\Job</Filter>
@@ -253,6 +217,12 @@
     </ClCompile>
     <ClCompile Include="CoreTLS.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\NetBuffer.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\ServerProxy.cpp">
+      <Filter>Source Files\Network</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

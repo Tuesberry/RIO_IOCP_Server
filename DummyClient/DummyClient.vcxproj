@@ -21,7 +21,8 @@
   <ItemGroup>
     <ClInclude Include="DummyClientCommon.h" />
     <ClInclude Include="Protocol\Protocol.pb.h" />
-    <ClInclude Include="Session\ClientPacketHandler.h" />
+    <ClInclude Include="Protocol\ProtoId.h" />
+    <ClInclude Include="Session\PacketHandler.h" />
     <ClInclude Include="Session\ClientSession.h" />
     <ClInclude Include="StressTest\DelayManager.h" />
     <ClInclude Include="StressTest\StressTestClient.h" />
@@ -30,7 +31,7 @@
   <ItemGroup>
     <ClCompile Include="DummyClient.cpp" />
     <ClCompile Include="Protocol\Protocol.pb.cc" />
-    <ClCompile Include="Session\ClientPacketHandler.cpp" />
+    <ClCompile Include="Session\PacketHandler.cpp" />
     <ClCompile Include="Session\ClientSession.cpp" />
     <ClCompile Include="StressTest\DelayManager.cpp" />
     <ClCompile Include="StressTest\StressTestClient.cpp" />
@@ -60,13 +61,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

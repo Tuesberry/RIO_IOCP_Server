@@ -29,7 +29,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Session\ClientPacketHandler.h">
+    <ClInclude Include="Session\PacketHandler.h">
       <Filter>Header Files\Session</Filter>
     </ClInclude>
     <ClInclude Include="Session\ClientSession.h">
@@ -50,9 +50,12 @@
     <ClInclude Include="Protocol\Protocol.pb.h">
       <Filter>Header Files\Protocol</Filter>
     </ClInclude>
+    <ClInclude Include="Protocol\ProtoId.h">
+      <Filter>Header Files\Protocol</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Session\ClientPacketHandler.cpp">
+    <ClCompile Include="Session\PacketHandler.cpp">
       <Filter>Source Files\Session</Filter>
     </ClCompile>
     <ClCompile Include="Session\ClientSession.cpp">

@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Contents">
+      <UniqueIdentifier>{c0a1fb5b-3871-40d2-8343-3b7970273368}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Protocol">
+      <UniqueIdentifier>{977df984-b5c8-4c3b-bbee-1f9f3bcc84ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Session">
+      <UniqueIdentifier>{0f22836d-56bd-46fa-809c-a204951efca8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Contents">
+      <UniqueIdentifier>{13bd3a61-0f55-485d-b15d-095209a611b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Session">
+      <UniqueIdentifier>{71f03bf7-5c85-436d-bda3-e0016a288b12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Protocol">
+      <UniqueIdentifier>{fcbd8b39-e0b4-4dc1-b4b7-2fe7b19033bf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Contents\Player.cpp">
+      <Filter>Source Files\Contents</Filter>
+    </ClCompile>
+    <ClCompile Include="Contents\Room.cpp">
+      <Filter>Source Files\Contents</Filter>
+    </ClCompile>
+    <ClCompile Include="Contents\Sector.cpp">
+      <Filter>Source Files\Contents</Filter>
+    </ClCompile>
+    <ClCompile Include="Contents\Zone.cpp">
+      <Filter>Source Files\Contents</Filter>
+    </ClCompile>
+    <ClCompile Include="Session\RioServerSession.cpp">
+      <Filter>Source Files\Session</Filter>
+    </ClCompile>
+    <ClCompile Include="Session\PacketHandler.cpp">
+      <Filter>Source Files\Session</Filter>
+    </ClCompile>
+    <ClCompile Include="Protocol\Protocol.pb.cc">
+      <Filter>Source Files\Protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="Session\IocpServerSession.cpp">
+      <Filter>Source Files\Session</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Contents\Player.h">
+      <Filter>Header Files\Contents</Filter>
+    </ClInclude>
+    <ClInclude Include="Contents\Room.h">
+      <Filter>Header Files\Contents</Filter>
+    </ClInclude>
+    <ClInclude Include="Contents\Sector.h">
+      <Filter>Header Files\Contents</Filter>
+    </ClInclude>
+    <ClInclude Include="Contents\Zone.h">
+      <Filter>Header Files\Contents</Filter>
+    </ClInclude>
+    <ClInclude Include="Session\RioServerSession.h">
+      <Filter>Header Files\Session</Filter>
+    </ClInclude>
+    <ClInclude Include="Session\PacketHandler.h">
+      <Filter>Header Files\Session</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocol\Protocol.pb.h">
+      <Filter>Header Files\Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocol\ProtoId.h">
+      <Filter>Header Files\Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Session\IocpServerSession.h">
+      <Filter>Header Files\Session</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

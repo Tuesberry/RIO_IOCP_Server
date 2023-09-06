@@ -1,20 +1,20 @@
 #pragma once
+
 #include "Common.h"
+
 #include "IocpService.h"
 
-/* ----------------------------
-*		IocpClient
----------------------------- */
-
+/* --------------------------------------------------------
+*	class:		IocpClient
+*	Summary:	client managed by IOCP
+-------------------------------------------------------- */
 class IocpClient : public IocpService
 {
 public:
 	IocpClient(
 		shared_ptr<IocpCore> iocpCore,
-		SessionFactory sessionFactory,
-		SockAddress connectAddress,
-		int maxSessionCnt,
-		int multipleThreadNum = 1
+		IocpSessionFactory sessionFactory,
+		SockAddress connectAddress
 	);
 
 	IocpClient() = delete;
@@ -22,18 +22,13 @@ public:
 	IocpClient(IocpClient&& other) = delete;
 	IocpClient& operator=(const IocpClient& other) = delete;
 	IocpClient& operator=(IocpClient&& other) = delete;
-	~IocpClient();
+	virtual ~IocpClient();
+	
+	virtual bool Start(function<void()> logicFunc) override;
+	virtual bool Stop() override;
 
-	// Client
-	virtual bool Start() override;
-	virtual bool StopService() override;
-
-	bool RunClient(function<void(void)> clientWork);
-
-	// Session Connect & Disconnect
 	bool ConnectNewSession();
-	bool DisconnectSession();
 
-	// Session Access
-	set<shared_ptr<IocpSession>>& GetSessions() { return m_serverSessions; }
+private:
+	bool RunClient(function<void(void)> clientWork);
 };

@@ -2,8 +2,7 @@
 
 #include "Common.h"
 
-#include "Network/IocpClient.h"
-#include "../Session/ClientPacketHandler.h"
+#include "../Session/PacketHandler.h"
 #include "Thread/RWLock.h"
 
 /* --------------------------------------------------------
@@ -17,11 +16,12 @@ enum class ETestMode
 	INCREASE
 };
 
+class IocpClient;
+
 /* --------------------------------------------------------
 *	class:		StressTestClient
 *	Summary:	client for stress test
 -------------------------------------------------------- */
-
 class StressTestClient
 {
 	enum

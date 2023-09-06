@@ -1,3 +1,6 @@
 #pragma once
 
-#define BUFSIZE 65536
+enum IocpConfig
+{
+	BUFSIZE = 65536
+};

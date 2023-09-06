@@ -22,7 +22,9 @@ public:
 	{
 		WriteLockGuard lock(m_rwLock);
 		if (m_queue.empty())
+		{
 			return T();
+		}
 
 		T ret = m_queue.front();
 		m_queue.pop();

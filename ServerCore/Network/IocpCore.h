@@ -1,12 +1,13 @@
 #pragma once
+
 #include "Common.h"
 
 class IocpEvent;
 
-/* ----------------------------
-*		IocpObject
----------------------------- */
-
+/* --------------------------------------------------------
+*	class:		IocpObject
+*	Summary:	Objects managed by iocp core 
+-------------------------------------------------------- */
 class IocpObject : public enable_shared_from_this<IocpObject>
 {
 public:
@@ -14,10 +15,11 @@ public:
 	virtual void Dispatch(IocpEvent* iocpEvent, int bytesTransferred = 0) abstract;
 };
 
-/* ----------------------------
-*		IocpCore
----------------------------- */
-
+/* --------------------------------------------------------
+*	class:		IocpCore
+*	Summary:	The core of IOCP.
+				It's the class responsible for completion port
+-------------------------------------------------------- */
 class IocpCore
 {
 public:

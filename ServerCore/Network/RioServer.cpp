@@ -18,9 +18,6 @@ RioServer::RioServer(RIOSessionFactory sessionFactory, SockAddress address)
 	, m_coreCnt(0)
 	, m_currAllocCoreNum(0)
 	, m_jobQueueLogicFunc(nullptr)
-#if RIOIOCP
-	, m_iocpHandle(nullptr)
-#endif
 {
 }
 
@@ -30,21 +27,36 @@ RioServer::RioServer(RIOSessionFactory sessionFactory, SockAddress address)
 -------------------------------------------------------- */
 RioServer::~RioServer()
 {
-#if RIOIOCP
-	// iocp handle close
-	::CloseHandle(m_iocpHandle);
-#endif
-	// socket close
-	SocketCore::Close(m_listener);
+	Stop();
 }
 
 /* --------------------------------------------------------
-*	Method:		RioServer::StopServer
+*	Method:		RioServer::Start
+*	Summary:	start server using logicFunc function
+-------------------------------------------------------- */
+bool RioServer::Start(function<void()> logicFunc)
+{
+	// set jobqueue logic
+	SetJobQueueLogic(logicFunc);
+
+	// init server
+	if (!InitServer())
+	{
+		return false;
+	}
+
+	// run server
+	return RunServer();
+}
+
+/* --------------------------------------------------------
+*	Method:		RioServer::Stop
 *	Summary:	stop server
 -------------------------------------------------------- */
-void RioServer::StopServer()
+bool RioServer::Stop()
 {
-	
+	// socket close
+	return SocketCore::Close(m_listener);
 }
 
 /* --------------------------------------------------------
@@ -54,15 +66,14 @@ void RioServer::StopServer()
 -------------------------------------------------------- */
 bool RioServer::InitServer()
 {
-	if (InitListener() == false)
+	if (!InitListener())
+	{
 		return false;
-#if RIOIOCP
-	if (CreateIocpHandle() == false)
+	}
+	if (!InitCore())
+	{
 		return false;
-#endif
-	if (InitCore() == false)
-		return false;
-	  
+	}
 	return true;
 }
 
@@ -72,16 +83,22 @@ bool RioServer::InitServer()
 -------------------------------------------------------- */
 bool RioServer::RunServer()
 {
-	if (m_bInitListener == false && m_bInitCore == false)
+	if (!m_bInitListener && !m_bInitCore)
+	{
 		return false;
+	}
 
 	// start listener
-	if (StartListener() == false)
+	if (!StartListener())
+	{
 		return false;
+	}
 
 	// start core threads
-	if (StartCoreWork() == false)
+	if (!StartCoreWork())
+	{
 		return false;
+	}
 
 	return true;
 }
@@ -97,15 +114,21 @@ bool RioServer::InitListener()
 	// create socket
 	m_listener = SocketCore::RioSocket();
 	if (m_listener == INVALID_SOCKET)
+	{
 		return false;
+	}
 
 	// set reuseaddr
-	if (SocketCore::SetReuseAddr(m_listener, true) == false)
+	if (!SocketCore::SetReuseAddr(m_listener, true))
+	{
 		return false;
+	}
 
 	// bind
-	if (SocketCore::Bind(m_listener, m_address) == false)
+	if (!SocketCore::Bind(m_listener, m_address))
+	{
 		return false;
+	}
 
 	m_bInitListener = true;
 
@@ -120,15 +143,20 @@ bool RioServer::StartListener()
 {
 	// listen
 	if (SocketCore::Listen(m_listener) == false)
+	{
 		return false;
+	}
 
 	// accept loop
 	gThreadMgr->CreateThread([=]()
 		{
 			while (true)
 			{
-				if (Accept() == false)
+				if (!Accept())
+				{
+					HandleError("RioServer::Accept");
 					break;
+				}
 			}
 		});
 
@@ -192,19 +220,11 @@ bool RioServer::InitCore()
 	for (int i = 0; i < m_coreCnt; i++)
 	{
 		m_rioCores.push_back(make_shared<RioCore>());
-#if RIOIOCP
-		if (m_rioCores[i]->InitRioCore(m_iocpHandle) == false)
+		if(!m_rioCores[i]->InitRioCore())
 		{
 			HandleError("InitRioCore");
 			return false;
 		}
-#else
-		if(m_rioCores[i]->InitRioCore() == false)
-		{
-			HandleError("InitRioCore");
-			return false;
-		}
-#endif
 	}
 
 	// set initCore true
@@ -226,108 +246,14 @@ bool RioServer::StartCoreWork()
 			{
 				while (true)
 				{
-#if RIOIOCP
-					Dispatch();
-#elif SEPCQ
-					m_rioCores[i]->DeferredSend();
-					m_rioCores[i]->DispatchRecv();
-#else
 					m_rioCores[i]->DeferredSend();
 					m_rioCores[i]->Dispatch();
 					if (m_jobQueueLogicFunc != nullptr) 
 					{
 						m_jobQueueLogicFunc();
 					}
-#endif
 				}
 			});
 	}
-
-#if SEPCQ
-	for (int i = 0; i < m_coreCnt; i++)
-	{
-		gThreadMgr.CreateThread([=]()
-			{
-				while (true)
-				{
-					m_rioCores[i]->DispatchSend();
-				}
-			});
-	}
-#endif
-
-#if RIOIOCP
-	// set RioNotify
-	for (auto core : m_rioCores)
-	{
-		core->SetRioNotify();
-	}
-#endif
 	return true;
 }
-
-/* --------------------------------------------------------
-*	Method:		RioServer::Dispatch
-*	Summary:	
--------------------------------------------------------- */
-#if RIOIOCP
-bool RioServer::Dispatch()
-{
-	DWORD bytesTransferred = 0;
-	ULONG_PTR key = 0;
-	RioCQEvent* rioCQEvent = nullptr;
-
-	BOOL retVal = ::GetQueuedCompletionStatus(m_iocpHandle, &bytesTransferred, &key, reinterpret_cast<LPOVERLAPPED*>(&rioCQEvent), INFINITE);
-
-	if (retVal == TRUE)
-	{
-		shared_ptr<RioCore> rioCore = rioCQEvent->m_ownerCore;
-#if SEPCQ
-		rioCore->DispatchRecv();
-		rioCore->DeferredSend();
-#else
-		rioCore->Dispatch();
-		rioCore->DeferredSend();
-#endif
-	}
-	else
-	{
-		int errCode = ::WSAGetLastError();
-		switch (errCode)
-		{
-		case WAIT_TIMEOUT:
-			HandleError("WAIT_TIMEOUT");
-			return false;
-		default:
-			shared_ptr<RioCore> rioCore = rioCQEvent->m_ownerCore;
-#if SEPCQ
-			rioCore->DispatchRecv();
-			rioCore->DeferredSend();
-#else
-			rioCore->Dispatch();
-			rioCore->DeferredSend();
-#endif			
-			break;
-		}
-	}
-
-	return true;
-}
-
-/* --------------------------------------------------------
-*	Method:		RioServer::CreateIocpHandle
-*	Summary:	create I/O Completion Port
--------------------------------------------------------- */
-bool RioServer::CreateIocpHandle()
-{
-	m_iocpHandle = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
-	
-	if (m_iocpHandle == nullptr)
-	{
-		HandleError("CreateIocpHandle");
-		return false;
-	}
-	
-	return true;
-}
-#endif

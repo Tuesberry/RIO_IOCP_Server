@@ -1,5 +1,5 @@
 #include "ClientSession.h"
-#include "ClientPacketHandler.h"
+#include "PacketHandler.h"
 #include "Network/IocpService.h"
 #include "Network/IocpClient.h"
 #include "../StressTest/TestSessionManager.h"
@@ -47,14 +47,14 @@ void ClientSession::OnConnected()
 /* --------------------------------------------------------
 *	Method:		ClientSession::OnRecvPacket
 *	Summary:	execute after recv packet
-*	Args:		BYTE* buffer
+*	Args:		char* buffer
 *					recv data buffer
 *				int len
 *					recv data length
 -------------------------------------------------------- */
-void ClientSession::OnRecvPacket(BYTE* buffer, int len)
+void ClientSession::OnRecvPacket(char* buffer, int len)
 {
-	bool result = ClientPacketHandler::HandlePacket(
+	bool result = PacketHandler::HandlePacket(
 		static_pointer_cast<ClientSession>(shared_from_this()), buffer, len);
 
 	if (result == false)
@@ -101,8 +101,8 @@ void ClientSession::SendLogin()
 
 	pkt.set_login_time(duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count());
 	
-	shared_ptr<SendBuffer> sendBuffer = ClientPacketHandler::CreateSendBuffer(pkt);
-	Send(sendBuffer);
+	shared_ptr<NetBuffer> NetBuffer = PacketHandler::CreateNetBuffer(pkt);
+	Send(NetBuffer);
 }
 
 /* --------------------------------------------------------
@@ -135,8 +135,8 @@ void ClientSession::SendMove()
 
 	pkt.set_time_stamp(duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count());
 
-	shared_ptr<SendBuffer> sendBuffer = ClientPacketHandler::CreateSendBuffer(pkt);
-	Send(sendBuffer);
+	shared_ptr<NetBuffer> NetBuffer = PacketHandler::CreateNetBuffer(pkt);
+	Send(NetBuffer);
 }
 
 void MoveComponent::Update(float deltaTime)

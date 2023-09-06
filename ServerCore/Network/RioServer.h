@@ -4,6 +4,7 @@
 #include "RioCommon.h"
 
 #include "SockAddress.h"
+#include "IService.h"
 
 class RioCore;
 class RioSession;
@@ -18,7 +19,7 @@ using JobQueueLogicFunc = function<void(void)>;
 *	class:		RioServer
 *	Summary:	registered i/o server
 -------------------------------------------------------- */
-class RioServer
+class RioServer : public enable_shared_from_this<RioServer>, public IService
 {
 public:
 	RioServer(RIOSessionFactory sessionFactory, SockAddress address);
@@ -28,12 +29,15 @@ public:
 	RioServer(RioServer&& other) = delete;
 	RioServer& operator=(const RioServer& other) = delete;
 	RioServer& operator=(RioServer&& other) = delete;
-	~RioServer();
+	virtual ~RioServer();
+
+	virtual bool Start(function<void()> logicFunc) override;
+	virtual bool Stop() override;
+	virtual shared_ptr<IService> GetService() { return shared_from_this(); }
 
 	// server running
 	bool InitServer();
 	bool RunServer();
-	void StopServer();
 
 	// jobqueue logic
 	void SetJobQueueLogic(JobQueueLogicFunc func) { m_jobQueueLogicFunc = func; }
@@ -50,10 +54,6 @@ private:
 	// rioCore
 	bool InitCore();
 	bool StartCoreWork();
-
-	// iocp
-	bool Dispatch();
-	bool CreateIocpHandle();
 
 private:
 	// Session 
@@ -73,8 +73,4 @@ private:
 
 	// JobQueue Logic
 	JobQueueLogicFunc m_jobQueueLogicFunc;
-
-#if RIOIOCP
-	HANDLE m_iocpHandle;
-#endif // RIOIOCP
 };
