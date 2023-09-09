@@ -108,10 +108,14 @@ void StressTestClient::DisconnectFromServer(int idx)
 	{
 		sIdx = i * m_threadCnt + idx;
 		if (sIdx >= m_clientNum)
+		{
 			break;
+		}
 
 		if ((duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - m_sendTime[sIdx]) < PACKET_SEND_DURATION)
+		{
 			continue;
+		}
 
 		m_sendTime[sIdx] = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
 		gTestSessionMgr.Disconnect(sIdx+1);
@@ -126,8 +130,10 @@ void StressTestClient::DisconnectFromServer(int idx)
 ------------------------------------------------------- */
 bool StressTestClient::SendToServer(int idx)
 {
-	if (m_bRunClient == false)
+	if (!m_bRunClient)
+	{
 		return false;
+	}
 
 	int sIdx = 0;
 	
@@ -135,10 +141,14 @@ bool StressTestClient::SendToServer(int idx)
 	{
 		sIdx = i * m_threadCnt + idx;
 		if (sIdx >= m_clientNum)
+		{
 			break;
+		}
 
 		if ((duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - m_sendTime[sIdx]) < PACKET_SEND_DURATION)
+		{
 			continue;
+		}
 
 		m_sendTime[sIdx] = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
 		gTestSessionMgr.SendPacket(sIdx+1);

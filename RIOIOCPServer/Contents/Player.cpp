@@ -83,7 +83,7 @@ void Player::SetInitialPos()
 
 	m_playerInfo.x = Room::MAP_MIN_X + xDist(mt);
 	m_playerInfo.y = Room::MAP_MIN_Y + yDist(mt);
-	m_playerInfo.z = 210.0f;
+	m_playerInfo.z = 200.0f;
 }
 
 /* --------------------------------------------------------

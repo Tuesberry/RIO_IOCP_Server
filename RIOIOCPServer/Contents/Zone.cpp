@@ -91,7 +91,8 @@ void Zone::MovePlayer(shared_ptr<Player> player)
 			if (player->IsExistInViewList(target->m_playerId))
 			{
 				// send move
-				SendMove(player, target);
+				// Player에게 target의 이동 정보를 전송하는 것
+				// SendMove(player, target);
 			}
 			else 
 			{

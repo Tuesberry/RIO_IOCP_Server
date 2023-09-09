@@ -34,7 +34,8 @@ public:
 	~MoveComponent() = default;
 
 	PositionInfo m_positionInfo;
-	float m_speed = 600.0f;
+
+	float m_speed = 300.0f;
 
 	void Update(float deltaTime);
 

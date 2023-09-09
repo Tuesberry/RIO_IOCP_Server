@@ -141,11 +141,11 @@ void ClientSession::SendMove()
 
 void MoveComponent::Update(float deltaTime)
 {
+	// update position using current velocity
+	UpdateNewPosition(deltaTime);
+
 	// update direction & velocity
 	UpdateVelocityByNewDirection();
-
-	// update position
-	UpdateNewPosition(deltaTime);
 }
 
 pair<int, int> MoveComponent::GetNewDirection()
