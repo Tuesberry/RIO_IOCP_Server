@@ -83,7 +83,7 @@ virtual void OnDisconnected(){}
 * SessionFactory : 세션 팩토리 함수
 
 #### 서버 실행 : Start
-JobQueue 사용여부 인자로 넘겨준다. 사용을 원하면 true, 원하지 않는다면 false
+JobQueue 사용여부를 인자로 넘겨준다. 사용을 원하면 true, 원하지 않는다면 false
 
 ```cpp
 int main()
