@@ -8,7 +8,7 @@
 #include "Network/SocketCore.h"
 #include "Network/IocpClient.h"
 
-#define START_CLIENT_NUM 200
+#define START_CLIENT_NUM 1000
 #define STRESS_TEST_THREAD_CNT 1
 
 int main()

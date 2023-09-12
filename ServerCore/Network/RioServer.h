@@ -33,7 +33,6 @@ public:
 
 	virtual bool Start(function<void()> logicFunc) override;
 	virtual bool Stop() override;
-	virtual shared_ptr<IService> GetService() { return shared_from_this(); }
 
 	// server running
 	bool InitServer();
