@@ -48,6 +48,8 @@ public:
 		m_queue = queue<T>();
 	}
 
+	int GetSize() { return m_queue.size(); }
+
 private:
 	RWLock m_rwLock;
 	queue<T> m_queue;

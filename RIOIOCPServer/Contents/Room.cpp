@@ -24,6 +24,7 @@ Room::Room()
 		for (int j = 0; j < MAP_WIDTH / ZONE_WIDTH; j++)
 		{
 			v.push_back(make_shared<Zone>(i, j));
+			cout << i << " " << j << " CreateZone\n";
 		}
 		m_zones.push_back(v);
 	}

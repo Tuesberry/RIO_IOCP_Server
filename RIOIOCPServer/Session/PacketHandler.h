@@ -112,7 +112,7 @@ bool PacketHandler<ServerSession>::Handle_LOGIN(shared_ptr<ServerSession>session
 	session->m_loginTime = pkt.login_time();
 
 	// ·Î±×
-	cout << "Recv Login | " << session->m_sessionId << endl;
+	// cout << "Recv Login | " << session->m_sessionId << endl;
 
 	// create new player
 	shared_ptr<Player> player = make_shared<Player>(session->m_sessionId, session);
@@ -122,7 +122,8 @@ bool PacketHandler<ServerSession>::Handle_LOGIN(shared_ptr<ServerSession>session
 	player->m_playerInfo.playerId = pkt.player_id();
 
 	// login
-	gRoom->DoAsync(&Room::Login, player);
+	//gRoom->DoAsync(&Room::Login, player);
+	gRoom->Login(player);
 
 	return true;
 }

@@ -270,7 +270,7 @@ void StressTestClient::StartIncreaseMode()
 		while (m_bRunClient)
 		{
 			int workingTime = duration_cast<seconds>(high_resolution_clock::now().time_since_epoch()).count() - m_startTime;
-			if (workingTime > STRESS_TEST_TIME_SEC)
+			if (workingTime > STRESS_TEST_DELTA_TIME_SEC)
 			{
 				m_bRunClient = false;
 			}

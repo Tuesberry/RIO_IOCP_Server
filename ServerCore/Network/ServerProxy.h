@@ -26,7 +26,8 @@ class ServerProxy : public IService
 {
 	enum ServerConfig
 	{
-		WORKER_TICK = 64
+		WORKER_TICK = 64,
+		RIO_WORKER_TICK = 90,
 	};
 
 public:

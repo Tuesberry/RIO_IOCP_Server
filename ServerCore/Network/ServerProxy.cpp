@@ -111,12 +111,25 @@ bool ServerProxy::Start(bool useJobQueue)
 		if (useJobQueue)
 		{
 			return rioServer->Start([=]() {
-				shared_ptr<JobQueue> jobQueue = gGlobalQueue->Pop();
-				if (jobQueue == nullptr)
+				if (LEndTickCount == 0)
 				{
-					return;
+					LEndTickCount = ::GetTickCount64() + RIO_WORKER_TICK;
 				}
-				jobQueue->Execute();
+				while (true)
+				{
+					ULONG now = ::GetTickCount64();
+					if (now > LEndTickCount)
+					{
+						break;
+					}
+					shared_ptr<JobQueue> jobQueue = gGlobalQueue->Pop();
+					if (jobQueue == nullptr)
+					{
+						break;
+					}
+					jobQueue->Execute();
+				}
+				LEndTickCount = ::GetTickCount64() + RIO_WORKER_TICK;
 			});
 		}
 		else

@@ -197,6 +197,7 @@
     <ClInclude Include="Utils\LockQueue.h" />
     <ClInclude Include="Utils\LockUnorderedSet.h" />
     <ClInclude Include="Utils\LockMap.h" />
+    <ClInclude Include="Utils\Logger.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreCommon.cpp" />

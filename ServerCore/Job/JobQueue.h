@@ -26,8 +26,16 @@ public:
 
 	void Execute();
 
+	bool IsAllocated() { return m_bAllocated.load(); }
+
+	int GetAllocatedThreadId() { return m_threadId; }
+	void SetAllocatedThreadId(int threadId) { m_threadId.store(threadId); }
+
 private:
 	void Push(shared_ptr<Job>&& job);
+
+	atomic<bool> m_bAllocated = false;
+	atomic<int> m_threadId = -1;
 
 protected:
 	atomic<int> m_jobCount = 0;

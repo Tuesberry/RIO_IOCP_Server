@@ -158,19 +158,19 @@ pair<int, int> MoveComponent::GetNewDirection()
 	int dy = dist(mt);
 	int dx = dist(mt);
 
-	if (m_positionInfo.x < -9900)
+	if (m_positionInfo.x < -19900)
 	{
 		dx = 1;
 	}
-	else if (m_positionInfo.x > 9900)
+	else if (m_positionInfo.x > 19900)
 	{
 		dx = -1;
 	}
-	if (m_positionInfo.y < -9900)
+	if (m_positionInfo.y < -19900)
 	{
 		dy = 1;
 	}
-	else if (m_positionInfo.y > 9900)
+	else if (m_positionInfo.y > 19900)
 	{
 		dy = -1;
 	}

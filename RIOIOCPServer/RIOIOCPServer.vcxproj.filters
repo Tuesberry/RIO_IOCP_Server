@@ -29,9 +29,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Server.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Contents\Player.cpp">
       <Filter>Source Files\Contents</Filter>
     </ClCompile>
@@ -56,6 +53,9 @@
     <ClCompile Include="Session\IocpServerSession.cpp">
       <Filter>Source Files\Session</Filter>
     </ClCompile>
+    <ClCompile Include="Server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Contents\Player.h">
@@ -70,9 +70,6 @@
     <ClInclude Include="Contents\Zone.h">
       <Filter>Header Files\Contents</Filter>
     </ClInclude>
-    <ClInclude Include="Session\RioServerSession.h">
-      <Filter>Header Files\Session</Filter>
-    </ClInclude>
     <ClInclude Include="Session\PacketHandler.h">
       <Filter>Header Files\Session</Filter>
     </ClInclude>
@@ -86,6 +83,9 @@
       <Filter>Header Files\Protocol</Filter>
     </ClInclude>
     <ClInclude Include="Session\IocpServerSession.h">
+      <Filter>Header Files\Session</Filter>
+    </ClInclude>
+    <ClInclude Include="Session\RioServerSession.h">
       <Filter>Header Files\Session</Filter>
     </ClInclude>
   </ItemGroup>

@@ -43,6 +43,7 @@ public:
 
 	// get
 	int GetConnectCnt() { return m_sessionCnt; }
+	int GetCoreCnt() { return m_coreCnt; }
 
 private:
 	// listener

@@ -12,4 +12,4 @@
 
 #include "CoreCommon.h"
 
-#define IOCP
+#define RIO
